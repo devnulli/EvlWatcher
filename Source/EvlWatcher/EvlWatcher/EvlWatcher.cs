@@ -22,7 +22,7 @@ namespace EvlWatcher
 
         private ServiceHost _h;
         private static List<LogTask> _logTasks = new List<LogTask>();
-        private static bool _runasApplication = false;
+        private static bool _runasApplication = true;
         private static bool _verbose = true;
         private static bool _inBan = false;
 
@@ -680,6 +680,7 @@ namespace EvlWatcher
             string source = "EvlWatcher";
             string log = "Application";
 
+            //you must run this as admin for the first time - so that the eventlog source can be created
             if (!EventLog.SourceExists(source))
                 EventLog.CreateEventSource(source, log);
 
