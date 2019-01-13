@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvlWatcher", "EvlWatcher\EvlWatcher.csproj", "{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Debug|Any CPU.Build.0 = Debug|x86
+		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Debug|x86.ActiveCfg = Debug|x86
+		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Debug|x86.Build.0 = Debug|x86
+		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Release|Any CPU.ActiveCfg = Release|x86
+		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Release|Mixed Platforms.Build.0 = Release|x86
+		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Release|x86.ActiveCfg = Release|x86
+		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 2
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://nerderies.visualstudio.com/
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = EvlWatcher\\EvlWatcher.csproj
+		SccProjectName1 = EvlWatcher
+		SccLocalPath1 = EvlWatcher
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,101 @@
+﻿<Window x:Class="EvlWatcherConsole.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:e="clr-namespace:EvlWatcherConsole"
+        Title="EvlWatcher Console v1.4" Height="350" Width="525" Icon="pack://application:,,,/RES/EvlWatcher.ico">
+    <Window.DataContext>
+        <e:EvlWatcherController/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+        </Grid.RowDefinitions>
+        <TabControl>
+            <TabItem Header="List Management">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid Margin="5,5,5,5" Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Label>temporarily banned IPs:</Label>
+                        <ListView Grid.Row="1" SelectedItem="{Binding SelectedTemporaryIP}" IsEnabled="{Binding IsRunning}" ItemsSource="{Binding TemporarilyBannedIPs}">
+
+                        </ListView>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="1" Command="{Binding MoveTemporaryToPermaCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}">
+                                <Image Source="pack://application:,,,/RES/lock_32.ico"></Image>
+                            </Button>
+                            <Button Grid.Column="2" Command="{Binding MoveTemporaryToWhiteListCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}">
+                                <Image Source="pack://application:,,,/RES/lock_open_32.ico"></Image>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                    <Grid Margin="5,5,5,5" Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Label>permanently banned IPs:</Label>
+                        <ListView Grid.Row="1" SelectedItem="{Binding SelectedPermanentIP}" IsEnabled="{Binding IsRunning}" ItemsSource="{Binding PermanentlyBannedIPs}"></ListView>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding PermaBanIPString, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,5,5"></TextBox>
+                            <Button Grid.Column="1" Command="{Binding AddPermaBanCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}">
+                                <Image Source="pack://application:,,,/RES/add_32.ico"></Image>
+                            </Button>
+                            <Button Grid.Column="2" Command="{Binding RemovePermaBanCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}">
+                                <Image Source="pack://application:,,,/RES/close_32.ico"></Image>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                    <Grid Margin="5,5,5,5" Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Label>white-listed IP Patterns:</Label>
+                        <ListView Grid.Row="1" SelectedItem="{Binding SelectedWhiteListPattern}" IsEnabled="{Binding IsRunning}" ItemsSource="{Binding WhiteListedIPs}"></ListView>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding WhiteListFilter, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,5,5"></TextBox>
+                            <Button Grid.Column="1" Command="{Binding AddWhiteListFilterCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}">
+                                <Image Source="pack://application:,,,/RES/add_32.ico"></Image>
+                            </Button>
+                            <Button Grid.Column="2" Command="{Binding RemoveWhiteListFilterCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}">
+                                <Image Source="pack://application:,,,/RES/close_32.ico"></Image>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <StatusBar Grid.Row="1">
+            <StatusBarItem>
+                <Label IsEnabled="{Binding IsRunning}">Service is responding.</Label>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>
