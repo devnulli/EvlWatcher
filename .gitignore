@@ -3,3 +3,8 @@
 ################################################################################
 
 /.vs
+*.suo
+/Source/EvlWatcher/.vs/EvlWatcher/v15/Server/sqlite3
+/Source/EvlWatcher/EvlWatcher/obj/x86
+/Source/EvlWatcherConsole/EvlWatcherConsole/obj/x86
+/Source/EvlWatcher/EvlWatcher/bin/Debug
