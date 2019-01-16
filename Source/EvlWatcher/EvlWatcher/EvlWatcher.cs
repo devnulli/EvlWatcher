@@ -22,7 +22,7 @@ namespace EvlWatcher
 
         private ServiceHost _h;
         private static List<LogTask> _logTasks = new List<LogTask>();
-        private static bool _runasApplication = true;
+        private static readonly bool _runasApplication = true;
         private static bool _verbose = true;
         private static bool _inBan = false;
 
@@ -31,7 +31,7 @@ namespace EvlWatcher
         private static List<IPAddress> _lastPolledTempBans = new List<IPAddress>();
         private static List<IPAddress> _lastBannedIPs = new List<IPAddress>();
 
-        private static object _syncObject = new object();
+        private static readonly object _syncObject = new object();
 
         private volatile bool _stop = false;
 
@@ -163,8 +163,10 @@ namespace EvlWatcher
                 _h.AddServiceEndpoint(typeof(WCF.IEvlWatcherService), new NetNamedPipeBinding(), "EvlWatcher");
                 _h.Open();
 
-                _workerThread = new Thread(new ThreadStart(this.Run));
-                _workerThread.IsBackground = true;
+                _workerThread = new Thread(new ThreadStart(this.Run))
+                {
+                    IsBackground = true
+                };
                 _workerThread.Start();
             }
         }
@@ -473,8 +475,11 @@ namespace EvlWatcher
                             eventTypesToNewEvents.Add(requiredEventType, new List<EventRecord>());
                             eventTypesToTimeFramedEvents.Add(requiredEventType, new List<EventRecord>());
 
-                            var eventLogQuery = new EventLogQuery(requiredEventType, PathType.LogName);
-                            eventLogQuery.ReverseDirection = true;
+                            var eventLogQuery = new EventLogQuery(requiredEventType, PathType.LogName)
+                            {
+                                ReverseDirection = true
+                            };
+
                             try
                             {
                                 var eventLogReader = new EventLogReader(eventLogQuery);
@@ -552,12 +557,12 @@ namespace EvlWatcher
                         //let the tasks poll which ips they want to have blocked / or permanently banned
                         foreach (LogTask t in _logTasks)
                         {
-                            if (t is IPBlockingLogTask)
+                            if (t is IPBlockingLogTask ipTask)
                             {
-                                foreach (IPAddress perma in ((IPBlockingLogTask)t).GetPermaBanVictims())
+                                foreach (IPAddress perma in ipTask.GetPermaBanVictims())
                                     SetPermanentBan(perma);
 
-                                List<IPAddress> blockedIPs = ((IPBlockingLogTask)t).GetTempBanVictims();
+                                List<IPAddress> blockedIPs = ipTask.GetTempBanVictims();
 
                                 if (_verbose)
                                     Dump($"Polled {t.Name} and got {blockedIPs.Count} temporary and {_permaBannedIPs.Count} permanent ban(s)", EventLogEntryType.Information, true);

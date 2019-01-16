@@ -54,7 +54,7 @@
       <Booster>IpAddress</Booster>
     </RegexBoosters>
 
-    <!-- This is the regex that tries to extract an IP from the entries that contain the booster words for more infos see regex101.com-->
+    <!-- This is the regex that tries to extract an IP from the entries that contain the booster words, for testing use regex101.com-->
     <Regex>
       .*.*EventID.4625.*&lt;Data Name=.IpAddress.&gt;(\d*.\d*.\d*.\d*).*&lt;\/Data&gt;
     </Regex>
