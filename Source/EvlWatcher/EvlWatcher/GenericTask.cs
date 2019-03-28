@@ -122,8 +122,7 @@ namespace EvlWatcher
 
                 if(m.Success)
                 {
-                    IPAddress ipAddress;
-                    if (m.Groups.Count == 2 && IPAddress.TryParse(m.Groups[1].Value, out ipAddress))
+                    if (m.Groups.Count == 2 && IPAddress.TryParse(m.Groups[1].Value, out IPAddress ipAddress))
                     {
                         if (!sourceToCount.ContainsKey(ipAddress))
                             sourceToCount.Add(ipAddress, 1);

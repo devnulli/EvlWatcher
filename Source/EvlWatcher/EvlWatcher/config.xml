@@ -33,7 +33,7 @@
       120
     </EventAge>
 
-    <!-- this is the amount of times an entry must occure within the time frame to be considered a brute force attempt-->
+    <!-- this is the amount of times an entry must occur within the time frame to be considered a brute force attempt-->
     <TriggerCount>
       5
     </TriggerCount>
