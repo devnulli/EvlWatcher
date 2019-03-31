@@ -5,6 +5,7 @@ using System.Net;
 
 namespace EvlWatcher.WCF
 {
+    //TODO SWITCH TO RESTFUL BACKEND
     [ServiceContract]
     public interface IEvlWatcherService
     {

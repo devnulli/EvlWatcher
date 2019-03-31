@@ -8,3 +8,4 @@
 /Source/EvlWatcher/EvlWatcher/obj/x86
 /Source/EvlWatcherConsole/EvlWatcherConsole/obj/x86
 /Source/EvlWatcher/EvlWatcher/bin/Debug
+*.user

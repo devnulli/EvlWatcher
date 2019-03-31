@@ -157,6 +157,7 @@ namespace EvlWatcher
 
         protected override void OnStart(string[] args)
         {
+            //TODO UNSAFE
             lock (_syncObject)
             {
                 _h = new ServiceHost(typeof(EvlWatcher), new Uri[] { new Uri("net.pipe://localhost") });
