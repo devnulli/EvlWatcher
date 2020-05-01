@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("EvlWatcher Service")]
-[assembly: AssemblyDescription("a protection against some common RDP brute force attacks")]
+[assembly: AssemblyDescription("a generic logfile analyzer, fail2ban style")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Michael Schönbauer")]
 [assembly: AssemblyProduct("EvlWatcher")]
-[assembly: AssemblyCopyright("2017 Michael Schönbauer")]
+[assembly: AssemblyCopyright("2020 Michael Schönbauer")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 using System.Net;
 
 namespace EvlWatcher.WCF
 {
-    //TODO SWITCH TO RESTFUL BACKEND
     [ServiceContract]
     public interface IEvlWatcherService
     {
@@ -25,7 +22,5 @@ namespace EvlWatcher.WCF
         void RemoveWhiteListEntry(string filter);
         [OperationContract]
         string[] GetWhiteListEntries();
-        [OperationContract]
-        KeyValuePair<DateTime, string>[] GetProtocolSince(DateTime time);
     }
 }

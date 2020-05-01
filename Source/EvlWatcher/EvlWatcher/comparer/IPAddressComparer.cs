@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 
-namespace EvlWatcher
+namespace EvlWatcher.Comparer
 {
     public class IPAddressComparer : IComparer<IPAddress>
     {
