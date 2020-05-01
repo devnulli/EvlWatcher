@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 
-namespace EvlWatcher
+namespace EvlWatcher.Tasks
 {
     /// <summary>
     /// this it the base class that should be used by log tasks that are able to block IPs

@@ -2,8 +2,12 @@
 <Config>
   <!-- this is the persistent data store for EVLWatcher-->
 
-  <DebugMode>false</DebugMode>
+  <DebugMode>true</DebugMode>
   
+  <!-- this is the interval the log files are checked, in seconds-->
+  <CheckInterval>30</CheckInterval>
+  
+  <!--Global Constants-->
   <GLOBAL>
     <WhiteList>192.168.*;10.0.0.*;127.0.0.1;</WhiteList>
     <Banlist></Banlist>

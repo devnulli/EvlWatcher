@@ -5,7 +5,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
-namespace EvlWatcher
+namespace EvlWatcher.Tasks
 {
     internal class GenericTask : IPBlockingLogTask
     {
@@ -24,8 +24,8 @@ namespace EvlWatcher
             t.EventAge = int.Parse(element.Element("EventAge").Value.Trim());
             t._triggerCount = int.Parse(element.Element("TriggerCount").Value.Trim());
             t._permaBanTrigger = int.Parse(element.Element("PermaBanCount").Value.Trim());
+            t.EventPath= element.Element("EventPath").Value.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-            t.EventPath.AddRange(element.Element("EventPath").Value.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
             foreach (XElement e in element.Element("RegexBoosters").Elements("Booster"))
                 t._boosters.Add(e.Value.Trim());
             try

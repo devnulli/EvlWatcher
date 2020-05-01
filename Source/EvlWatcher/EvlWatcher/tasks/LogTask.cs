@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 
-namespace EvlWatcher
+namespace EvlWatcher.Tasks
 {
     /// <summary>
     /// this is the base class for every task that EvlWatcher should perform 
@@ -34,7 +34,7 @@ namespace EvlWatcher
         /// <summary>
         /// This is a list of logs the event wants to receive ("Security, Application")
         /// </summary>
-        public List<string> EventPath = new List<string>();
+        public IList<string> EventPath = new List<string>();
 
         public void ProvideEvents(List<EventRecord> events)
         {

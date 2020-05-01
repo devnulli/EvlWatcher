@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using NetFwTypeLib;
 using System.Net;
+using EvlWatcher.Comparer;
 
-namespace EvlWatcher
+namespace EvlWatcher.SystemAPI
 {
     /// <summary>
     /// this class wraps required parts of the Microsoft Firewall with Enhanced Security COM API
@@ -21,7 +22,7 @@ namespace EvlWatcher
                   as INetFwPolicy2;
         }
 
-        public static INetFwRule GetFwRule()
+        private static INetFwRule GetFwRule()
         {
             Type objectType = Type.GetTypeFromCLSID(new Guid(CLSID_FWRULE));
             return Activator.CreateInstance(objectType)

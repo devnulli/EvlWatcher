@@ -57,32 +57,30 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>EvlWatcher.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\EvlWatcher.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>EvlWatcher.EvlWatcher</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="GenericTask.cs" />
-    <Compile Include="FirewallAPI.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
-    <Compile Include="Constants.cs">
+    <Compile Include="Converter\WildcardToRegexConverter.cs" />
+    <Compile Include="Tasks\GenericTask.cs" />
+    <Compile Include="SystemApi\FirewallAPI.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Installer.cs">
       <SubType>Component</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="IPAddressComparer.cs" />
-    <Compile Include="IPBlockingLogTask.cs">
+    <Compile Include="Comparer\IPAddressComparer.cs" />
+    <Compile Include="Tasks\IPBlockingLogTask.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
     <Compile Include="EvlWatcher.cs">
       <SubType>Component</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="LogTask.cs">
+    <Compile Include="Tasks\LogTask.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -100,7 +98,7 @@
     <None Include="app.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="make.nsi">
+    <None Include="NSIS\make.nsi">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -116,14 +114,14 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="config.xml">
+    <Content Include="Config\config.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
     <Content Include="license.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="EvlWatcher.ico">
+    <Content Include="Resources\EvlWatcher.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -148,6 +146,9 @@
       <ProductName>Windows Installer 4.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Config\Tasks\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

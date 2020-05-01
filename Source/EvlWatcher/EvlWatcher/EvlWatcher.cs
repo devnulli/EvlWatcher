@@ -1,4 +1,7 @@
-﻿using System;
+﻿using EvlWatcher.Converter;
+using EvlWatcher.SystemAPI;
+using EvlWatcher.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
@@ -21,13 +24,14 @@ namespace EvlWatcher
         Thread _workerThread;
 
         private ServiceHost _h;
-        private static List<LogTask> _logTasks = new List<LogTask>();
-        private static readonly bool _runasApplication = true;
+        private static readonly List<LogTask> _logTasks = new List<LogTask>();
+        private const bool _runasApplication = true;
         private static bool _verbose = true;
         private static bool _inBan = false;
+        private static int _threadSleep = 30000;
 
-        private static List<IPAddress> _permaBannedIPs = new List<IPAddress>();
-        private static List<string> _whiteListPatterns = new List<string>();
+        private static readonly List<IPAddress> _permaBannedIPs = new List<IPAddress>();
+        private static readonly List<string> _whiteListPatterns = new List<string>();
         private static List<IPAddress> _lastPolledTempBans = new List<IPAddress>();
         private static List<IPAddress> _lastBannedIPs = new List<IPAddress>();
 
@@ -42,11 +46,6 @@ namespace EvlWatcher
         public bool GetIsRunning()
         {
             return true;
-        }
-
-        public KeyValuePair<DateTime, string>[] GetProtocolSince(DateTime time)
-        {
-            return new KeyValuePair<DateTime, string>[] { new KeyValuePair<DateTime, string>(DateTime.Now, "Protocol not supported in this version") };
         }
 
         public IPAddress[] GetPermanentlyBannedIPs()
@@ -77,7 +76,7 @@ namespace EvlWatcher
                 WriteConfig("GLOBAL", "Banlist", s);
             }
 
-            DoBan();
+            PushBanList();
         }
 
         public void ClearPermanentBan(IPAddress address)
@@ -94,7 +93,7 @@ namespace EvlWatcher
                 WriteConfig("GLOBAL", "Banlist", s);
             }
 
-            DoBan();
+            PushBanList();
         }
 
         public void AddWhiteListEntry(string filter)
@@ -115,7 +114,7 @@ namespace EvlWatcher
 
             }
 
-            DoBan();
+            PushBanList();
         }
 
         public void RemoveWhiteListEntry(string filter)
@@ -132,7 +131,7 @@ namespace EvlWatcher
                 WriteConfig("GLOBAL", "WhiteList", s);
             }
 
-            DoBan();
+            PushBanList();
         }
 
         public IPAddress[] GetTemporarilyBannedIPs()
@@ -209,13 +208,6 @@ namespace EvlWatcher
         #endregion
 
         #region private operations
-
-        private string WildcardToRegex(string pattern)
-        {
-            return "^" + Regex.Escape(pattern).
-            Replace("\\*", ".*").
-            Replace("\\?", ".") + "$";
-        }
 
         private void WriteConfig(string task, string property, string value)
         {
@@ -345,7 +337,10 @@ namespace EvlWatcher
             }
         }
 
-        private void DoBan()
+        /// <summary>
+        /// Pushes the current ban list down into the system API
+        /// </summary>
+        private void PushBanList()
         {
             lock (_syncObject)
             {
@@ -413,7 +408,7 @@ namespace EvlWatcher
         private bool IsPatternMatch(IPAddress i, string pattern)
         {
             string s = i.ToString();
-            string p = WildcardToRegex(pattern);
+            string p = WildcardToRegexConverter.WildcardToRegex(pattern);
             Regex regex = new Regex(p);
             return regex.IsMatch(s);
         }
@@ -575,7 +570,7 @@ namespace EvlWatcher
                         }
 
                         _lastPolledTempBans = blackList;
-                        DoBan();
+                        PushBanList();
                     }
                     catch (Exception executionException)
                     {
@@ -585,7 +580,7 @@ namespace EvlWatcher
                     //wait for next iteration or kill signal
                     try
                     {
-                        Thread.Sleep(Constants.ThreadSleep);
+                        Thread.Sleep(_threadSleep);
                     }
                     catch (ThreadInterruptedException)
                     {
@@ -621,7 +616,7 @@ namespace EvlWatcher
 
         private void LoadConfiguration()
         {
-            XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config.xml"));
+            XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config\\config.xml"));
 
             LoadGlobalSettings(d);
             InitWorkersFromConfig(d);
@@ -634,6 +629,12 @@ namespace EvlWatcher
             if (debugModeElement != null)
             {
                 _verbose = bool.Parse(debugModeElement.Value);
+            }
+
+            XElement checkIntervalElement = d.Root.Element("CheckInterval");
+            if (checkIntervalElement != null)
+            {
+                _threadSleep = int.Parse(checkIntervalElement.Value) * 1000;
             }
 
             XElement globalConfig = d.Root.Element("GLOBAL");
