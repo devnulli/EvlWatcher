@@ -15,7 +15,7 @@ namespace EvlWatcher
             spi.Username = null;
             spi.Password = null;
 
-            si.DisplayName = "EvlWatcher";
+            si.DisplayName = "EvlWatcher v2.0";
             si.ServiceName = "EvlWatcher";
             si.Description = "Automatically monitors the event log for anomalies and acts accordingly";
             si.StartType = ServiceStartMode.Automatic;

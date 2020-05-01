@@ -23,7 +23,7 @@ namespace EvlWatcher
 
         Thread _workerThread;
 
-        private ServiceHost _h;
+        private ServiceHost _serviceHost;
         private static readonly List<LogTask> _logTasks = new List<LogTask>();
         private const bool _runasApplication = true;
         private static bool _verbose = true;
@@ -159,9 +159,9 @@ namespace EvlWatcher
             //TODO UNSAFE
             lock (_syncObject)
             {
-                _h = new ServiceHost(typeof(EvlWatcher), new Uri[] { new Uri("net.pipe://localhost") });
-                _h.AddServiceEndpoint(typeof(WCF.IEvlWatcherService), new NetNamedPipeBinding(), "EvlWatcher");
-                _h.Open();
+                _serviceHost = new ServiceHost(typeof(EvlWatcher), new Uri[] { new Uri("net.pipe://localhost") });
+                _serviceHost.AddServiceEndpoint(typeof(WCF.IEvlWatcherService), new NetNamedPipeBinding(), "EvlWatcher");
+                _serviceHost.Open();
 
                 _workerThread = new Thread(new ThreadStart(this.Run))
                 {
@@ -173,7 +173,7 @@ namespace EvlWatcher
 
         protected override void OnStop()
         {
-            _h.Close();
+            _serviceHost.Close();
 
             //signal the thread to stop
             lock (_syncObject)
