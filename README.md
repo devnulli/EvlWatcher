@@ -1,9 +1,9 @@
-# Announcing a new release for 2020-06-09
+# Announcing a new release for 2020-07-01
 
 So, this is about time this thing gets new paint applied.
 After I almost abandoned this, I got a lot of questions when and how a new release of this "beauty" will be done.
 
-So finally, during May, I will rewrite EvlWatcher. I can't promise that all of the features will be in it, but the plan is that the following things be implemented to it during the course of this remake:
+So finally, during May and June, I will rewrite EvlWatcher. I can't promise that all of the features will be in it, but the plan is that the following things be implemented to it during the course of this remake:
 
 - Fix some security issues with the configuration app. 
 
