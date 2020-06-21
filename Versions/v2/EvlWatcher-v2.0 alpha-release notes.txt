@@ -1,0 +1,7 @@
+RELEASE NOTES: This version (v2.0 alpha) is an intermediate version. 
+
+It basically behaves like 1.4, but analyzes the logs more generically. Also, it no longer has a console.
+
+
+
+

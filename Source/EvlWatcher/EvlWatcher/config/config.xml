@@ -2,6 +2,7 @@
 <Config>
   <!-- this is the persistent data store for EVLWatcher-->
 
+  <!-- Debug mode brings additional output to the console-->
   <DebugMode>true</DebugMode>
   
   <!-- this is the interval the log files are checked, in seconds-->

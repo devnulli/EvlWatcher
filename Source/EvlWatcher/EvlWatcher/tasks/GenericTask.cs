@@ -7,13 +7,13 @@ using System.Xml.Linq;
 
 namespace EvlWatcher.Tasks
 {
-    internal class GenericTask : IPBlockingLogTask
+    internal class GenericIPBlockingTask : IPBlockingLogTask
     {
         #region static
-        internal static GenericTask FromXML(XElement element)
+        internal static GenericIPBlockingTask FromXML(XElement element)
         {
-            GenericTask t =
-            new GenericTask()
+            GenericIPBlockingTask t =
+            new GenericIPBlockingTask()
             {
                 Name = element.Name.LocalName
             };
@@ -57,7 +57,7 @@ namespace EvlWatcher.Tasks
 
         #region internal .ctor
 
-        internal GenericTask() { }
+        internal GenericIPBlockingTask() { }
 
         #endregion
 

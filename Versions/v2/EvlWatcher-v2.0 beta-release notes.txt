@@ -1,0 +1,4 @@
+2020-07-01 EvlWatcher-v2.0 beta. RELEASE NOTS
+
+- EvlWatcher is now running on .NetFramework 4.7.2, which is the default framework for Windows servers (2019, ver1809, ver1803) -> see https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/versions-and-dependencies
+- 

@@ -21,14 +21,32 @@ namespace EvlWatcher
     {
         #region private members
 
+        /// <summary>
+        /// this thread does the actual log scanning
+        /// </summary>
         Thread _workerThread;
 
+        /// <summary>
+        /// this is the servicehost for management apps
+        /// </summary>
         private ServiceHost _serviceHost;
-        private static readonly List<LogTask> _logTasks = new List<LogTask>();
+
+        /// <summary>
+        /// all loaded tasks
+        /// </summary>
+        private static readonly IList<LogTask> _logTasks = new List<LogTask>();
+
+        /// <summary>
+        /// this flag determines if EvlWatcher should be run as application standalone(i.e. from VS when you debug it), or as windows service
+        /// </summary>
         private const bool _runasApplication = true;
+
+        /// <summary>
+        /// adds some extra output
+        /// </summary>
         private static bool _verbose = true;
-        private static bool _inBan = false;
-        private static int _threadSleep = 30000;
+
+        private static int _eventLogInterval = 30000;
 
         private static readonly List<IPAddress> _permaBannedIPs = new List<IPAddress>();
         private static readonly List<string> _whiteListPatterns = new List<string>();
@@ -312,7 +330,7 @@ namespace EvlWatcher
                         var e = d.Root.Element(s);
                         try
                         {
-                            LogTask instance = GenericTask.FromXML(e);
+                            LogTask instance = GenericIPBlockingTask.FromXML(e);
 
                             loadedTasks += $"\n{instance.Name}\n{ instance.Description}\n";
 
@@ -344,64 +362,52 @@ namespace EvlWatcher
         {
             lock (_syncObject)
             {
-                if (_inBan == true)
-                    return;
-
-                try
+                List<IPAddress> banList = new List<IPAddress>();
+                if (_lastPolledTempBans != null)
                 {
-                    _inBan = true;
-
-                    List<IPAddress> banList = new List<IPAddress>();
-                    if (_lastPolledTempBans != null)
-                    {
-                        foreach (IPAddress a in _lastPolledTempBans)
-                            if (!banList.Contains(a))
-                                banList.Add(a);
-                    }
-                    if (_permaBannedIPs != null)
-                    {
-                        foreach (IPAddress p in _permaBannedIPs)
-                            if (!banList.Contains(p))
-                                banList.Add(p);
-                    }
-
-                    List<IPAddress> unbanned = new List<IPAddress>();
-                    foreach (IPAddress i in banList)
-                    {
-                        foreach (string pattern in _whiteListPatterns)
-                        {
-                            if (IsPatternMatch(i, pattern) && !unbanned.Contains(i))
-                                unbanned.Add(i);
-                        }
-                    }
-
-                    foreach (IPAddress u in unbanned)
-                        banList.Remove(u);
-
-                    FirewallAPI.AdjustIPBanList(banList);
-
-                    foreach (IPAddress ip in _lastBannedIPs)
-                    {
-                        if (!banList.Contains(ip))
-                        {
-                            Dump($"Removed {ip.ToString()} from the ban list", EventLogEntryType.Information);
-                        }
-                    }
-
-                    foreach (IPAddress ip in banList)
-                    {
-                        if (!_lastBannedIPs.Contains(ip))
-                        {
-                            Dump($"Banned {ip.ToString()}", EventLogEntryType.Information);
-                        }
-                    }
-
-                    _lastBannedIPs = banList;
+                    foreach (IPAddress a in _lastPolledTempBans)
+                        if (!banList.Contains(a))
+                            banList.Add(a);
                 }
-                finally
+                if (_permaBannedIPs != null)
                 {
-                    _inBan = false;
+                    foreach (IPAddress p in _permaBannedIPs)
+                        if (!banList.Contains(p))
+                            banList.Add(p);
                 }
+
+                List<IPAddress> unbanned = new List<IPAddress>();
+                foreach (IPAddress i in banList)
+                {
+                    foreach (string pattern in _whiteListPatterns)
+                    {
+                        if (IsPatternMatch(i, pattern) && !unbanned.Contains(i))
+                            unbanned.Add(i);
+                    }
+                }
+
+                foreach (IPAddress u in unbanned)
+                    banList.Remove(u);
+
+                FirewallAPI.AdjustIPBanList(banList);
+
+                foreach (IPAddress ip in _lastBannedIPs)
+                {
+                    if (!banList.Contains(ip))
+                    {
+                        Dump($"Removed {ip} from the ban list", EventLogEntryType.Information);
+                    }
+                }
+
+                foreach (IPAddress ip in banList)
+                {
+                    if (!_lastBannedIPs.Contains(ip))
+                    {
+                        Dump($"Banned {ip}", EventLogEntryType.Information);
+                    }
+                }
+
+                _lastBannedIPs = banList;
             }
         }
 
@@ -422,9 +428,9 @@ namespace EvlWatcher
 
                 //prepare datastructures
                 Dictionary<string, List<LogTask>> requiredEventTypesToLogTasks = new Dictionary<string, List<LogTask>>();
-                foreach(LogTask l in _logTasks)
+                foreach (LogTask l in _logTasks)
                 {
-                    foreach(string s in l.EventPath)
+                    foreach (string s in l.EventPath)
                     {
                         if (!requiredEventTypesToLogTasks.ContainsKey(s))
                             requiredEventTypesToLogTasks[s] = new List<LogTask>();
@@ -457,7 +463,7 @@ namespace EvlWatcher
                     DateTime scanStart = DateTime.Now;
 
                     if (_verbose)
-                        Dump("Scanning the logs now.", EventLogEntryType.Information, true);
+                        Dump("Scanning the logs now, scanned logs are:", EventLogEntryType.Information, true);
 
                     DateTime referenceTimeForTimeFramedEvents = DateTime.Now;
                     try
@@ -504,7 +510,7 @@ namespace EvlWatcher
                                         break;
                                 }
                             }
-                            catch(EventLogNotFoundException)
+                            catch (EventLogNotFoundException)
                             {
                                 Dump($"Event Log {requiredEventType} was not found, tasks that require these events will not work", EventLogEntryType.Warning);
                             }
@@ -569,6 +575,9 @@ namespace EvlWatcher
                             }
                         }
 
+                        if (_verbose)
+                            Dump($"\r\n-----Cycle complete, sleeping {_eventLogInterval / 1000} s......\r\n", EventLogEntryType.Information);
+
                         _lastPolledTempBans = blackList;
                         PushBanList();
                     }
@@ -580,7 +589,7 @@ namespace EvlWatcher
                     //wait for next iteration or kill signal
                     try
                     {
-                        Thread.Sleep(_threadSleep);
+                        Thread.Sleep(_eventLogInterval);
                     }
                     catch (ThreadInterruptedException)
                     {
@@ -634,7 +643,7 @@ namespace EvlWatcher
             XElement checkIntervalElement = d.Root.Element("CheckInterval");
             if (checkIntervalElement != null)
             {
-                _threadSleep = int.Parse(checkIntervalElement.Value) * 1000;
+                _eventLogInterval = int.Parse(checkIntervalElement.Value) * 1000;
             }
 
             XElement globalConfig = d.Root.Element("GLOBAL");
@@ -692,7 +701,7 @@ namespace EvlWatcher
                 EventLog.CreateEventSource(source, log);
 
             EventLog.WriteEntry(source, s, t);
-            Console.WriteLine(s);
+            Console.WriteLine($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second},{DateTime.Now.Millisecond} {s}");
         }
 
         public static void Main(string[] args)

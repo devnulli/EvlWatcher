@@ -9,7 +9,7 @@ namespace EvlWatcher.SystemAPI
     /// <summary>
     /// this class wraps required parts of the Microsoft Firewall with Enhanced Security COM API
     /// </summary>
-    public class FirewallAPI
+    public static class FirewallAPI
     {
         private const string CLSID_FWPOLICY2 = "{E2B3C97F-6AE1-41AC-817A-F6F92166D7DD}";
         private const string CLSID_FWRULE = "{2C5BC43E-3369-4C33-AB0C-BE9469677AF4}";
