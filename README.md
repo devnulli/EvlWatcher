@@ -1,4 +1,4 @@
-# Announcing a new release for 2020-07-01
+# Sooo. Damn you CoVid-19 ... Announcing a beta release of the new version (v2.0 beta) for ~~2020-07-01~~ 2020-12-01
 
 So, this is about time this thing gets new paint applied.
 After I almost abandoned this, I got a lot of questions when and how a new release of this "beauty" will be done.
@@ -17,7 +17,7 @@ So finally, during May and June, I will rewrite EvlWatcher. I can't promise that
 
 - And finally, revamp the configuration App and the Installer.
 
-# Testers needed
+# Testers needed.
 
 Since I personally no longer expose my Windows Servers to the Web, I would also need testers to try out certain things.
 If you wanna test that thing, please contact me.
