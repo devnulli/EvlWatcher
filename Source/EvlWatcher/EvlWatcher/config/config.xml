@@ -1,9 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
-  <!-- this is the persistent data store for EVLWatcher-->
-
-  <!-- Debug mode brings additional output to the console-->
-  <DebugMode>true</DebugMode>
+  
+  <!-- LogLevels are: Critical, Warning, Error, Info, Debug-->
+  <LogLevel>Debug</LogLevel>
   
   <!-- this is the interval the log files are checked, in seconds-->
   <CheckInterval>30</CheckInterval>
