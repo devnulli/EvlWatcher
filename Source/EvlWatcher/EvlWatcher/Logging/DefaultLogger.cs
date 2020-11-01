@@ -10,23 +10,24 @@ namespace EvlWatcher.Logging
 {
     internal class DefaultLogger : ILogger
     {
-        private SeverityLevel _loglevel = SeverityLevel.Error;
-        private SeverityLevel _outputlevel = SeverityLevel.Verbose;
+        public SeverityLevel LogLevel { get; set; } = SeverityLevel.Warning;
+
+        public SeverityLevel ConsoleLevel { get; set; } = SeverityLevel.Info;
 
         public void Dump(string message, SeverityLevel severity)
         {
             string source = "EvlWatcher";
             string log = "Application";
 
-            //you must run this as admin for the first time - so that the eventlog source can be created
-            if (!EventLog.SourceExists(source))
-                EventLog.CreateEventSource(source, log);
-
-            if (severity >= _loglevel)
+            if (severity >= LogLevel)
             {
+                //you must run this as admin for the first time - so that the eventlog source can be created
+                if (!EventLog.SourceExists(source))
+                    EventLog.CreateEventSource(source, log);
+
                 EventLog.WriteEntry(source, message, SeverityToEventLogEntryType.Convert(severity));
             }
-            if (severity >= _outputlevel)
+            if (severity >= ConsoleLevel)
             {
                 Console.WriteLine($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second},{DateTime.Now.Millisecond} {message}");
             }
@@ -35,16 +36,6 @@ namespace EvlWatcher.Logging
         public void Dump(Exception e, SeverityLevel level = SeverityLevel.Error)
         {
             Dump(e.Message, level);
-        }
-
-        public void SetLogLevel(SeverityLevel newLogLevel)
-        {
-            _loglevel = newLogLevel;
-        }
-
-        public void SetOutputLevel(SeverityLevel newOutputLevel)
-        {
-            _outputlevel = newOutputLevel;
         }
     }
 }

@@ -5,6 +5,7 @@ namespace EvlWatcher.Logging
 {
     public enum SeverityLevel
     {
+        Off = 6,
         Critical = 5,
         Warning = 4,
         Error = 3,
@@ -15,11 +16,11 @@ namespace EvlWatcher.Logging
 }
 public interface ILogger
 {
-    void SetLogLevel(SeverityLevel newLogLevel);
-    void SetOutputLevel(SeverityLevel newOutputLevel);
+    SeverityLevel LogLevel { get; set; }
+    SeverityLevel ConsoleLevel { get; set; }
+
     void Dump(string message, SeverityLevel severity);
     void Dump(Exception e, SeverityLevel severity = SeverityLevel.Error);
-
 
 }
 

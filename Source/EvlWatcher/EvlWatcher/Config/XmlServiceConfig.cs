@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Xml.Linq;
 
 namespace EvlWatcher.Config
@@ -11,6 +12,7 @@ namespace EvlWatcher.Config
     internal class XmlServiceConfiguration : IPersistentServiceConfiguration
     {
         #region public constructor
+
         public XmlServiceConfiguration(ILogger logger)
         {
             _logger = logger;
@@ -20,13 +22,54 @@ namespace EvlWatcher.Config
         #endregion
 
         #region public properties
-
         public bool DebugModeEnabled { get; set; }
         public int EventLogInterval { get; set; }
 
         public IQueryable<string> WhitelistPatterns => _whiteListPatterns.AsQueryable();
 
         public IQueryable<IPAddress> BlacklistAddresses => _blacklistAddresses.AsQueryable();
+
+        public IQueryable<IPersistentTaskConfiguration> TaskConfigurations
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public SeverityLevel ConsoleLevel
+        {
+            get
+            {
+                return _logger.ConsoleLevel;
+            }
+            set
+            {
+                if (_logger.ConsoleLevel != value)
+                {
+                    _logger.ConsoleLevel = value;
+                    if (!_inLoading)
+                        WriteConfig("Global", "ConsoleLevel", value.ToString());
+                }
+            }
+        }
+
+        public SeverityLevel LogLevel
+        {
+            get
+            {
+                return _logger.LogLevel;
+            }
+            set
+            {
+                if (_logger.LogLevel != value)
+                {
+                    _logger.LogLevel = value;
+                    if (!_inLoading)
+                        WriteConfig("Global", "LogLevel", value.ToString());
+                }
+            }
+        }
 
         #endregion
 
@@ -50,7 +93,7 @@ namespace EvlWatcher.Config
                     foreach (string p in _whiteListPatterns)
                         s += p + ";";
 
-                    WriteConfig("GLOBAL", "WhiteList", s);
+                    WriteConfig("Global", "WhiteList", s);
                 }
             }
 
@@ -72,7 +115,7 @@ namespace EvlWatcher.Config
                     foreach (string p in _whiteListPatterns)
                         s += p + ";";
 
-                    WriteConfig("GLOBAL", "WhiteList", s);
+                    WriteConfig("Global", "WhiteList", s);
                 }
             }
 
@@ -116,7 +159,7 @@ namespace EvlWatcher.Config
         private readonly IList<string> _whiteListPatterns = new List<string>();
 
         private readonly ILogger _logger;
-
+        private bool _inLoading = false;
 
         #endregion
 
@@ -126,7 +169,7 @@ namespace EvlWatcher.Config
         {
             _logger.Dump($"Writing config for: {task}: {property} = {value}", SeverityLevel.Verbose);
 
-            XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config.xml"));
+            XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config\\config.xml"));
             XElement taskEl = d.Root.Element(task);
             if (taskEl == null)
             {
@@ -147,69 +190,83 @@ namespace EvlWatcher.Config
                 }
 
             }
-            d.Save(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config.xml"));
+            d.Save(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config\\config.xml"));
         }
-
-        private void WriteConfig(string task, string property, int value)
-        {
-            WriteConfig(task, property, value.ToString());
-        }
-
 
         private void LoadConfiguration()
         {
-            XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config\\config.xml"));
+            try
+            {
+                _inLoading = true;
+                XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config\\config.xml"));
 
-            LoadGlobalSettings(d);
+                LoadGlobalSettings(d);
+            }
+            finally
+            {
+                _inLoading = false;
+            }
         }
 
         private void LoadGlobalSettings(XDocument d)
         {
-            XElement debugModeElement = d.Root.Element("DebugMode");
-            if (debugModeElement != null)
+            XElement globalConfig = d.Root.Element("Global");
+
+            if (globalConfig == null)
             {
-                SetLogLevel(debugModeElement.Value);
+                _logger.Dump("Global Service config could not be loaded", SeverityLevel.Critical);
+                throw new FormatException();
             }
 
-            XElement checkIntervalElement = d.Root.Element("CheckInterval");
+            XElement logLevelElement = globalConfig.Element("LogLevel");
+            if (logLevelElement != null)
+                LogLevel = GetLogLevelFromString(logLevelElement.Value);
+
+            XElement consoleLevelElement = globalConfig.Element("ConsoleLevel");
+            if (consoleLevelElement != null)
+                ConsoleLevel = GetLogLevelFromString(consoleLevelElement.Value);
+
+            _logger.Dump($"Log level is set to : {LogLevel} ", SeverityLevel.Verbose);
+            _logger.Dump($"Console level is set to : {ConsoleLevel} ", SeverityLevel.Verbose);
+
+            XElement checkIntervalElement = globalConfig.Element("CheckInterval");
             if (checkIntervalElement != null)
             {
                 EventLogInterval = int.Parse(checkIntervalElement.Value) * 1000;
+
+                _logger.Dump($"Check interval is set to : {EventLogInterval / 1000} s", SeverityLevel.Verbose);
             }
 
-            XElement globalConfig = d.Root.Element("GLOBAL");
-            if (globalConfig != null)
+            XElement banlist = globalConfig.Element("Banlist");
+            if (banlist != null)
             {
-                XElement banlist = globalConfig.Element("Banlist");
-                if (banlist != null)
+                string banstring = banlist.Value;
+                foreach (string ip in banstring.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    string banstring = banlist.Value;
-                    foreach (string ip in banstring.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        _blacklistAddresses.Add(IPAddress.Parse(ip));
+                    _blacklistAddresses.Add(IPAddress.Parse(ip));
 
-                    }
-
-                    _logger.Dump($"Loaded permabanlist: {banstring}", SeverityLevel.Info);
                 }
 
-                XElement whitelist = globalConfig.Element("WhiteList");
-                if (whitelist != null)
-                {
-                    string wstring = whitelist.Value;
-                    foreach (string ipPattern in wstring.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        _whiteListPatterns.Add(ipPattern);
-
-                    }
-                    _logger.Dump($"Loaded whitelist: {wstring}", SeverityLevel.Info);
-                }
+                _logger.Dump($"Loaded permabanlist: {banstring}", SeverityLevel.Verbose);
             }
+
+            XElement whitelist = globalConfig.Element("WhiteList");
+            if (whitelist != null)
+            {
+                string wstring = whitelist.Value;
+                foreach (string ipPattern in wstring.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    _whiteListPatterns.Add(ipPattern);
+
+                }
+                _logger.Dump($"Loaded whitelist: {wstring}", SeverityLevel.Verbose);
+            }
+
         }
 
-        private void SetLogLevel(string value)
+        private SeverityLevel GetLogLevelFromString(string value)
         {
-            _logger.SetLogLevel((SeverityLevel)Enum.Parse(typeof(SeverityLevel), value));
+            return (SeverityLevel)Enum.Parse(typeof(SeverityLevel), value);
         }
 
         #endregion

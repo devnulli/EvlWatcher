@@ -298,6 +298,25 @@ namespace EvlWatcher
         /// </summary>
         private void PushBanList()
         {
+            lock (_syncObject)
+            {
+                List<IPAddress> banList = _lastPolledTempBans
+                    .Union(_serviceconfiguration.BlacklistAddresses)
+                    .Distinct()
+                    .Where(address => !IsWhiteListed(address))
+                    .ToList();
+
+                FirewallAPI.AdjustIPBanList(banList);
+
+                foreach (IPAddress ip in _lastBannedIPs.Where(ip => !banList.Contains(ip)))
+                    _logger.Dump($"Removed {ip} from the ban list", SeverityLevel.Info);
+
+                foreach (IPAddress ip in banList.Where(ip => !_lastBannedIPs.Contains(ip)))
+                    _logger.Dump($"Banned {ip}", SeverityLevel.Info);
+
+                _lastBannedIPs = banList;
+                _logger.Dump($"Pushed {banList.Count} IPs down to the firewall for banning.", SeverityLevel.Debug);
+            }
         }
 
         private bool IsPatternMatch(IPAddress i, string pattern)
@@ -447,15 +466,15 @@ namespace EvlWatcher
 
                                 List<IPAddress> blockedIPs = ipTask.GetTempBanVictims();
 
-                              
-                                    _logger.Dump($"Polled {t.Name} and got {blockedIPs.Count} temporary and {_serviceconfiguration.BlacklistAddresses.Count()} permanent ban(s)", SeverityLevel.Verbose );
+
+                                _logger.Dump($"Polled {t.Name} and got {blockedIPs.Count} temporary and {_serviceconfiguration.BlacklistAddresses.Count()} permanent ban(s)", SeverityLevel.Verbose);
 
                                 foreach (IPAddress blockedIP in blockedIPs)
                                     if (!blackList.Contains(blockedIP))
                                         blackList.Add(blockedIP);
                             }
                         }
-                      
+
                         _logger.Dump($"\r\n-----Cycle complete, sleeping {_serviceconfiguration.EventLogInterval / 1000} s......\r\n", SeverityLevel.Debug);
 
                         _lastPolledTempBans = blackList;
@@ -511,13 +530,19 @@ namespace EvlWatcher
         {
             if (!_runasApplication)
             {
-                //service
-                Run(new EvlWatcher(new DefaultLogger(), new XmlServiceConfiguration(new DefaultLogger())));
+                //build dependencies
+                ILogger logger = new DefaultLogger();
+
+                //start service
+                Run(new EvlWatcher(logger, new XmlServiceConfiguration(logger)));
             }
             else
             {
+                //build dependencies
+                ILogger logger = new DefaultLogger();
+
                 //debug
-                EvlWatcher w = new EvlWatcher(new DefaultLogger(), new XmlServiceConfiguration(new DefaultLogger()));
+                EvlWatcher w = new EvlWatcher(logger, new XmlServiceConfiguration(logger));
                 w.OnStart(null);
                 Thread.Sleep(60000000);
                 w.OnStop();

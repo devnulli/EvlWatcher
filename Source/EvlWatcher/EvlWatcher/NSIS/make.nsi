@@ -2,7 +2,7 @@ Name "EvlWatcher"
 
 ; The file to write
 Icon EvlWatcher.ico
-OutFile "EvlWatcher-v2.0 alpha-setup.exe"
+OutFile "EvlWatcher-v2.0 beta noconsole-setup.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\EvlWatcher
@@ -11,7 +11,7 @@ InstallDir $PROGRAMFILES\EvlWatcher
 ; overwrite the old one automatically)
 InstallDirRegKey HKLM "Software\EvlWatcher" "InstallDir"
 
-; Request application privileges for Windows Vista
+; Request application privileges
 RequestExecutionLevel admin
 
 ;--------------------------------
@@ -61,7 +61,6 @@ Section "EvlWatcher Service"
   SetOutPath $INSTDIR
   
   ; Put file there
-  ;;; removed (is now embedded as of .NET Framework 4.0 File "Interop.NetFwTypeLib.dll"
 
   File "EvlWatcher.exe"
   File "gpl-3.0.txt"

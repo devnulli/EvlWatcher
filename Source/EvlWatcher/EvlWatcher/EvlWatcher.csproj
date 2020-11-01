@@ -64,7 +64,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Config\IPersistentServiceConfiguration.cs" />
+    <Compile Include="Config\IPersistentTaskConfiguration.cs" />
     <Compile Include="Config\XmlServiceConfig.cs" />
+    <Compile Include="Config\XmlTaskConfig.cs" />
     <Compile Include="Converter\SeverityToEventLogEntryType.cs" />
     <Compile Include="Converter\WildcardToRegexConverter.cs" />
     <Compile Include="Logging\DefaultLogger.cs" />
