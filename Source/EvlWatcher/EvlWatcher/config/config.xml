@@ -18,7 +18,8 @@
   <!-- OK, so here are all rules i know, some work on specific servers, some don't. All rules add up and should keep common windows systems safe from RDP-Bruters.
   If you want to contribute, this here is the most important section. Also, a correlation method between different event log entries is planned in future versions.-->
   <Tasks>
-    <BlockRDPBrutersBySecurity4625>
+    <Task Name="BlockRDPBrutersBySecurity4625">
+
       <!-- the description ..-->
       <Description>
         This rule checks the security Log for failed attempts
@@ -49,7 +50,7 @@
         3
       </PermaBanCount>
 
-      <!-- This is the place where the rule looks for entries-->
+      <!-- This is the place where the rule looks for entries, separated by comma-->
       <EventPath>
         Security
       </EventPath>
@@ -64,9 +65,10 @@
       <Regex>
         .*.*EventID.4625.*&lt;Data Name=.IpAddress.&gt;(\d*.\d*.\d*.\d*).*&lt;\/Data&gt;
       </Regex>
-    </BlockRDPBrutersBySecurity4625>
 
-    <BlockRDPBrutersByRdpCore140>
+    </Task>
+    <Task Name="BlockRDPBrutersByRdpCore140">
+
       <!-- the description ..-->
       <Description>
         This rule checks the RdpCoreTS/Operational Log for failed login attempts
@@ -113,63 +115,56 @@
       <Regex>
         .*.*EventID.140.*&lt;Data Name=.IPString.&gt;(\d*.\d*.\d*.\d*).*&lt;\/Data&gt;
       </Regex>
-    </BlockRDPBrutersByRdpCore140>
+    </Task>
+    <Task Name="BlockRDPBrutersByRdpCore131">
+      
+        <!-- the description ..-->
+        <Description>
+          This rule checks the RdpCoreTS/Operational Log for any opening connections. It is not perfect, as it will count failed AND successful connections, but this works ok in normal day life
+          This is necessary because login attempts with an existing user are NOT logged in the 140 event by Microsoft for some reasons.
+        </Description>
 
-    <BlockRDPBrutersByRdpCore131>
-      <!-- the description ..-->
-      <Description>
-        This rule checks the RdpCoreTS/Operational Log for any opening connections. It is not perfect, as it will count failed AND successful connections, but this works ok in normal day life
-        This is necessary because login attempts with an existing user are NOT logged in the 140 event by Microsoft for some reasons.
-      </Description>
+        <!-- this is the time a temporary ban is issued for, in seconds-->
+        <LockTime>
+          3600
+        </LockTime>
 
-      <!-- this is the time a temporary ban is issued for, in seconds-->
-      <LockTime>
-        3600
-      </LockTime>
+        <!-- this is used for rules that only need new events for evaluating. If you dont know what this does, leave it set to false-->
+        <OnlyNew>
+          False
+        </OnlyNew>
 
-      <!-- this is used for rules that only need new events for evaluating. If you dont know what this does, leave it set to false-->
-      <OnlyNew>
-        False
-      </OnlyNew>
+        <!-- this is the timeframe (in seconds) to be inspected-->
+        <EventAge>
+          120
+        </EventAge>
 
-      <!-- this is the timeframe (in seconds) to be inspected-->
-      <EventAge>
-        120
-      </EventAge>
+        <!-- this is the amount of times an entry must occure within the time frame to be considered a brute force attempt-->
+        <TriggerCount>
+          5
+        </TriggerCount>
 
-      <!-- this is the amount of times an entry must occure within the time frame to be considered a brute force attempt-->
-      <TriggerCount>
-        5
-      </TriggerCount>
+        <!-- after this amount of times temporarily banned, the ban will become permanent -->
+        <PermaBanCount>
+          3
+        </PermaBanCount>
 
-      <!-- after this amount of times temporarily banned, the ban will become permanent -->
-      <PermaBanCount>
-        3
-      </PermaBanCount>
+        <!-- This is the place where the rule looks for entries-->
+        <EventPath>
+          Microsoft-Windows-RemoteDesktopServices-RdpCoreTS/Operational
+        </EventPath>
 
-      <!-- This is the place where the rule looks for entries-->
-      <EventPath>
-        Microsoft-Windows-RemoteDesktopServices-RdpCoreTS/Operational
-      </EventPath>
+        <!-- This was introduced because sole regex matching is too CPU intensive. it incredibly speeds up the filtering when you enter some (or at least one) words that MUST be contained in the LogEntry to undergo the regex inspection-->
+        <RegexBoosters>
+          <Booster>131</Booster>
+          <Booster>ClientIP</Booster>
+        </RegexBoosters>
 
-      <!-- This was introduced because sole regex matching is too CPU intensive. it incredibly speeds up the filtering when you enter some (or at least one) words that MUST be contained in the LogEntry to undergo the regex inspection-->
-      <RegexBoosters>
-        <Booster>131</Booster>
-        <Booster>ClientIP</Booster>
-      </RegexBoosters>
+        <!-- This is the regex that tries to extract an IP from the entries that contain the booster words for more infos see regex101.com-->
+        <Regex>
+          .*.*EventID.131.*&lt;Data Name=.ClientIP.&gt;(\d*.\d*.\d*.\d*).*&lt;\/Data&gt;
+        </Regex>
 
-      <!-- This is the regex that tries to extract an IP from the entries that contain the booster words for more infos see regex101.com-->
-      <Regex>
-        .*.*EventID.131.*&lt;Data Name=.ClientIP.&gt;(\d*.\d*.\d*.\d*).*&lt;\/Data&gt;
-      </Regex>
-    </BlockRDPBrutersByRdpCore131>
-
-    <!-- this is the list of generic rules to be loaded-->
-    <GenericTaskLoader>
-      <Load>BlockRDPBrutersBySecurity4625</Load>
-      <Load>BlockRDPBrutersByRdpCore131</Load>
-      <Load>BlockRDPBrutersByRdpCore140</Load>
-    </GenericTaskLoader>
-
+    </Task>
   </Tasks>
 </Config>
