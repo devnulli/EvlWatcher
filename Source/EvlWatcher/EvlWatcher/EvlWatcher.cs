@@ -187,63 +187,13 @@ namespace EvlWatcher
         }
 
         #endregion
-
         #region private operations
-
-        private void InitExternalWorkerDLLs(XDocument d)
-        {
-            lock (_syncObject)
-            {
-                string loadedTasks = "";
-                string failedTasks = "";
-
-                //do startup
-                foreach (FileInfo fileInfo in new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.GetFiles())
-                {
-                    if (!fileInfo.FullName.EndsWith(".dll"))
-                        continue;
-
-                    Assembly a = null;
-                    try
-                    {
-                        a = Assembly.LoadFrom(fileInfo.FullName);
-                    }
-                    catch
-                    {
-                        _logger.Dump($"Could not load assembly {fileInfo.FullName}", SeverityLevel.Warning);
-                        continue;
-                    }
-
-                    foreach (Type t in a.GetTypes())
-                    {
-                        if (!t.IsAbstract && t.IsSubclassOf(typeof(LogTask)))
-                        {
-                            try
-                            {
-                                LogTask instance = (LogTask)Activator.CreateInstance(t);
-
-                                loadedTasks += $"\n{instance.Name}\n{instance.Description}\n";
-
-                                _logTasks.Add(instance);
-                            }
-                            catch (Exception e)
-                            {
-                                failedTasks += $"\n{t.Name}\n Reason: {e.Message}";
-                            }
-                        }
-                    }
-                }
-                if (loadedTasks.Length > 0 || failedTasks.Length > 0)
-                    _logger.Dump($"External DLLs loaded, loaded tasks are: \n{loadedTasks}" + (failedTasks.Length > 0 ? $"\nFailing Tasks:\n{failedTasks}" : ""), failedTasks.Length > 0 ? SeverityLevel.Warning : SeverityLevel.Info);
-                else
-                    _logger.Dump("No external DLLs loaded", SeverityLevel.Info);
-            }
-        }
 
         private void InitWorkersFromConfig(XDocument d)
         {
             lock (_syncObject)
             {
+
                 string loadedTasks = "";
                 string failedTasks = "";
 
@@ -329,6 +279,7 @@ namespace EvlWatcher
 
         private void Run()
         {
+
             try
             {
                 //prepare datastructures
