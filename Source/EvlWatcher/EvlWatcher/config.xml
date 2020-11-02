@@ -5,7 +5,9 @@
     <!-- Levels are: Off, Critical, Warning, Error, Info, Debug. Loglevel means written to EventLog, ConsoleLevel means written to "stdout"-->
     <LogLevel>Warning</LogLevel>
     <ConsoleLevel>Debug</ConsoleLevel>
-
+    
+    <!-- how many lines of console output will be provided by the wcf service (max). This is used by the EvlConsole to query the latest output-->
+    <ConsoleBacklog>1000</ConsoleBacklog>
     <!-- this is the interval the log files are checked, in seconds-->
     <CheckInterval>30</CheckInterval>
 
@@ -18,7 +20,7 @@
   <!-- OK, so here are all rules i know, some work on specific servers, some don't. All rules add up and should keep common windows systems safe from RDP-Bruters.
   If you want to contribute, this here is the most important section. Also, a correlation method between different event log entries is planned in future versions.-->
   <Tasks>
-    <Task Name="BlockRDPBrutersBySecurity4625">
+    <Task Name="BlockRDPBrutersBySecurity4625" Active="true">
 
       <!-- the description ..-->
       <Description>
@@ -67,7 +69,7 @@
       </Regex>
 
     </Task>
-    <Task Name="BlockRDPBrutersByRdpCore140">
+    <Task Name="BlockRDPBrutersByRdpCore140" Active="true">
 
       <!-- the description ..-->
       <Description>
@@ -116,7 +118,7 @@
         .*.*EventID.140.*&lt;Data Name=.IPString.&gt;(\d*.\d*.\d*.\d*).*&lt;\/Data&gt;
       </Regex>
     </Task>
-    <Task Name="BlockRDPBrutersByRdpCore131">
+    <Task Name="BlockRDPBrutersByRdpCore131" Active="true">
       
         <!-- the description ..-->
         <Description>

@@ -1,0 +1,22 @@
+2020-07-01 EvlWatcher-v2.0 beta 1. RELEASE NOTES, and how to test.
+
+- EvlWatcher 2.0 is now running on .NetFramework 4.7.2, which is the default framework for Windows servers (2019, ver1809, ver1803) -> see https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/versions-and-dependencies
+- EvlWatcher 2.0 is now using a better software architecture pattern, making it easier to change and adapt in the future
+- EvlWatcher 2.0 is now using a different configuration file structure
+- EvlWatcher 2.0 should fix the ram usage problem of the previous versions
+- EvlWatcher 2.0 BETA 1 is released without a console
+
+How to test beta 1:
+
+- Install EvlWatcher
+	- there should be no need to install previous versions, it will be replaced. if that doesnt work, please report that in the pull request
+
+- you can set the loglevel to "Debug" for a full output. Just dont leave it that way, your eventlog will grow.
+
+- once you have the impression it runs stable, leave it running for a few days, to find out if it still uses massive amounts of RAM over the time.
+
+- Evlwatcher should still recognize IPs out the event log, according to config.xml
+	- if there are any adjustments to be made to these rules, also let me know please.
+
+Thanks for your help in testing EvlWatcher. Once those things work, I will move on to the EvlWatcher Console.
+

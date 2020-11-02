@@ -6,24 +6,34 @@ using System.Net;
 using System.Reflection;
 using System.Xml.Linq;
 
-
-
 namespace EvlWatcher.Config
 {
     internal class XmlServiceConfiguration : IPersistentServiceConfiguration
     {
-        #region public constructor
+        #region private members
 
+        private readonly object _syncObject = new object();
+
+        private readonly IList<IPAddress> _blacklistAddresses = new List<IPAddress>();
+        private readonly IList<string> _whiteListPatterns = new List<string>();
+        private readonly IList<IPersistentTaskConfiguration> _taskConfigurations = new List<IPersistentTaskConfiguration>();
+
+        private readonly ILogger _logger;
+        private bool _inLoading = false;
+        private int _consoleBacklog;
+
+        #endregion
+
+        #region public constructor
         public XmlServiceConfiguration(ILogger logger)
         {
             _logger = logger;
-            LoadConfiguration();
         }
 
         #endregion
 
         #region public properties
-        public bool DebugModeEnabled { get; set; }
+
         public int EventLogInterval { get; set; }
 
         public IQueryable<string> WhitelistPatterns => _whiteListPatterns.AsQueryable();
@@ -68,6 +78,25 @@ namespace EvlWatcher.Config
                     _logger.LogLevel = value;
                     if (!_inLoading)
                         WriteConfig("Global", "LogLevel", value.ToString());
+                }
+            }
+        }
+
+        public int ConsoleBackLog
+        {
+            get
+            {
+                return _consoleBacklog;
+            }
+            set
+            {
+                if(_consoleBacklog != value)
+                {
+                    _consoleBacklog = value;
+                    if(!_inLoading)
+                    {
+                        WriteConfig("Global", "ConsoleBacklog", value.ToString());
+                    }
                 }
             }
         }
@@ -151,74 +180,82 @@ namespace EvlWatcher.Config
 
         #endregion
 
-        #region private members
-
-        private readonly object _syncObject = new object();
-
-        private readonly IList<IPAddress> _blacklistAddresses = new List<IPAddress>();
-        private readonly IList<string> _whiteListPatterns = new List<string>();
-        private readonly IList<IPersistentTaskConfiguration> _taskConfigurations = new List<IPersistentTaskConfiguration>();
-
-        private readonly ILogger _logger;
-        private bool _inLoading = false;
-
-        #endregion
-
         #region private operations
 
         private void WriteConfig(string task, string property, string value)
         {
-            _logger.Dump($"Writing config for: {task}: {property} = {value}", SeverityLevel.Verbose);
-
-            XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config\\config.xml"));
-            XElement taskEl = d.Root.Element(task);
-            if (taskEl == null)
+            lock (_syncObject)
             {
-                taskEl = new XElement(task);
-                d.Root.Add(taskEl);
-            }
-            if (taskEl != null)
-            {
-                XElement val = taskEl.Element(property);
-                if (val == null)
-                {
-                    val = new XElement(property);
-                    taskEl.Add(val);
-                }
-                if (val != null)
-                {
-                    val.Value = value.ToString();
-                }
+                _logger.Dump($"Writing config for: {task}: {property} = {value}", SeverityLevel.Verbose);
 
+                XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config.xml"));
+                XElement taskEl = d.Root.Element(task);
+                if (taskEl == null)
+                {
+                    taskEl = new XElement(task);
+                    d.Root.Add(taskEl);
+                }
+                if (taskEl != null)
+                {
+                    XElement val = taskEl.Element(property);
+                    if (val == null)
+                    {
+                        val = new XElement(property);
+                        taskEl.Add(val);
+                    }
+                    if (val != null)
+                    {
+                        val.Value = value.ToString();
+                    }
+
+                }
+                d.Save(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config.xml"));
             }
-            d.Save(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config\\config.xml"));
         }
 
         private void LoadConfiguration()
         {
-            try
+            lock (_syncObject)
             {
-                _inLoading = true;
-                XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config\\config.xml"));
+                try
+                {
+                    _inLoading = true;
+                    XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config.xml"));
 
-                LoadGlobalSettings(d);
-                LoadGenericTasks(d);
+                    //this line probably wont get displayed, unless debug is default before loading the config.
+                    _logger.Dump($"now loading global settings", SeverityLevel.Debug);
 
-            }
-            finally
-            {
-                _inLoading = false;
+                    LoadGlobalSettings(d);
+                    //from now on, the log/output levels should work.
+                    _logger.Dump($"finished loading global settings", SeverityLevel.Debug);
+
+                    _logger.Dump($"now loading generic tasks", SeverityLevel.Debug);
+
+                    LoadGenericTasks(d);
+                    _logger.Dump($"finished loading generic tasks", SeverityLevel.Debug);
+
+                }
+                finally
+                {
+                    _inLoading = false;
+                }
             }
         }
 
         private void LoadGenericTasks(XDocument d)
         {
+            //clear in case of reload
+            _taskConfigurations.Clear();
+
             foreach (var taskNode in d.Descendants("Task").Where(t => t.Attribute("Name") != null))
             {
                 try
                 {
                     //TODO: Dependency Injection
-                    _taskConfigurations.Add(XmlTaskConfig.FromXmlElement(taskNode));
+                    var loadedTask = XmlTaskConfig.FromXmlElement(taskNode);
+
+                    _taskConfigurations.Add(loadedTask);
+                    _logger.Dump($"loaded configuration for generic task \"{loadedTask.TaskName}\"({(loadedTask.Active ? "active" : "inactive")})", SeverityLevel.Debug);
                 }
                 catch (Exception ex)
                 {
@@ -282,11 +319,23 @@ namespace EvlWatcher.Config
                 _logger.Dump($"Loaded whitelist: {wstring}", SeverityLevel.Verbose);
             }
 
+            XElement consoleBacklogElement = globalConfig.Element("ConsoleBacklog");
+            if(consoleBacklogElement!=null)
+            {
+                _consoleBacklog = int.Parse(consoleBacklogElement.Value);
+                _logger.Dump($"Console backlog is set to {_consoleBacklog}", SeverityLevel.Verbose);
+            }
+
         }
 
         private SeverityLevel GetLogLevelFromString(string value)
         {
             return (SeverityLevel)Enum.Parse(typeof(SeverityLevel), value);
+        }
+
+        public void Load()
+        {
+            LoadConfiguration();
         }
 
         #endregion

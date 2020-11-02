@@ -71,6 +71,7 @@
     <Compile Include="Converter\WildcardToRegexConverter.cs" />
     <Compile Include="Logging\DefaultLogger.cs" />
     <Compile Include="Logging\ILogger.cs" />
+    <Compile Include="Tasks\DefaultGenericTaskFactory.cs" />
     <Compile Include="Tasks\GenericTask.cs" />
     <Compile Include="SystemApi\FirewallAPI.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -80,6 +81,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Comparer\IPAddressComparer.cs" />
+    <Compile Include="Tasks\IGenericTaskFactory.cs" />
     <Compile Include="Tasks\IPBlockingLogTask.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
@@ -121,7 +123,7 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Config\config.xml">
+    <Content Include="config.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>

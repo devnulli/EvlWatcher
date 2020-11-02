@@ -7,17 +7,13 @@ namespace EvlWatcher.Config
 {
     internal class XmlTaskConfig : IPersistentTaskConfiguration
     {
-        private readonly List<string> _regexBoosters = new List<string>();
-
-        private XmlTaskConfig(string taskName)
-        {
-            TaskName = taskName ?? throw new ArgumentNullException();
-        }
+        #region static
 
         internal static XmlTaskConfig FromXmlElement(XElement taskConfig)
         {
             var newTask = new XmlTaskConfig(taskConfig.Attribute("Name").Value.Trim())
             {
+                Active = bool.Parse(taskConfig.Attribute("Active").Value),
                 Description = taskConfig.Element("Description").Value.Trim() ?? "<indescript Task>",
                 LockTime = int.Parse(taskConfig.Element("LockTime").Value.Trim()),
                 OnlyNewEvents = bool.Parse(taskConfig.Element("OnlyNew").Value.Trim()),
@@ -35,6 +31,25 @@ namespace EvlWatcher.Config
             return newTask;
         }
 
+        #endregion
+
+        #region private members
+
+        private readonly List<string> _regexBoosters = new List<string>();
+
+        #endregion
+
+        #region private .ctor
+
+        private XmlTaskConfig(string taskName)
+        {
+            TaskName = taskName ?? throw new ArgumentNullException();
+        }
+
+        #endregion
+
+        #region public properties
+
         public string Description { get; set; }
         public int LockTime { get; set; }
         public bool OnlyNewEvents { get; set; }
@@ -48,6 +63,11 @@ namespace EvlWatcher.Config
         public string Regex { get; set; }
 
         public string TaskName { get; private set; }
+        public bool Active { get; set; }
+
+        #endregion
+
+        #region public operations
 
         public bool AddRegexBooster(string regexBooster)
         {
@@ -75,5 +95,7 @@ namespace EvlWatcher.Config
         {
             return TaskName;
         }
+
+        #endregion
     }
 }

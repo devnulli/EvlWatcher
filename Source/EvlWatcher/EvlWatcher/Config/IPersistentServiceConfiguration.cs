@@ -62,5 +62,18 @@ namespace EvlWatcher.Config
         /// <param name="address"></param>
         /// <returns>true when a change to the blacklist was made</returns>
         bool RemoveBlackListAddress(IPAddress address);
+
+        /// <summary>
+        /// forced the configuration to be reloaded, in case of external changes.
+        /// </summary>
+        void Load();
+
+        /// <summary>
+        /// how many lines of console output will be provided by the wcf service (max)
+        /// </summary>
+        int ConsoleBackLog
+        {
+            get;set;
+        }
     }
 }

@@ -5,17 +5,13 @@ using EvlWatcher.SystemAPI;
 using EvlWatcher.Tasks;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.ServiceModel;
 using System.ServiceProcess;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Xml.Linq;
 
 namespace EvlWatcher
 {
@@ -31,6 +27,7 @@ namespace EvlWatcher
 
         private readonly ILogger _logger;
         private readonly IPersistentServiceConfiguration _serviceconfiguration;
+        private readonly IGenericTaskFactory _genericTaskFactory;
 
         /// <summary>
         /// this is the servicehost for management apps
@@ -45,7 +42,7 @@ namespace EvlWatcher
         /// <summary>
         /// this flag determines if EvlWatcher should be run as application standalone(i.e. from VS when you debug it), or as windows service
         /// </summary>
-        private const bool _runasApplication = true;
+        private const bool _runasApplication = false;
 
         /// <summary>
         /// adds some extra output
@@ -62,16 +59,16 @@ namespace EvlWatcher
 
         #region public constructor
 
-        public EvlWatcher(ILogger logger, IPersistentServiceConfiguration configuration)
+        public EvlWatcher(ILogger logger, IPersistentServiceConfiguration configuration, IGenericTaskFactory genericTaskFactory)
         {
             _logger = logger;
             _serviceconfiguration = configuration;
+            _genericTaskFactory = genericTaskFactory;
         }
 
         #endregion
 
         #region public operations
-
         public bool GetIsRunning()
         {
             return true;
@@ -134,7 +131,6 @@ namespace EvlWatcher
         #endregion
 
         #region protected operations
-
         protected override void OnStart(string[] args)
         {
             //TODO UNSAFE
@@ -144,7 +140,7 @@ namespace EvlWatcher
                 _serviceHost.AddServiceEndpoint(typeof(WCF.IEvlWatcherService), new NetNamedPipeBinding(), "EvlWatcher");
                 _serviceHost.Open();
 
-                _workerThread = new Thread(new ThreadStart(this.Run))
+                _workerThread = new Thread(new ThreadStart(Run))
                 {
                     IsBackground = true
                 };
@@ -187,50 +183,23 @@ namespace EvlWatcher
         }
 
         #endregion
-        #region private operations
 
-        private void InitWorkersFromConfig(XDocument d)
+        #region private operations
+        /// <summary>
+        /// creates generic log tasks from configuration
+        /// </summary>
+        /// <param name="d"></param>
+        private void InitWorkersFromConfig(IQueryable<IPersistentTaskConfiguration> taskConfigurations)
         {
             lock (_syncObject)
             {
+                foreach (var config in taskConfigurations.Where(c => c.Active == false))
+                    _logger.Dump($"Skipped {config.TaskName} (set inactive)", SeverityLevel.Verbose);
 
-                string loadedTasks = "";
-                string failedTasks = "";
-
-                try
+                foreach (var config in taskConfigurations.Where(c => c.Active == true))
                 {
-                    HashSet<string> taskNames = new HashSet<string>();
-                    foreach (string taskToLoad in from e in d.Root.Element("GenericTaskLoader").Elements("Load") select e.Value)
-                    {
-                        taskNames.Add(taskToLoad);
-                    }
-                    foreach (string s in taskNames)
-                    {
-                        var e = d.Root.Element(s);
-                        try
-                        {
-                            LogTask instance = GenericIPBlockingTask.FromXML(e);
-
-                            loadedTasks += $"\n{instance.Name}\n{ instance.Description}\n";
-
-                            _logTasks.Add(instance);
-                        }
-                        catch (Exception ex)
-                        {
-                            failedTasks += $"\n{s}\n Reason: {ex.Message}";
-                        }
-                    }
+                    _logTasks.Add(_genericTaskFactory.CreateFromConfiguration(config));
                 }
-                catch
-                {
-                    _logger.Dump("Did not load default tasks. None present, or the XML is corrupted", SeverityLevel.Warning);
-                    throw;
-                }
-
-                if (loadedTasks.Length > 0 || failedTasks.Length > 0)
-                    _logger.Dump($"Generic Tasks loaded, loaded tasks are: \n{loadedTasks}" + (failedTasks.Length > 0 ? $"\nFailing Tasks:\n{failedTasks}" : ""), failedTasks.Length > 0 ? SeverityLevel.Warning : SeverityLevel.Info);
-                else
-                    _logger.Dump("No Generic Tasks loaded", SeverityLevel.Info);
             }
         }
 
@@ -279,6 +248,11 @@ namespace EvlWatcher
 
         private void Run()
         {
+            //reload configuration in case of external changes
+            _serviceconfiguration.Load();
+
+            //create generic tasks from configuration
+            InitWorkersFromConfig(_serviceconfiguration.TaskConfigurations);
 
             try
             {
@@ -473,27 +447,26 @@ namespace EvlWatcher
             }
         }
 
+
         #endregion
 
         #region public static operations
 
         public static void Main(string[] args)
         {
+            //build dependencies
+            ILogger logger = new DefaultLogger();
+            IPersistentServiceConfiguration serviceConfiguration = new XmlServiceConfiguration(logger);
+            IGenericTaskFactory genericTaskFactory = new DefaultGenericTaskFactory();
+
             if (!_runasApplication)
             {
-                //build dependencies
-                ILogger logger = new DefaultLogger();
-
-                //start service
-                Run(new EvlWatcher(logger, new XmlServiceConfiguration(logger)));
+                Run(new EvlWatcher(logger, serviceConfiguration, genericTaskFactory));
             }
             else
             {
-                //build dependencies
-                ILogger logger = new DefaultLogger();
-
                 //debug
-                EvlWatcher w = new EvlWatcher(logger, new XmlServiceConfiguration(logger));
+                EvlWatcher w = new EvlWatcher(logger, serviceConfiguration, genericTaskFactory);
                 w.OnStart(null);
                 Thread.Sleep(60000000);
                 w.OnStop();
