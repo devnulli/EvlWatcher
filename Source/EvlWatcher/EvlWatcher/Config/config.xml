@@ -50,7 +50,7 @@
         3
       </PermaBanCount>
 
-      <!-- This is the place where the rule looks for entries-->
+      <!-- This is the place where the rule looks for entries, separated by comma-->
       <EventPath>
         Security
       </EventPath>

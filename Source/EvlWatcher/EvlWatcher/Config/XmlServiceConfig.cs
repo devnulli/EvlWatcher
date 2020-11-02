@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Xml.Linq;
+
+
 
 namespace EvlWatcher.Config
 {
@@ -33,7 +34,7 @@ namespace EvlWatcher.Config
         {
             get
             {
-                throw new NotImplementedException();
+                return _taskConfigurations.AsQueryable();
             }
         }
 
@@ -74,7 +75,6 @@ namespace EvlWatcher.Config
         #endregion
 
         #region public operations
-
         public bool AddWhiteListPattern(string pattern)
         {
             bool changed = false;
@@ -157,6 +157,7 @@ namespace EvlWatcher.Config
 
         private readonly IList<IPAddress> _blacklistAddresses = new List<IPAddress>();
         private readonly IList<string> _whiteListPatterns = new List<string>();
+        private readonly IList<IPersistentTaskConfiguration> _taskConfigurations = new List<IPersistentTaskConfiguration>();
 
         private readonly ILogger _logger;
         private bool _inLoading = false;
@@ -201,10 +202,29 @@ namespace EvlWatcher.Config
                 XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config\\config.xml"));
 
                 LoadGlobalSettings(d);
+                LoadGenericTasks(d);
+
             }
             finally
             {
                 _inLoading = false;
+            }
+        }
+
+        private void LoadGenericTasks(XDocument d)
+        {
+            foreach (var taskNode in d.Descendants("Task").Where(t => t.Attribute("Name") != null))
+            {
+                try
+                {
+                    //TODO: Dependency Injection
+                    _taskConfigurations.Add(XmlTaskConfig.FromXmlElement(taskNode));
+                }
+                catch (Exception ex)
+                {
+                    _logger.Dump(ex);
+                    throw;
+                }
             }
         }
 
