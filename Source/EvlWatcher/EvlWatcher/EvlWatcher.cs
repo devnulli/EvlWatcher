@@ -40,11 +40,6 @@ namespace EvlWatcher
         private static readonly IList<LogTask> _logTasks = new List<LogTask>();
 
         /// <summary>
-        /// this flag determines if EvlWatcher should be run as application standalone(i.e. from VS when you debug it), or as windows service
-        /// </summary>
-        private const bool _runasApplication = false;
-
-        /// <summary>
         /// adds some extra output
         /// </summary>
 
@@ -459,7 +454,7 @@ namespace EvlWatcher
             IPersistentServiceConfiguration serviceConfiguration = new XmlServiceConfiguration(logger);
             IGenericTaskFactory genericTaskFactory = new DefaultGenericTaskFactory();
 
-            if (!_runasApplication)
+            if (!Environment.UserInteractive)
             {
                 Run(new EvlWatcher(logger, serviceConfiguration, genericTaskFactory));
             }
