@@ -32,5 +32,5 @@ Not in this upcoming version:
 # Testers needed.
 
 Since I personally no longer expose my Windows Servers to the Web, I would also need testers to try out certain things.
-If you wanna test that thing, please contact me.
+If you wanna test that thing, **please check out the open pull requests** .
 
