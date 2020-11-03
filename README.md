@@ -1,5 +1,7 @@
 # Sooo. Damn you CoVid-19 ... Announcing a beta release of the new version (v2.0 beta) for ~~2020-07-01~~ 2020-12-01
 
+# Testing has begun, please check out the open pull requests.
+
 So, this is about time this thing gets new paint applied.
 After I almost abandoned this, I got a lot of questions when and how a new release of this "beauty" will be done.
 
