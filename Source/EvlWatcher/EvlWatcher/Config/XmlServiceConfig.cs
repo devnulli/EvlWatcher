@@ -165,8 +165,8 @@ namespace EvlWatcher.Config
                     string s = "";
                     foreach (IPAddress ip in _blacklistAddresses)
                         s += ip.ToString() + ";";
-
-                    WriteConfig("GLOBAL", "Banlist", s);
+                   
+                    WriteConfig("Global", "Banlist", s);
                 }
             }
 

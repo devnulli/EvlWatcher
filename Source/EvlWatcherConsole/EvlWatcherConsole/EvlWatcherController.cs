@@ -95,8 +95,10 @@ namespace EvlWatcherConsole
 
         private void StartUpdating()
         {
-            _updater = new Thread(new ThreadStart(this.Run));
-            _updater.IsBackground = true;
+            _updater = new Thread(new ThreadStart(this.Run))
+            {
+                IsBackground = true
+            };
             _updater.Start();
             _run = true;
         }
@@ -139,31 +141,6 @@ namespace EvlWatcherConsole
                         UpdateIPLists(service);
                         UpdateWhileListPattern(service);
 
-                        int lt = service.GetTaskProperty("BlockRDPBruters", "LockTime");
-                        int tf = service.GetTaskProperty("BlockRDPBruters", "TimeFrame");
-                        int tc = service.GetTaskProperty("BlockRDPBruters", "TriggerCount");
-                        int pb = service.GetTaskProperty("BlockRDPBruters", "PermaBanCount");
-
-                        if (lt != _lockTime)
-                        {
-                            LockTime = lt;
-                        }
-
-                        if (tf != _timeFrame)
-                        {
-                            TimeFrame = tf;
-                        }
-
-                        if (tc != _triggerCount)
-                        {
-                            TriggerCount = tc;
-                        }
-
-                        if (pb != _permaBanTrigger)
-                        {
-                            PermaBanCount = pb;
-                        }
-                        
                         f.Close();
                     }
                     catch (EndpointNotFoundException)
@@ -365,7 +342,6 @@ namespace EvlWatcherConsole
                 {
                     ChannelFactory<WCF.IEvlWatcherService> f = new ChannelFactory<WCF.IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
                     WCF.IEvlWatcherService service = f.CreateChannel();
-                    service.SetTaskProperty("BlockRDPBruters", "PermaBanCount", value);
                     _permaBanTrigger = value;
                     Notify("PermaBanCount");
                 }
@@ -384,7 +360,6 @@ namespace EvlWatcherConsole
                 {
                     ChannelFactory<WCF.IEvlWatcherService> f = new ChannelFactory<WCF.IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
                     WCF.IEvlWatcherService service = f.CreateChannel();
-                    service.SetTaskProperty("BlockRDPBruters", "TriggerCount", value);
                     _triggerCount = value;
                     Notify("TriggerCount");
                 }
@@ -403,7 +378,6 @@ namespace EvlWatcherConsole
                 {
                     ChannelFactory<WCF.IEvlWatcherService> f = new ChannelFactory<WCF.IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
                     WCF.IEvlWatcherService service = f.CreateChannel();
-                    service.SetTaskProperty("BlockRDPBruters", "TimeFrame", value);
                     _timeFrame = value;
                     Notify("TimeFrame");
                 }
@@ -422,7 +396,6 @@ namespace EvlWatcherConsole
                 {
                     ChannelFactory<WCF.IEvlWatcherService> f = new ChannelFactory<WCF.IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
                     WCF.IEvlWatcherService service = f.CreateChannel();
-                    service.SetTaskProperty("BlockRDPBruters", "LockTime", value);
                     _lockTime = value;
                     Notify("LockTime");
                 }

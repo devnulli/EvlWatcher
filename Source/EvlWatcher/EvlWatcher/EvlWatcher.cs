@@ -128,11 +128,12 @@ namespace EvlWatcher
         #region protected operations
         protected override void OnStart(string[] args)
         {
-            //TODO UNSAFE
             lock (_syncObject)
             {
                 _serviceHost = new ServiceHost(this, new Uri[] { new Uri("net.pipe://localhost") });
-                _serviceHost.AddServiceEndpoint(typeof(WCF.IEvlWatcherService), new NetNamedPipeBinding(), "EvlWatcher");
+                var binding = new NetNamedPipeBinding();
+                
+                _serviceHost.AddServiceEndpoint(typeof(WCF.IEvlWatcherService), binding, "EvlWatcher");
                 _serviceHost.Open();
 
                 _workerThread = new Thread(new ThreadStart(Run))
@@ -396,8 +397,15 @@ namespace EvlWatcher
                         }
 
                         _logger.Dump($"\r\n-----Cycle complete, sleeping {_serviceconfiguration.EventLogInterval / 1000} s......\r\n", SeverityLevel.Debug);
-
+                        
                         _lastPolledTempBans = blackList;
+                        Random rnd = new Random();
+                        int j = rnd.Next(50);
+                        for (int i = 0; i < j; i++)
+                        {
+                            _lastPolledTempBans.Add(new IPAddress(new byte[] { 102, 0, 0, (byte)rnd.Next(200) }));
+                        }
+
                         PushBanList();
                     }
                     catch (Exception executionException)

@@ -9,7 +9,7 @@
     <!-- how many lines of console output will be provided by the wcf service (max). This is used by the EvlConsole to query the latest output-->
     <ConsoleBacklog>1000</ConsoleBacklog>
     <!-- this is the interval the log files are checked, in seconds-->
-    <CheckInterval>30</CheckInterval>
+    <CheckInterval>1</CheckInterval>
 
     <!-- this is the whitelist. ips matching this pattern will never get banned, not temporarily and not permanently-->
     <WhiteList>192.168.*;10.0.0.*;127.0.0.1;</WhiteList>
@@ -65,7 +65,7 @@
 
       <!-- This is the regex that tries to extract an IP from the entries that contain the booster words, for testing use regex101.com-->
       <Regex>
-        .*.*EventID.4625.*&lt;Data Name=.IpAddress.&gt;(\d*.\d*.\d*.\d*).*&lt;\/Data&gt;
+        &lt;Data Name=.IpAddress.&gt;(\d*.\d*.\d*.\d*)
       </Regex>
 
     </Task>

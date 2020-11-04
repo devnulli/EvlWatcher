@@ -2,17 +2,21 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:e="clr-namespace:EvlWatcherConsole"
-        Title="EvlWatcher Console v1.4" Height="350" Width="525" Icon="pack://application:,,,/RES/EvlWatcher.ico">
+        Title="EvlWatcher v2.0 Console" Height="550" Width="725" Icon="pack://application:,,,/RES/EvlWatcher.ico" WindowStyle="ThreeDBorderWindow">
     <Window.DataContext>
         <e:EvlWatcherController/>
     </Window.DataContext>
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="265*"/>
+            <ColumnDefinition Width="452*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
         </Grid.RowDefinitions>
-        <TabControl>
-            <TabItem Header="List Management">
+        <TabControl Grid.ColumnSpan="2">
+            <TabItem Header="Firewall Settings">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition></ColumnDefinition>
@@ -91,10 +95,50 @@
                     </Grid>
                 </Grid>
             </TabItem>
+            <TabItem Header="Live" ToolTip="Test">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="40"></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <Label>Showing recent console output of the service:</Label>
+                    <TextBox Grid.Row="1" Background="Black" Foreground="Green" FontFamily="Courier" IsReadOnly="True">
+
+                    </TextBox>
+                    <StackPanel  Grid.Row="2" Orientation="Horizontal">
+                        <Label VerticalAlignment="Center"> Console verbosity: </Label>
+                        <ComboBox VerticalAlignment="Center" Width="100" Margin="5" Text="Verbosity" SelectedValue="Critical">
+                            <ComboBoxItem>Critical</ComboBoxItem>
+                            <ComboBoxItem>Error</ComboBoxItem>
+                            <ComboBoxItem>Warning</ComboBoxItem>
+                            <ComboBoxItem>Info</ComboBoxItem>
+                            <ComboBoxItem>Verbose</ComboBoxItem>
+                            <ComboBoxItem>Debug</ComboBoxItem>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
         </TabControl>
-        <StatusBar Grid.Row="1">
+        <StatusBar Grid.Row="1" Grid.ColumnSpan="2">
             <StatusBarItem>
-                <Label IsEnabled="{Binding IsRunning}">Service is responding.</Label>
+                <Label IsEnabled="{Binding IsRunning}">
+                    <Label.Style>
+                        <Style TargetType="Label">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsRunning}" Value="True">
+                                    <Setter Property="Content" Value="Service is currently responding." />
+                                    <Setter Property="Foreground" Value="Green" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Path=IsRunning}" Value="False">
+                                    <Setter Property="Content" Value="Service is currently not responding." />
+                                    <Setter Property="Foreground" Value="Red" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Label.Style>
+                </Label>
             </StatusBarItem>
         </StatusBar>
     </Grid>
