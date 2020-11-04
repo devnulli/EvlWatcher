@@ -3,40 +3,55 @@ using System.Collections.Generic;
 using NetFwTypeLib;
 using System.Net;
 using EvlWatcher.Comparer;
+using System.Runtime.InteropServices;
 
 namespace EvlWatcher.SystemAPI
 {
     /// <summary>
     /// this class wraps required parts of the Microsoft Firewall with Enhanced Security COM API
     /// </summary>
-    public static class FirewallAPI
+    public class FirewallAPI : IDisposable
     {
         private const string CLSID_FWPOLICY2 = "{E2B3C97F-6AE1-41AC-817A-F6F92166D7DD}";
         private const string CLSID_FWRULE = "{2C5BC43E-3369-4C33-AB0C-BE9469677AF4}";
+        private bool _disposed;
 
-        private static INetFwPolicy2 GetPolicy2()
+        private INetFwPolicy2 _fwPolicy2 = null;
+        private INetFwRule _fwRule = null;
+
+        private INetFwPolicy2 GetPolicy2()
         {
-            Type objectType = Type.GetTypeFromCLSID(
-                new Guid(CLSID_FWPOLICY2));
-            return Activator.CreateInstance(objectType)
-                  as INetFwPolicy2;
+            if (_fwPolicy2 == null)
+            {
+                Type objectType = Type.GetTypeFromCLSID(
+                    new Guid(CLSID_FWPOLICY2));
+                _fwPolicy2 = Activator.CreateInstance(objectType)
+                      as INetFwPolicy2;
+            }
+
+            return _fwPolicy2;
         }
 
-        private static INetFwRule GetFwRule()
+        private INetFwRule GetFwRule()
         {
-            Type objectType = Type.GetTypeFromCLSID(new Guid(CLSID_FWRULE));
-            return Activator.CreateInstance(objectType)
-                  as INetFwRule;
+            if (_fwRule == null)
+            {
+                Type objectType = Type.GetTypeFromCLSID(new Guid(CLSID_FWRULE));
+                _fwRule = Activator.CreateInstance(objectType)
+                      as INetFwRule;
+            }
+
+            return _fwRule;
         }
 
-        public static void ClearIPBanList()
+        public void ClearIPBanList()
         {
             INetFwRule rule = GetOrCreateEvlWatcherRule(false);
             if (rule != null)
                 GetPolicy2().Rules.Remove(rule.Name);
         }
 
-        public static bool AdjustIPBanList(List<IPAddress> ips)
+        public bool AdjustIPBanList(List<IPAddress> ips)
         {
             ips.Sort(new IPAddressComparer());
 
@@ -81,14 +96,15 @@ namespace EvlWatcher.SystemAPI
             }
 
             return changed;
+            
         }
 
-        private static INetFwRule GetOrCreateEvlWatcherRule()
+        private INetFwRule GetOrCreateEvlWatcherRule()
         {
             return GetOrCreateEvlWatcherRule(true);
         }
 
-        private static INetFwRule GetOrCreateEvlWatcherRule(bool create)
+        private INetFwRule GetOrCreateEvlWatcherRule(bool create)
         {
             INetFwPolicy2 policies = GetPolicy2();
             INetFwRule rule = null;
@@ -122,7 +138,7 @@ namespace EvlWatcher.SystemAPI
             return rule;
         }
 
-        public static List<string> GetBannedIPs()
+        public List<string> GetBannedIPs()
         {
             List<string> currentlyBannedIPs = new List<string>();
 
@@ -139,6 +155,43 @@ namespace EvlWatcher.SystemAPI
             }
 
             return currentlyBannedIPs;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                if(_fwRule != null)
+                {
+                    Marshal.ReleaseComObject(_fwRule);
+                    _fwRule = null;
+                }
+
+                if(_fwPolicy2 == null)
+                {
+                    Marshal.ReleaseComObject(_fwPolicy2);
+                    _fwPolicy2 = null;
+                }
+                _disposed = true;
+            }
+        }
+
+        
+         ~FirewallAPI()
+         {     
+             Dispose(disposing: false);
+         }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

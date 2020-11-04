@@ -1,5 +1,6 @@
 ﻿using EvlWatcher.Config;
 using EvlWatcher.Converter;
+using EvlWatcher.DTOs;
 using EvlWatcher.Logging;
 using EvlWatcher.SystemAPI;
 using EvlWatcher.Tasks;
@@ -24,6 +25,9 @@ namespace EvlWatcher
         /// this thread does the actual log scanning
         /// </summary>
         private Thread _workerThread;
+        private bool _disposed = false;
+
+        private readonly FirewallAPI _firewallApi = new FirewallAPI();
 
         private readonly ILogger _logger;
         private readonly IPersistentServiceConfiguration _serviceconfiguration;
@@ -38,11 +42,6 @@ namespace EvlWatcher
         /// all loaded tasks
         /// </summary>
         private static readonly IList<LogTask> _logTasks = new List<LogTask>();
-
-        /// <summary>
-        /// this flag determines if EvlWatcher should be run as application standalone(i.e. from VS when you debug it), or as windows service
-        /// </summary>
-        private const bool _runasApplication = false;
 
         /// <summary>
         /// adds some extra output
@@ -131,6 +130,24 @@ namespace EvlWatcher
         #endregion
 
         #region protected operations
+
+        protected override void Dispose(bool disposing)
+        {
+            if(_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                
+            }
+
+            _disposed = true;
+
+            base.Dispose(disposing);
+        }
+
         protected override void OnStart(string[] args)
         {
             //TODO UNSAFE
@@ -225,7 +242,7 @@ namespace EvlWatcher
                     .Where(address => !IsWhiteListed(address))
                     .ToList();
 
-                FirewallAPI.AdjustIPBanList(banList);
+                _firewallApi.AdjustIPBanList(banList);
 
                 foreach (IPAddress ip in _lastBannedIPs.Where(ip => !banList.Contains(ip)))
                     _logger.Dump($"Removed {ip} from the ban list", SeverityLevel.Info);
@@ -271,8 +288,8 @@ namespace EvlWatcher
 
                 var eventTypesToLastEvent = new Dictionary<string, DateTime>();
                 var eventTypesToMaxAge = new Dictionary<string, int>();
-                var eventTypesToNewEvents = new Dictionary<string, List<EventRecord>>();
-                var eventTypesToTimeFramedEvents = new Dictionary<string, List<EventRecord>>();
+                var eventTypesToNewEvents = new Dictionary<string, List<ExtractedEventRecord>>();
+                var eventTypesToTimeFramedEvents = new Dictionary<string, List<ExtractedEventRecord>>();
 
                 //load structure so that only required events are read
                 foreach (string requiredEventType in requiredEventTypesToLogTasks.Keys)
@@ -303,8 +320,8 @@ namespace EvlWatcher
                         //first read all relevant events (events that are required by any of the tasks)
                         foreach (string requiredEventType in requiredEventTypesToLogTasks.Keys)
                         {
-                            eventTypesToNewEvents.Add(requiredEventType, new List<EventRecord>());
-                            eventTypesToTimeFramedEvents.Add(requiredEventType, new List<EventRecord>());
+                            eventTypesToNewEvents.Add(requiredEventType, new List<ExtractedEventRecord>());
+                            eventTypesToTimeFramedEvents.Add(requiredEventType, new List<ExtractedEventRecord>());
 
                             var eventLogQuery = new EventLogQuery(requiredEventType, PathType.LogName)
                             {
@@ -313,30 +330,41 @@ namespace EvlWatcher
 
                             try
                             {
-                                var eventLogReader = new EventLogReader(eventLogQuery);
-                                EventRecord r;
-
-                                while ((r = eventLogReader.ReadEvent()) != null)
+                                using (var eventLogReader = new EventLogReader(eventLogQuery))
                                 {
-                                    if (!r.TimeCreated.HasValue)
-                                        continue;
+                                    EventRecord r;
 
-                                    bool canbreak = false;
-
-                                    //fill new event list
-                                    if (r.TimeCreated > eventTypesToLastEvent[requiredEventType])
+                                    while ((r = eventLogReader.ReadEvent()) != null)
                                     {
-                                        eventTypesToNewEvents[requiredEventType].Add(r);
-                                        eventTypesToLastEvent[requiredEventType] = r.TimeCreated.Value;
-                                    }
-                                    else
-                                        canbreak = true;
+                                        //r.Dispose();
+                                        if (!r.TimeCreated.HasValue)
+                                            continue;
 
-                                    //fill time framed event list
-                                    if (r.TimeCreated > referenceTimeForTimeFramedEvents.Subtract(new TimeSpan(0, 0, eventTypesToMaxAge[requiredEventType])))
-                                        eventTypesToTimeFramedEvents[requiredEventType].Add(r);
-                                    else if (canbreak)
-                                        break;
+                                        ExtractedEventRecord eer = new ExtractedEventRecord()
+                                        {
+                                            TimeCreated = r.TimeCreated.Value,
+                                            Xml = r.ToXml()
+                                        };
+
+                                        r.Dispose();
+
+                                        bool canbreak = false;
+
+                                        //fill new event list
+                                        if (r.TimeCreated > eventTypesToLastEvent[requiredEventType])
+                                        {
+                                            eventTypesToNewEvents[requiredEventType].Add(eer);
+                                            eventTypesToLastEvent[requiredEventType] = r.TimeCreated.Value;
+                                        }
+                                        else
+                                            canbreak = true;
+
+                                        //fill time framed event list
+                                        if (r.TimeCreated > referenceTimeForTimeFramedEvents.Subtract(new TimeSpan(0, 0, eventTypesToMaxAge[requiredEventType])))
+                                            eventTypesToTimeFramedEvents[requiredEventType].Add(eer);
+                                        else if (canbreak)
+                                            break;
+                                    }
                                 }
                             }
                             catch (EventLogNotFoundException)
@@ -357,8 +385,8 @@ namespace EvlWatcher
                                     t.ProvideEvents(eventTypesToNewEvents[key]);
                                 else
                                 {
-                                    var eventsForThisTask = new List<EventRecord>();
-                                    foreach (EventRecord e in eventTypesToTimeFramedEvents[key])
+                                    var eventsForThisTask = new List<ExtractedEventRecord>();
+                                    foreach (ExtractedEventRecord e in eventTypesToTimeFramedEvents[key])
                                     {
                                         if (e.TimeCreated > referenceTimeForTimeFramedEvents.Subtract(new TimeSpan(0, 0, t.EventAge)))
                                             eventsForThisTask.Add(e);
@@ -430,7 +458,7 @@ namespace EvlWatcher
                     {
                         try
                         {
-                            FirewallAPI.ClearIPBanList();
+                            _firewallApi.ClearIPBanList();
                         }
                         catch (Exception ex)
                         {
@@ -459,7 +487,7 @@ namespace EvlWatcher
             IPersistentServiceConfiguration serviceConfiguration = new XmlServiceConfiguration(logger);
             IGenericTaskFactory genericTaskFactory = new DefaultGenericTaskFactory();
 
-            if (!_runasApplication)
+            if (!Environment.UserInteractive)
             {
                 Run(new EvlWatcher(logger, serviceConfiguration, genericTaskFactory));
             }
