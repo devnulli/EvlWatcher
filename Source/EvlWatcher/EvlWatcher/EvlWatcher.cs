@@ -212,7 +212,7 @@ namespace EvlWatcher
             lock (_syncObject)
             {
                 foreach (var config in taskConfigurations.Where(c => c.Active == false))
-                    _logger.Dump($"Skipped {config.TaskName} (set inactive)", SeverityLevel.Verbose);
+                    _logger.Dump($"Skipped {config.TaskName} (set inactive)", SeverityLevel.Info);
 
                 foreach (var config in taskConfigurations.Where(c => c.Active == true))
                 {

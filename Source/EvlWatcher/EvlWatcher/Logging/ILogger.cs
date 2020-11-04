@@ -7,8 +7,8 @@ namespace EvlWatcher.Logging
     {
         Off = 6,
         Critical = 5,
-        Warning = 4,
-        Error = 3,
+        Error = 4,
+        Warning = 3,
         Info = 2,
         Verbose = 1,
         Debug = 0
