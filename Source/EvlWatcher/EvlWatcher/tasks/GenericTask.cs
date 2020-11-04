@@ -1,4 +1,5 @@
 ﻿using EvlWatcher.Config;
+using EvlWatcher.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
@@ -125,12 +126,12 @@ namespace EvlWatcher.Tasks
             return permaList;
         }
 
-        protected override void OnComputeEvents(List<EventRecord> events)
+        protected override void OnComputeEvents(List<ExtractedEventRecord> events)
         {
             Dictionary<IPAddress, int> sourceToCount = new Dictionary<IPAddress, int>();
-            foreach (EventRecord e in events)
+            foreach (ExtractedEventRecord e in events)
             {
-                string xml = e.ToXml();
+                string xml = e.Xml;
 
                 bool abort = false;
                 foreach (string b in Boosters)
