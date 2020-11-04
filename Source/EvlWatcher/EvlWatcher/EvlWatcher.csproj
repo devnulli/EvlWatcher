@@ -45,6 +45,7 @@
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -63,8 +64,16 @@
     <StartupObject>EvlWatcher.EvlWatcher</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Config\ServiceConfig.cs" />
+    <Compile Include="Config\IPersistentServiceConfiguration.cs" />
+    <Compile Include="Config\IPersistentTaskConfiguration.cs" />
+    <Compile Include="Config\XmlServiceConfig.cs" />
+    <Compile Include="Config\XmlTaskConfig.cs" />
+    <Compile Include="Converter\SeverityToEventLogEntryType.cs" />
     <Compile Include="Converter\WildcardToRegexConverter.cs" />
+    <Compile Include="DTOs\ExtractedEventRecord.cs" />
+    <Compile Include="Logging\DefaultLogger.cs" />
+    <Compile Include="Logging\ILogger.cs" />
+    <Compile Include="Tasks\DefaultGenericTaskFactory.cs" />
     <Compile Include="Tasks\GenericTask.cs" />
     <Compile Include="SystemApi\FirewallAPI.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -74,6 +83,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Comparer\IPAddressComparer.cs" />
+    <Compile Include="Tasks\IGenericTaskFactory.cs" />
     <Compile Include="Tasks\IPBlockingLogTask.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
@@ -115,7 +125,7 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Config\config.xml">
+    <Content Include="config.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>

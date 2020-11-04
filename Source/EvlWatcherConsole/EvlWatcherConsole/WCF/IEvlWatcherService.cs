@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 using System.Net;
 
 namespace EvlWatcherConsole.WCF
@@ -26,13 +22,5 @@ namespace EvlWatcherConsole.WCF
         void RemoveWhiteListEntry(string filter);
         [OperationContract]
         string[] GetWhiteListEntries();
-        [OperationContract]
-        KeyValuePair<DateTime, string>[] GetProtocolSince(DateTime time);
-        [OperationContract]
-        Dictionary<string, Dictionary<string, string>> GetTaskConfigurableProperties();
-        [OperationContract]
-        void SetTaskProperty(string task, string property, int value);
-        [OperationContract]
-        int GetTaskProperty(string task, string property);
     }
 }
