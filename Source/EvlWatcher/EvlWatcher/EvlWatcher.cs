@@ -19,7 +19,7 @@ using System.Threading;
 namespace EvlWatcher
 {
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Single, InstanceContextMode = InstanceContextMode.Single)]
-    public class EvlWatcher : ServiceBase, WCF.IEvlWatcherService
+    public class EvlWatcher : ServiceBase, IEvlWatcherService
     {
         #region private members
 
@@ -184,7 +184,7 @@ namespace EvlWatcher
                 _serviceHost = new ServiceHost(this, new Uri[] { new Uri("net.pipe://localhost") });
                 var binding = new NetNamedPipeBinding();
                 
-                _serviceHost.AddServiceEndpoint(typeof(WCF.IEvlWatcherService), binding, "EvlWatcher");
+                _serviceHost.AddServiceEndpoint(typeof(IEvlWatcherService), binding, "EvlWatcher");
                 _serviceHost.Open();
 
                 _workerThread = new Thread(new ThreadStart(Run))

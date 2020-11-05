@@ -3,11 +3,9 @@ using EvlWatcher.DTOs;
 using EvlWatcher.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace EvlWatcher.Tasks
 {

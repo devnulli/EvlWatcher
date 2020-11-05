@@ -12,12 +12,66 @@ namespace EvlWatcher.SystemAPI
     /// </summary>
     public class FirewallAPI : IDisposable
     {
+        #region private members
         private const string CLSID_FWPOLICY2 = "{E2B3C97F-6AE1-41AC-817A-F6F92166D7DD}";
         private const string CLSID_FWRULE = "{2C5BC43E-3369-4C33-AB0C-BE9469677AF4}";
         private bool _disposed;
 
         private INetFwPolicy2 _fwPolicy2 = null;
         private INetFwRule _fwRule = null;
+
+        #endregion
+
+        #region .ctor
+
+        ~FirewallAPI()
+        {
+            Dispose(disposing: false);
+        }
+
+        #endregion
+
+        #region private operations
+
+        private INetFwRule GetOrCreateEvlWatcherRule()
+        {
+            return GetOrCreateEvlWatcherRule(true);
+        }
+
+        private INetFwRule GetOrCreateEvlWatcherRule(bool create)
+        {
+            INetFwPolicy2 policies = GetPolicy2();
+            INetFwRule rule = null;
+
+            bool found = false;
+            foreach (INetFwRule r in policies.Rules)
+            {
+                if (r.Name == "EvlWatcher")
+                {
+                    found = true;
+                    rule = r;
+                    break;
+                }
+            }
+
+            if (!found && create)
+            {
+                rule = GetFwRule();
+                rule.Enabled = false;
+                rule.Action = NET_FW_ACTION_.NET_FW_ACTION_BLOCK;
+                rule.Description = "This is the rule EvlWatcher uses for temporarily banning IPs. It will enable/disable automatically when IPs need to be banned. You don't have to manually enable it.";
+                rule.Direction = NET_FW_RULE_DIRECTION_.NET_FW_RULE_DIR_IN;
+                rule.EdgeTraversal = false;
+                rule.LocalAddresses = "*";
+                rule.Name = "EvlWatcher";
+                rule.Profiles = 2147483647; // = means all Profiles
+                rule.Protocol = 256;
+                policies.Rules.Add(rule);
+            }
+
+            return rule;
+        }
+
 
         private INetFwPolicy2 GetPolicy2()
         {
@@ -42,6 +96,17 @@ namespace EvlWatcher.SystemAPI
             }
 
             return _fwRule;
+        }
+
+        #endregion
+
+        #region public operations
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         public void ClearIPBanList()
@@ -98,46 +163,7 @@ namespace EvlWatcher.SystemAPI
             return changed;
             
         }
-
-        private INetFwRule GetOrCreateEvlWatcherRule()
-        {
-            return GetOrCreateEvlWatcherRule(true);
-        }
-
-        private INetFwRule GetOrCreateEvlWatcherRule(bool create)
-        {
-            INetFwPolicy2 policies = GetPolicy2();
-            INetFwRule rule = null;
-
-            bool found = false;
-            foreach (INetFwRule r in policies.Rules)
-            {
-                if (r.Name == "EvlWatcher")
-                {
-                    found = true;
-                    rule = r;
-                    break;
-                }
-            }
-
-            if (!found && create)
-            {
-                rule = GetFwRule();
-                rule.Enabled = false;
-                rule.Action = NET_FW_ACTION_.NET_FW_ACTION_BLOCK;
-                rule.Description = "This is the rule EvlWatcher uses for temporarily banning IPs. It will enable/disable automatically when IPs need to be banned. You don't have to manually enable it.";
-                rule.Direction = NET_FW_RULE_DIRECTION_.NET_FW_RULE_DIR_IN;
-                rule.EdgeTraversal = false;
-                rule.LocalAddresses = "*";
-                rule.Name = "EvlWatcher";
-                rule.Profiles = 2147483647; // = means all Profiles
-                rule.Protocol = 256;
-                policies.Rules.Add(rule);
-            }
-
-            return rule;
-        }
-
+     
         public List<string> GetBannedIPs()
         {
             List<string> currentlyBannedIPs = new List<string>();
@@ -156,6 +182,10 @@ namespace EvlWatcher.SystemAPI
 
             return currentlyBannedIPs;
         }
+
+        #endregion
+
+        #region protected operations
 
         protected virtual void Dispose(bool disposing)
         {
@@ -181,17 +211,6 @@ namespace EvlWatcher.SystemAPI
             }
         }
 
-        
-         ~FirewallAPI()
-         {     
-             Dispose(disposing: false);
-         }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+        #endregion
     }
 }
