@@ -2,6 +2,8 @@
 
 # Testing has begun, please check out the open pull requests.
 
+[![Gitter](https://badges.gitter.im/EvlWatcher/community.svg)](https://gitter.im/EvlWatcher/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 So, this is about time this thing gets new paint applied.
 After I almost abandoned this, I got a lot of questions when and how a new release of this "beauty" will be done.
 
