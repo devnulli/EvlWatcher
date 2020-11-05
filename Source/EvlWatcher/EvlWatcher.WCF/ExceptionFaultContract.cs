@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.Serialization;
 
-namespace EvlWatcherConsole.WCF
+namespace EvlWatcher.WCF
 {
+
     public enum ExceptionFaultContractCode
     {
         clientNotAdministrator = 01
-    }
+    } 
 
     [DataContract]
     public class ExceptionFaultContract

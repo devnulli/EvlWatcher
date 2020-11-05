@@ -46,6 +46,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EvlWatcher.WCF">
+      <HintPath>..\..\EvlWatcher\EvlWatcher.WCF\bin\Debug\EvlWatcher.WCF.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization" />
@@ -70,8 +73,6 @@
     <Compile Include="EvlWatcherController.cs" />
     <Compile Include="MVVMBase\GuiObject.cs" />
     <Compile Include="MVVMBase\RelayCommand.cs" />
-    <Compile Include="WCF\ExceptionFaultContract.cs" />
-    <Compile Include="WCF\IEvlWatcherService.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

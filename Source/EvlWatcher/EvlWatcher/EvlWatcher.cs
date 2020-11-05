@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Net;
-using System.Security;
 using System.Security.Principal;
 using System.ServiceModel;
 using System.ServiceProcess;
@@ -84,19 +83,15 @@ namespace EvlWatcher
         #region public operations
         public bool GetIsRunning()
         {
-            if (IsClientAdministrator() )
-                throw new FaultException<ExceptionFaultContract>(
-                    new ExceptionFaultContract(
-                        ExceptionFaultContractCode.clientNotAdministrator, 
-                        $"Your account {ServiceSecurityContext.Current.WindowsIdentity.Name} is not an Administrator! Please run this software with Administrator privileges. The client will exit..."
-                        , true), "ok"
-                    );
+            EnsureClientPrivileges();
             
             return true;
         }
 
         public IPAddress[] GetPermanentlyBannedIPs()
         {
+            EnsureClientPrivileges();
+
             lock (_syncObject)
             {
                 return _serviceconfiguration.BlacklistAddresses.ToArray();
@@ -105,12 +100,16 @@ namespace EvlWatcher
 
         public string[] GetWhiteListEntries()
         {
+            EnsureClientPrivileges();
+
             lock (_syncObject)
                 return _serviceconfiguration.WhitelistPatterns.ToArray();
         }
 
         public void SetPermanentBan(IPAddress address)
         {
+            EnsureClientPrivileges();
+
             _serviceconfiguration.AddBlackListAddress(address);
 
             PushBanList();
@@ -118,6 +117,8 @@ namespace EvlWatcher
 
         public void ClearPermanentBan(IPAddress address)
         {
+            EnsureClientPrivileges();
+
             _serviceconfiguration.RemoveBlackListAddress(address);
 
             PushBanList();
@@ -125,6 +126,8 @@ namespace EvlWatcher
 
         public void AddWhiteListEntry(string filter)
         {
+            EnsureClientPrivileges();
+
             _serviceconfiguration.AddWhiteListPattern(filter);
 
             PushBanList();
@@ -132,6 +135,8 @@ namespace EvlWatcher
 
         public void RemoveWhiteListEntry(string filter)
         {
+            EnsureClientPrivileges();
+
             _serviceconfiguration.RemoveWhiteListPattern(filter);
 
             PushBanList();
@@ -139,6 +144,8 @@ namespace EvlWatcher
 
         public IPAddress[] GetTemporarilyBannedIPs()
         {
+            EnsureClientPrivileges();
+
             lock (_syncObject)
             {
                 List<IPAddress> result = new List<IPAddress>(_lastPolledTempBans);
@@ -225,6 +232,21 @@ namespace EvlWatcher
         #endregion
 
         #region private operations
+
+        /// <summary>
+        /// ensures the requestor is authenticated as privileged user
+        /// </summary>
+        private void EnsureClientPrivileges()
+        {
+            if (!IsClientAdministrator())
+                throw new FaultException<ExceptionFaultContract>(
+                    new ExceptionFaultContract(
+                        ExceptionFaultContractCode.clientNotAdministrator,
+                        $"Your account {ServiceSecurityContext.Current.WindowsIdentity.Name} is not an Administrator! Please run this software with Administrator privileges. The client will exit..."
+                        , true), "ok"
+                    );
+        }
+
         /// <summary>
         /// creates generic log tasks from configuration
         /// </summary>

@@ -11,7 +11,7 @@ using System.ServiceModel;
 using System.Net;
 using System.Windows.Input;
 using EvlWatcherConsole.MVVMBase;
-using EvlWatcherConsole.WCF;
+using EvlWatcher.WCF;
 
 namespace EvlWatcherConsole
 {
@@ -58,8 +58,8 @@ namespace EvlWatcherConsole
         {
             lock (syncObject)
             {
-                ChannelFactory<WCF.IEvlWatcherService> f = new ChannelFactory<WCF.IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
-                WCF.IEvlWatcherService service = f.CreateChannel();
+                ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
+                IEvlWatcherService service = f.CreateChannel();
                 service.AddWhiteListEntry(s);
             }
         }
@@ -68,8 +68,8 @@ namespace EvlWatcherConsole
         {
             lock (syncObject)
             {
-                ChannelFactory<WCF.IEvlWatcherService> f = new ChannelFactory<WCF.IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
-                WCF.IEvlWatcherService service = f.CreateChannel();
+                ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
+                IEvlWatcherService service = f.CreateChannel();
                 service.RemoveWhiteListEntry(s);
             }
         }
@@ -78,8 +78,8 @@ namespace EvlWatcherConsole
         {
             lock (syncObject)
             {
-                ChannelFactory<WCF.IEvlWatcherService> f = new ChannelFactory<WCF.IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
-                WCF.IEvlWatcherService service = f.CreateChannel();
+                ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
+                IEvlWatcherService service = f.CreateChannel();
                 service.SetPermanentBan(a);
             }
         }
@@ -88,8 +88,8 @@ namespace EvlWatcherConsole
         {
             lock (syncObject)
             {
-                ChannelFactory<WCF.IEvlWatcherService> f = new ChannelFactory<WCF.IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
-                WCF.IEvlWatcherService service = f.CreateChannel();
+                ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
+                IEvlWatcherService service = f.CreateChannel();
                 service.ClearPermanentBan(a);
             }
         }
@@ -121,8 +121,6 @@ namespace EvlWatcherConsole
         {
             while (_run)
             {
-                
-
                 lock (syncObject)
                 {
                     //do not update in design mode
@@ -131,8 +129,8 @@ namespace EvlWatcherConsole
 
                     try
                     {
-                        ChannelFactory<WCF.IEvlWatcherService> f = new ChannelFactory<WCF.IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
-                        WCF.IEvlWatcherService service = f.CreateChannel();
+                        ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
+                        IEvlWatcherService service = f.CreateChannel();
 
                         running = service.GetIsRunning();
 
@@ -144,10 +142,10 @@ namespace EvlWatcherConsole
 
                         f.Close();
                     }
-                    catch ( FaultException<ExceptionFaultContract> ex )
+                    catch (FaultException<ExceptionFaultContract> ex)
                     {
                         MessageBox.Show(ex.Detail.Message, $"Error Code: {ex.Detail.Code}", MessageBoxButton.OK, MessageBoxImage.Error);
-                        if ( ex.Detail.CanTerminate )
+                        if (ex.Detail.CanTerminate)
                             Environment.Exit(0);
                     }
                     catch (EndpointNotFoundException)
@@ -160,7 +158,7 @@ namespace EvlWatcherConsole
                     }
                     finally
                     {
-                        this.IsRunning = running;
+                        IsRunning = running;
                     }
                 }
                 try
@@ -172,7 +170,7 @@ namespace EvlWatcherConsole
             }
         }
 
-        private void UpdateWhileListPattern(WCF.IEvlWatcherService service)
+        private void UpdateWhileListPattern(IEvlWatcherService service)
         {
             List<string> entries = new List<string>(service.GetWhiteListEntries());
             List<string> toAdd = new List<string>();
@@ -195,7 +193,7 @@ namespace EvlWatcherConsole
                 Application.Current.Dispatcher.Invoke(new Action(() => _whiteListPattern.Remove(s)));
         }
 
-        private void UpdateIPLists(WCF.IEvlWatcherService service)
+        private void UpdateIPLists(IEvlWatcherService service)
         {
             List<IPAddress> ips = new List<IPAddress>(service.GetTemporarilyBannedIPs());
             List<IPAddress> toAdd = new List<IPAddress>();
@@ -347,8 +345,8 @@ namespace EvlWatcherConsole
             {
                 lock (syncObject)
                 {
-                    ChannelFactory<WCF.IEvlWatcherService> f = new ChannelFactory<WCF.IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
-                    WCF.IEvlWatcherService service = f.CreateChannel();
+                    ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
+                    IEvlWatcherService service = f.CreateChannel();
                     _permaBanTrigger = value;
                     Notify("PermaBanCount");
                 }
@@ -365,8 +363,8 @@ namespace EvlWatcherConsole
             {
                 lock (syncObject)
                 {
-                    ChannelFactory<WCF.IEvlWatcherService> f = new ChannelFactory<WCF.IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
-                    WCF.IEvlWatcherService service = f.CreateChannel();
+                    ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
+                    IEvlWatcherService service = f.CreateChannel();
                     _triggerCount = value;
                     Notify("TriggerCount");
                 }
@@ -383,8 +381,8 @@ namespace EvlWatcherConsole
             {
                 lock (syncObject)
                 {
-                    ChannelFactory<WCF.IEvlWatcherService> f = new ChannelFactory<WCF.IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
-                    WCF.IEvlWatcherService service = f.CreateChannel();
+                    ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
+                    IEvlWatcherService service = f.CreateChannel();
                     _timeFrame = value;
                     Notify("TimeFrame");
                 }
@@ -401,8 +399,8 @@ namespace EvlWatcherConsole
             {
                 lock (syncObject)
                 {
-                    ChannelFactory<WCF.IEvlWatcherService> f = new ChannelFactory<WCF.IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
-                    WCF.IEvlWatcherService service = f.CreateChannel();
+                    ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
+                    IEvlWatcherService service = f.CreateChannel();
                     _lockTime = value;
                     Notify("LockTime");
                 }
