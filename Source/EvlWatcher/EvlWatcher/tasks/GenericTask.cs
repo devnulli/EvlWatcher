@@ -1,5 +1,6 @@
 ﻿using EvlWatcher.Config;
 using EvlWatcher.DTOs;
+using EvlWatcher.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
@@ -14,9 +15,9 @@ namespace EvlWatcher.Tasks
     {
         #region static
 
-        internal static GenericIPBlockingTask FromConfiguration(IPersistentTaskConfiguration configuration)
+        internal static GenericIPBlockingTask FromConfiguration(IPersistentTaskConfiguration configuration, ILogger logger)
         {
-            GenericIPBlockingTask t = new GenericIPBlockingTask()
+            GenericIPBlockingTask t = new GenericIPBlockingTask(logger)
             {
                 Name = configuration.TaskName,
                 Description = configuration.Description,
@@ -33,47 +34,22 @@ namespace EvlWatcher.Tasks
             return t;
         }
 
-        internal static GenericIPBlockingTask FromXML(XElement element)
-        {
-            GenericIPBlockingTask t =
-            new GenericIPBlockingTask()
-            {
-                Name = element.Name.LocalName
-            };
-
-            t.Description = element.Element("Description").Value.Trim();
-            t.LockTime = int.Parse(element.Element("LockTime").Value.Trim());
-            t.OnlyNew = bool.Parse(element.Element("OnlyNew").Value.Trim());
-            t.EventAge = int.Parse(element.Element("EventAge").Value.Trim());
-            t.TriggerCount = int.Parse(element.Element("TriggerCount").Value.Trim());
-            t.PermaBanCount = int.Parse(element.Element("PermaBanCount").Value.Trim());
-            t.EventPath= element.Element("EventPath").Value.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (XElement e in element.Element("RegexBoosters").Elements("Booster"))
-                t.Boosters.Add(e.Value.Trim());
-            try
-            {
-                t.Regex = new Regex(element.Element("Regex").Value.Trim(), RegexOptions.Compiled);
-            }
-            catch
-            {
-                throw new ArgumentException($"Regex not defined or invalid for Task: {t.Name}");
-            }
-            return t;
-        }
-
         #endregion
 
         #region private members
 
-        private Dictionary<IPAddress, DateTime> _blockedIPsToDate = new Dictionary<IPAddress, DateTime>();
-        private Dictionary<IPAddress, int> _bannedCount = new Dictionary<IPAddress, int>();
+        private readonly Dictionary<IPAddress, DateTime> _blockedIPsToDate = new Dictionary<IPAddress, DateTime>();
+        private readonly Dictionary<IPAddress, int> _bannedCount = new Dictionary<IPAddress, int>();
+        private readonly ILogger _logger;
 
         #endregion
 
         #region internal .ctor
 
-        internal GenericIPBlockingTask() { }
+        internal GenericIPBlockingTask(ILogger logger) 
+        {
+            _logger = logger;
+        }
 
         #endregion
 
@@ -149,6 +125,7 @@ namespace EvlWatcher.Tasks
                 {
                     if (m.Groups.Count == 2 && IPAddress.TryParse(m.Groups[1].Value, out IPAddress ipAddress))
                     {
+                        _logger.Dump($"{Name}: found {ipAddress}", SeverityLevel.Verbose);
                         if (!sourceToCount.ContainsKey(ipAddress))
                             sourceToCount.Add(ipAddress, 1);
                         else

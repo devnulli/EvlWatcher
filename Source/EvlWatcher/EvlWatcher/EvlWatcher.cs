@@ -487,7 +487,7 @@ namespace EvlWatcher
             //build dependencies
             ILogger logger = new DefaultLogger();
             IPersistentServiceConfiguration serviceConfiguration = new XmlServiceConfiguration(logger);
-            IGenericTaskFactory genericTaskFactory = new DefaultGenericTaskFactory();
+            IGenericTaskFactory genericTaskFactory = new DefaultGenericTaskFactory(logger);
 
             if (!Environment.UserInteractive)
             {
