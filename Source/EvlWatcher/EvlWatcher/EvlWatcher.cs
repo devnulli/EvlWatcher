@@ -243,7 +243,7 @@ namespace EvlWatcher
                     new ExceptionFaultContract(
                         ExceptionFaultContractCode.clientNotAdministrator,
                         $"Your account {ServiceSecurityContext.Current.WindowsIdentity.Name} is not an Administrator! Please run this software with Administrator privileges. The client will exit..."
-                        , true), "ok"
+                        , true), "error"
                     );
         }
 
