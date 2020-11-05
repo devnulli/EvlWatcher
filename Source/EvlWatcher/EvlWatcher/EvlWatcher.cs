@@ -432,12 +432,6 @@ namespace EvlWatcher
                         _logger.Dump($"\r\n-----Cycle complete, sleeping {_serviceconfiguration.EventLogInterval / 1000} s......\r\n", SeverityLevel.Debug);
                         
                         _lastPolledTempBans = blackList;
-                        Random rnd = new Random();
-                        int j = rnd.Next(50);
-                        for (int i = 0; i < j; i++)
-                        {
-                            _lastPolledTempBans.Add(new IPAddress(new byte[] { 102, 0, 0, (byte)rnd.Next(200) }));
-                        }
 
                         PushBanList();
                     }
