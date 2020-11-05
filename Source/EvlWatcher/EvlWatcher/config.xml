@@ -9,7 +9,7 @@
     <!-- how many lines of console output will be provided by the wcf service (max). This is used by the EvlConsole to query the latest output-->
     <ConsoleBacklog>1000</ConsoleBacklog>
     <!-- this is the interval the log files are checked, in seconds-->
-    <CheckInterval>1</CheckInterval>
+    <CheckInterval>30</CheckInterval>
 
     <!-- this is the whitelist. ips matching this pattern will never get banned, not temporarily and not permanently-->
     <WhiteList>192.168.*;10.0.0.*;127.0.0.1;</WhiteList>
