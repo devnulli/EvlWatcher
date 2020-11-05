@@ -4,11 +4,14 @@ using EvlWatcher.DTOs;
 using EvlWatcher.Logging;
 using EvlWatcher.SystemAPI;
 using EvlWatcher.Tasks;
+using EvlWatcher.WCF;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Net;
+using System.Security;
+using System.Security.Principal;
 using System.ServiceModel;
 using System.ServiceProcess;
 using System.Text.RegularExpressions;
@@ -54,6 +57,17 @@ namespace EvlWatcher
 
         private volatile bool _stop = false;
 
+        private bool IsClientAdministrator()
+        {
+            if( ServiceSecurityContext.Current.WindowsIdentity.IsAuthenticated &&
+                new WindowsPrincipal(ServiceSecurityContext.Current.WindowsIdentity).IsInRole(WindowsBuiltInRole.Administrator) )
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region public constructor
@@ -70,6 +84,14 @@ namespace EvlWatcher
         #region public operations
         public bool GetIsRunning()
         {
+            if (IsClientAdministrator() )
+                throw new FaultException<ExceptionFaultContract>(
+                    new ExceptionFaultContract(
+                        ExceptionFaultContractCode.clientNotAdministrator, 
+                        $"Your account {ServiceSecurityContext.Current.WindowsIdentity.Name} is not an Administrator! Please run this software with Administrator privileges. The client will exit..."
+                        , true), "ok"
+                    );
+            
             return true;
         }
 

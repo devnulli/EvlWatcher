@@ -11,6 +11,7 @@ using System.ServiceModel;
 using System.Net;
 using System.Windows.Input;
 using EvlWatcherConsole.MVVMBase;
+using EvlWatcherConsole.WCF;
 
 namespace EvlWatcherConsole
 {
@@ -142,6 +143,12 @@ namespace EvlWatcherConsole
                         UpdateWhileListPattern(service);
 
                         f.Close();
+                    }
+                    catch ( FaultException<ExceptionFaultContract> ex )
+                    {
+                        MessageBox.Show(ex.Detail.Message, $"Error Code: {ex.Detail.Code}", MessageBoxButton.OK, MessageBoxImage.Error);
+                        if ( ex.Detail.CanTerminate )
+                            Environment.Exit(0);
                     }
                     catch (EndpointNotFoundException)
                     {
