@@ -52,6 +52,7 @@ Section "EvlWatcher Service"
   Delete $INSTDIR\Interop.NetFwTypeLib.dll
   Delete $INSTDIR\EvlWatcher.exe
   Delete $INSTDIR\gpl-3.0.txt
+  Delete $INSTDIR\license.txt
   Delete $INSTDIR\source.zip
   Delete $INSTDIR\config.xml
   Delete $INSTDIR\EvlWatcherConsole.exe
@@ -63,7 +64,7 @@ Section "EvlWatcher Service"
   ; Put file there
 
   File "EvlWatcher.exe"
-  File "gpl-3.0.txt"
+  File "license.txt"
   File "config.xml"
 
   ; Write the installation path into the registry
@@ -121,6 +122,7 @@ Section "Uninstall"
   Delete $INSTDIR\Interop.NetFwTypeLib.dll
   Delete $INSTDIR\EvlWatcher.exe
   Delete $INSTDIR\gpl-3.0.txt
+  Delete $INSTDIR\license.txt
   Delete $INSTDIR\config.xml
   Delete $INSTDIR\EvlWatcherConsole.exe
   Delete $INSTDIR\source.zip
