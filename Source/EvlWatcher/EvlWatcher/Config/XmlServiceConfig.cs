@@ -60,7 +60,7 @@ namespace EvlWatcher.Config
                 {
                     _logger.ConsoleLevel = value;
                     if (!_inLoading)
-                        WriteConfig("Global", "ConsoleLevel", value.ToString());
+                        WriteGlobalConfig("ConsoleLevel", value.ToString());
                 }
             }
         }
@@ -77,7 +77,7 @@ namespace EvlWatcher.Config
                 {
                     _logger.LogLevel = value;
                     if (!_inLoading)
-                        WriteConfig("Global", "LogLevel", value.ToString());
+                        WriteGlobalConfig("LogLevel", value.ToString());
                 }
             }
         }
@@ -95,7 +95,7 @@ namespace EvlWatcher.Config
                     _consoleBacklog = value;
                     if(!_inLoading)
                     {
-                        WriteConfig("Global", "ConsoleBacklog", value.ToString());
+                        WriteGlobalConfig("ConsoleBacklog", value.ToString());
                     }
                 }
             }
@@ -122,7 +122,7 @@ namespace EvlWatcher.Config
                     foreach (string p in _whiteListPatterns)
                         s += p + ";";
 
-                    WriteConfig("Global", "WhiteList", s);
+                    WriteGlobalConfig("WhiteList", s);
                 }
             }
 
@@ -144,7 +144,7 @@ namespace EvlWatcher.Config
                     foreach (string p in _whiteListPatterns)
                         s += p + ";";
 
-                    WriteConfig("Global", "WhiteList", s);
+                    WriteGlobalConfig("WhiteList", s);
                 }
             }
 
@@ -166,7 +166,7 @@ namespace EvlWatcher.Config
                     foreach (IPAddress ip in _blacklistAddresses)
                         s += ip.ToString() + ";";
                    
-                    WriteConfig("Global", "Banlist", s);
+                    WriteGlobalConfig("Banlist", s);
                 }
             }
 
@@ -175,24 +175,41 @@ namespace EvlWatcher.Config
 
         public bool RemoveBlackListAddress(IPAddress address)
         {
-            throw new NotImplementedException();
+            bool changed = false;
+
+            lock (_syncObject)
+            {
+                if (_blacklistAddresses.Contains(address))
+                {
+                    _blacklistAddresses.Remove(address);
+                    changed = true;
+
+                    string s = "";
+                    foreach (IPAddress ip in _blacklistAddresses)
+                        s += ip.ToString() + ";";
+
+                    WriteGlobalConfig("Banlist", s);
+                }
+            }
+
+            return changed;
         }
 
         #endregion
 
         #region private operations
 
-        private void WriteConfig(string task, string property, string value)
+        private void WriteGlobalConfig(string property, string value)
         {
             lock (_syncObject)
             {
-                _logger.Dump($"Writing config for: {task}: {property} = {value}", SeverityLevel.Verbose);
+                _logger.Dump($"Writing global config for: {property} = {value}", SeverityLevel.Verbose);
 
                 XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config.xml"));
-                XElement taskEl = d.Root.Element(task);
+                XElement taskEl = d.Root.Element("Global");
                 if (taskEl == null)
                 {
-                    taskEl = new XElement(task);
+                    taskEl = new XElement("Global");
                     d.Root.Add(taskEl);
                 }
                 if (taskEl != null)
@@ -252,7 +269,7 @@ namespace EvlWatcher.Config
                 try
                 {
                     //TODO: Dependency Injection
-                    var loadedTask = XmlTaskConfig.FromXmlElement(taskNode);
+                    var loadedTask = XmlTaskConfig.FromXmlElement(taskNode, _syncObject, _logger);
 
                     _taskConfigurations.Add(loadedTask);
                     _logger.Dump($"loaded configuration for generic task \"{loadedTask.TaskName}\"({(loadedTask.Active ? "active" : "inactive")})", SeverityLevel.Debug);

@@ -16,7 +16,7 @@
             <RowDefinition Height="40"></RowDefinition>
         </Grid.RowDefinitions>
         <TabControl Grid.ColumnSpan="2">
-            <TabItem Header="Firewall Settings">
+            <TabItem Header="Currently Banned" IsSelected="{Binding IsIPTabSelected, Mode=OneWayToSource}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition></ColumnDefinition>
@@ -31,7 +31,9 @@
                         </Grid.RowDefinitions>
                         <Label>temporarily banned IPs:</Label>
                         <ListView Grid.Row="1" SelectedItem="{Binding SelectedTemporaryIP}" IsEnabled="{Binding IsRunning}" ItemsSource="{Binding TemporarilyBannedIPs}">
-
+                            <ListBox.Background>
+                                <ImageBrush ImageSource="pack://application:,,,/RES/Dtjohnnymonkey-Stopwatch-no-shading.png" TileMode="None" Opacity="0.25"/>
+                            </ListBox.Background>
                         </ListView>
                         <Grid Grid.Row="2">
                             <Grid.ColumnDefinitions>
@@ -39,10 +41,10 @@
                                 <ColumnDefinition Width="30"></ColumnDefinition>
                                 <ColumnDefinition Width="30"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="1" Command="{Binding MoveTemporaryToPermaCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}">
+                            <Button Grid.Column="1" Command="{Binding MoveTemporaryToPermaCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}" ToolTip="Move to permanent ban list">
                                 <Image Source="pack://application:,,,/RES/lock_32.ico"></Image>
                             </Button>
-                            <Button Grid.Column="2" Command="{Binding MoveTemporaryToWhiteListCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}">
+                            <Button Grid.Column="2" Command="{Binding MoveTemporaryToWhiteListCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}" ToolTip="Whitelist this IP">
                                 <Image Source="pack://application:,,,/RES/lock_open_32.ico"></Image>
                             </Button>
                         </Grid>
@@ -54,7 +56,11 @@
                             <RowDefinition Height="30"></RowDefinition>
                         </Grid.RowDefinitions>
                         <Label>permanently banned IPs:</Label>
-                        <ListView Grid.Row="1" SelectedItem="{Binding SelectedPermanentIP}" IsEnabled="{Binding IsRunning}" ItemsSource="{Binding PermanentlyBannedIPs}"></ListView>
+                        <ListView Grid.Row="1" SelectedItem="{Binding SelectedPermanentIP}" IsEnabled="{Binding IsRunning}" ItemsSource="{Binding PermanentlyBannedIPs}">
+                            <ListBox.Background>
+                                <ImageBrush ImageSource="pack://application:,,,/RES/149667-3f51b5.png" TileMode="None" Opacity="0.25"/>
+                            </ListBox.Background>
+                        </ListView>
                         <Grid Grid.Row="2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition></ColumnDefinition>
@@ -62,10 +68,10 @@
                                 <ColumnDefinition Width="30"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <TextBox Text="{Binding PermaBanIPString, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,5,5"></TextBox>
-                            <Button Grid.Column="1" Command="{Binding AddPermaBanCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}">
+                            <Button Grid.Column="1" Command="{Binding AddPermaBanCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}" ToolTip="Add to permanent ban list">
                                 <Image Source="pack://application:,,,/RES/add_32.ico"></Image>
                             </Button>
-                            <Button Grid.Column="2" Command="{Binding RemovePermaBanCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}">
+                            <Button Grid.Column="2" Command="{Binding RemovePermaBanCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}" ToolTip="Remove from permanent ban list">
                                 <Image Source="pack://application:,,,/RES/close_32.ico"></Image>
                             </Button>
                         </Grid>
@@ -77,7 +83,12 @@
                             <RowDefinition Height="30"></RowDefinition>
                         </Grid.RowDefinitions>
                         <Label>white-listed IP Patterns:</Label>
-                        <ListView Grid.Row="1" SelectedItem="{Binding SelectedWhiteListPattern}" IsEnabled="{Binding IsRunning}" ItemsSource="{Binding WhiteListedIPs}"></ListView>
+                        <ListView FontWeight="DemiBold" Grid.Row="1" SelectedItem="{Binding SelectedWhiteListPattern}" IsEnabled="{Binding IsRunning}" ItemsSource="{Binding WhiteListedIPs}">
+                            <ListBox.Background>
+                                <ImageBrush ImageSource="pack://application:,,,/RES/49090725942_794806e948_b.jpg" TileMode="None" Opacity="0.25"/>
+                            </ListBox.Background>
+
+                        </ListView>
                         <Grid Grid.Row="2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition></ColumnDefinition>
@@ -85,31 +96,36 @@
                                 <ColumnDefinition Width="30"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <TextBox Text="{Binding WhiteListFilter, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,5,5"></TextBox>
-                            <Button Grid.Column="1" Command="{Binding AddWhiteListFilterCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}">
+                            <Button Grid.Column="1" Command="{Binding AddWhiteListFilterCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}" ToolTip="Add to whitelist">
                                 <Image Source="pack://application:,,,/RES/add_32.ico"></Image>
                             </Button>
-                            <Button Grid.Column="2" Command="{Binding RemoveWhiteListFilterCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}">
+                            <Button Grid.Column="2" Command="{Binding RemoveWhiteListFilterCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}" ToolTip="Remove from whitelist">
                                 <Image Source="pack://application:,,,/RES/close_32.ico"></Image>
                             </Button>
                         </Grid>
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Live" ToolTip="Test">
+            <TabItem Header="Live" ToolTip="Test" IsSelected="{Binding IsConsoleTabSelected, Mode=OneWayToSource}">
                 <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="25*"/>
+                        <ColumnDefinition Width="687*"/>
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                         <RowDefinition Height="40"></RowDefinition>
                     </Grid.RowDefinitions>
 
-                    <Label>Showing recent console output of the service:</Label>
-                    <TextBox Grid.Row="1" Background="Black" Foreground="Green" FontFamily="Courier" IsReadOnly="True">
+                    <Label Grid.ColumnSpan="2">Showing recent console output of the service: (simulation.. coming in the next days)</Label>
+                    <TextBox Name="ConsoleTextbox" Grid.Row="1" Background="Black" Foreground="Green" FontFamily="Courier" IsReadOnly="True" Text="{Binding ConsoleText}" Grid.ColumnSpan="2" TextChanged="ConsoleTextBox_TextChanged" VerticalScrollBarVisibility="Visible">
 
                     </TextBox>
-                    <StackPanel  Grid.Row="2" Orientation="Horizontal">
-                        <Label VerticalAlignment="Center"> Console verbosity: </Label>
-                        <ComboBox VerticalAlignment="Center" Width="100" Margin="5" Text="Verbosity" SelectedValue="Critical">
+                    <StackPanel  Grid.Row="2" Orientation="Horizontal" Grid.ColumnSpan="2">
+                        <Label VerticalAlignment="Center">Console verbosity:</Label>
+                        <ComboBox VerticalAlignment="Center" Width="100" Margin="5" Text="Verbosity" SelectedValue="{Binding ConsoleLevel}" IsEnabled="False">
+                            <ComboBoxItem>Off</ComboBoxItem>
                             <ComboBoxItem>Critical</ComboBoxItem>
                             <ComboBoxItem>Error</ComboBoxItem>
                             <ComboBoxItem>Warning</ComboBoxItem>
@@ -117,6 +133,7 @@
                             <ComboBoxItem>Verbose</ComboBoxItem>
                             <ComboBoxItem>Debug</ComboBoxItem>
                         </ComboBox>
+                        <CheckBox VerticalAlignment="Center" Name="AutoscrollCheckBox" Content="Autoscroll" IsChecked="True"></CheckBox>
                     </StackPanel>
                 </Grid>
             </TabItem>

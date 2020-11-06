@@ -12,6 +12,7 @@ using System.Net;
 using System.Windows.Input;
 using EvlWatcherConsole.MVVMBase;
 using EvlWatcher.WCF;
+using System.Xml.Schema;
 
 namespace EvlWatcherConsole
 {
@@ -20,7 +21,7 @@ namespace EvlWatcherConsole
         #region private members
 
         private Thread _updater = null;
-        private volatile bool _run = true;
+        private static volatile bool _run = true;
         private object syncObject = new object();
 
         private int _lockTime = -1;
@@ -35,6 +36,7 @@ namespace EvlWatcherConsole
 
         private string _permaBanIPString = "";
         private string _whiteListFilter = "";
+        private string _consoleText;
 
         #endregion
 
@@ -110,8 +112,11 @@ namespace EvlWatcherConsole
             {
                 _run = false;
                 _updater.Interrupt();
-                while (_updater.IsAlive)
-                    System.Threading.Thread.Sleep(100);
+                DateTime waiting = DateTime.Now;
+                while (_updater.IsAlive && DateTime.Now.Subtract(waiting).TotalSeconds < 3)
+                {
+                    Thread.Sleep(100);
+                }
             }
             catch
             { }
@@ -137,8 +142,15 @@ namespace EvlWatcherConsole
                         if (!running)
                             continue;
 
-                        UpdateIPLists(service);
-                        UpdateWhileListPattern(service);
+                        if (IsIPTabSelected)
+                        {
+                            UpdateIPLists(service);
+                            UpdateWhileListPattern(service);
+                        }
+                        if (IsConsoleTabSelected)
+                        {
+                            UpdateConsole(service);
+                        }
 
                         f.Close();
                     }
@@ -163,11 +175,18 @@ namespace EvlWatcherConsole
                 }
                 try
                 {
-                    System.Threading.Thread.Sleep(1000);
+                    Thread.Sleep(1000);
                 }
                 catch (ThreadInterruptedException)
-                { }
+                {
+                    return;
+                }   
             }
+        }
+
+        private void UpdateConsole(IEvlWatcherService service)
+        {
+            ConsoleText += $"\n{DateTime.Now}: working on it.. (github #24, #25) {new Random().Next(1000)} ";
         }
 
         private void UpdateWhileListPattern(IEvlWatcherService service)
@@ -247,6 +266,16 @@ namespace EvlWatcherConsole
             }
         }
 
+        public bool IsIPTabSelected
+        {
+            get; set;
+        }
+
+        public bool IsConsoleTabSelected
+        {
+            get;set;
+        }
+
         public ICommand MoveTemporaryToWhiteListCommand
         {
             get
@@ -259,6 +288,20 @@ namespace EvlWatcherConsole
         {
             get;
             set;
+        }
+
+        public string ConsoleLevel
+        {
+            get
+            {
+                return "Not implemented.";
+            }
+            set
+            {
+                
+                //_consoleLevel = Enum.Parse(typeof(SeverityType value;
+                Notify("ConsoleLevel");
+            }
         }
 
         public IPAddress SelectedPermanentIP
@@ -440,6 +483,19 @@ namespace EvlWatcherConsole
             get
             {
                 return _whiteListPattern;
+            }
+        }
+
+        public string ConsoleText
+        {
+            get
+            {
+                return _consoleText;
+            }
+            set
+            {
+                _consoleText = value;
+                Notify("ConsoleText");
             }
         }
 

@@ -20,6 +20,10 @@ namespace EvlWatcherConsole
     /// </summary>
     public partial class MainWindow : Window
     {
-
+        private void ConsoleTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (AutoscrollCheckBox.IsChecked == true)
+                ConsoleTextbox.CaretIndex = ConsoleTextbox.Text.Length;
+        }
     }
 }

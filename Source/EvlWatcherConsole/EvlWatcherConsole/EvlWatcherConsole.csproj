@@ -127,6 +127,15 @@
   <ItemGroup>
     <Resource Include="RES\lock_32.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="RES\149667-3f51b5.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="RES\49090725942_794806e948_b.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="RES\Dtjohnnymonkey-Stopwatch-no-shading.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

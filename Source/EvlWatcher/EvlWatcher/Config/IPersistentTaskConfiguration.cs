@@ -7,7 +7,7 @@ namespace EvlWatcher.Config
         /// <summary>
         /// indicates whether the task is active
         /// </summary>
-        bool Active { get; set; }
+        bool Active { get; }
 
         /// <summary>
         /// the name of the tasks
