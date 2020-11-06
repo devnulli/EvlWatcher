@@ -137,6 +137,9 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
+            <TabItem Header="Rule Editor" ToolTip="Test" IsSelected="{Binding IsRuleEditorTabSelected, Mode=OneWayToSource}">
+                <Label HorizontalAlignment="Center" VerticalAlignment="Center">Working on in. will be part of v2.0 release</Label>
+            </TabItem>
         </TabControl>
         <StatusBar Grid.Row="1" Grid.ColumnSpan="2">
             <StatusBarItem>

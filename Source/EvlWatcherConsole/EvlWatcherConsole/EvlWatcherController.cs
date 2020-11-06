@@ -186,7 +186,7 @@ namespace EvlWatcherConsole
 
         private void UpdateConsole(IEvlWatcherService service)
         {
-            ConsoleText += $"\n{DateTime.Now}: working on it.. (github #24, #25) {new Random().Next(1000)} ";
+            ConsoleText += $"\n{DateTime.Now}: working on it, will be part of v2.0 release.. (github #24, #25) {new Random().Next(1000)} ";
         }
 
         private void UpdateWhileListPattern(IEvlWatcherService service)
@@ -274,6 +274,11 @@ namespace EvlWatcherConsole
         public bool IsConsoleTabSelected
         {
             get;set;
+        }
+
+        public bool IsRuleEditorTabSelected
+        {
+            get; set;
         }
 
         public ICommand MoveTemporaryToWhiteListCommand
