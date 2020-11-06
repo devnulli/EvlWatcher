@@ -39,7 +39,7 @@ namespace EvlWatcher.Logging
             if (severity >= ConsoleLevel)
             {
                 var date = DateTime.Now;
-                Console.WriteLine($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second},{DateTime.Now.Millisecond} {message}");
+                Console.WriteLine($"{date.Hour}:{date.Minute}:{date.Second},{date.Millisecond} {message}");
                 ManageConsoleHistory(message, severity, date);
             }
         }
