@@ -156,6 +156,16 @@ namespace EvlWatcher
             }
         }
 
+        public IList<LogEntry> GetConsoleHistory()
+        {
+            EnsureClientPrivileges();
+
+            lock (_syncObject)
+            {
+                return _logger.GetConsoleHistory();
+            }
+        }
+
         #endregion
 
         #region protected operations
@@ -546,7 +556,7 @@ namespace EvlWatcher
                 w.OnStop();
             }
         }
-
+        
         #endregion
     }
 }

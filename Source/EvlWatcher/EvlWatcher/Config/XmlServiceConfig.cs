@@ -93,7 +93,8 @@ namespace EvlWatcher.Config
                 if(_consoleBacklog != value)
                 {
                     _consoleBacklog = value;
-                    if(!_inLoading)
+                    _logger.SetConsoleHistoryMaxCount(_consoleBacklog);
+                    if (!_inLoading)
                     {
                         WriteGlobalConfig("ConsoleBacklog", value.ToString());
                     }

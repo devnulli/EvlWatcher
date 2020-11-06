@@ -1,5 +1,9 @@
-﻿using System.ServiceModel;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.ServiceModel;
 using System.Net;
+using EvlWatcher.Logging;
+
 
 namespace EvlWatcher.WCF
 {
@@ -30,5 +34,9 @@ namespace EvlWatcher.WCF
         [OperationContract]
         [FaultContract(typeof(ExceptionFaultContract))]
         string[] GetWhiteListEntries();
+        [OperationContract]
+        [FaultContract(typeof(ExceptionFaultContract))]
+        IList<LogEntry> GetConsoleHistory();
+
     }
 }
