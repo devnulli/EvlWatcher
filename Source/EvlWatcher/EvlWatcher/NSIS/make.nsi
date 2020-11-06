@@ -2,7 +2,7 @@ Name "EvlWatcher"
 
 ; The file to write
 Icon EvlWatcher.ico
-OutFile "EvlWatcher-v2.0 beta noconsole-setup.exe"
+OutFile "EvlWatcher-v2.0 beta-setup.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\EvlWatcher
@@ -57,6 +57,7 @@ Section "EvlWatcher Service"
   Delete $INSTDIR\config.xml
   Delete $INSTDIR\EvlWatcherConsole.exe
   Delete $INSTDIR\EvlWatcher.ico
+  Delete $INSTDIR\EvlWatcher.WCF.dll
 
   ; Set output path to the installation directory.
   SetOutPath $INSTDIR
@@ -66,6 +67,8 @@ Section "EvlWatcher Service"
   File "EvlWatcher.exe"
   File "license.txt"
   File "config.xml"
+  File "EvlWatcher.WCF.dll"
+  File "EvlWatcherConsole.exe"
 
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\EvlWatcher "Install_Dir" "$INSTDIR"
@@ -127,6 +130,7 @@ Section "Uninstall"
   Delete $INSTDIR\EvlWatcherConsole.exe
   Delete $INSTDIR\source.zip
   Delete $INSTDIR\EvlWatcher.ico
+  Delete $INSTDIR\EvlWatcher.WCF.dll
 
   Delete $INSTDIR\Source\Constants.cs
   Delete $INSTDIR\Source\FirewallAPI.cs
