@@ -1,6 +1,4 @@
-# Sooo. Damn you CoVid-19 ... Announcing a beta release of the new version (v2.0 beta) for ~~2020-07-01~~ 2020-12-01
-
-# Testing has begun, please check out the open pull requests.
+# Testing of v 2.0 has begun, please check out the open pull requests.
 
 [![Gitter](https://badges.gitter.im/EvlWatcher/community.svg)](https://gitter.im/EvlWatcher/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
@@ -37,4 +35,13 @@ Not in this upcoming version:
 
 Since I personally no longer expose my Windows Servers to the Web, I would also need testers to try out certain things.
 If you wanna test that thing, **please check out the open pull requests** .
+
+# If you want to support EvlWatcher monetarily
+
+To be honest, EvlWatcher doesnt have a lot of expenses, and therefore doesn't really need much monetary support. 
+
+If you want to say thanks, I would be happy if you would buy me a coffe or a beer or so, by donating to Bitcoin address `bc1q5hk4xum577t6zcfhxgtk2jrjjmxc2nq3uurvg3`.
+
+
+
 
