@@ -105,29 +105,41 @@ namespace EvlWatcher.Tasks
             Dictionary<IPAddress, int> sourceToCount = new Dictionary<IPAddress, int>();
             foreach (ExtractedEventRecord e in events)
             {
+                _logger.Dump($"{Name}: Processing Event with timestamp {e.TimeCreated}", SeverityLevel.Debug);
+
                 string xml = e.Xml;
+
+                _logger.Dump($"Checking XML {xml} against boosters..", SeverityLevel.Debug);
 
                 bool abort = false;
                 foreach (string b in Boosters)
+                {
+                    _logger.Dump($"Booster: {b}", SeverityLevel.Debug);
                     if (!xml.Contains(b))
                     {
+                        _logger.Dump($"Booster not in XML, aborting.", SeverityLevel.Debug);
                         abort = true;
                         break;
                     }
+                }
                 if (abort)
                     continue;
 
+
+                _logger.Dump($"Checking XML against Regex {Regex} now..", SeverityLevel.Debug);
                 Match m = Regex.Match(xml);
 
                 if(m.Success)
                 {
                     if (m.Groups.Count == 2 && IPAddress.TryParse(m.Groups[1].Value, out IPAddress ipAddress))
                     {
-                        _logger.Dump($"{Name}: found {ipAddress}", SeverityLevel.Verbose);
+                        
                         if (!sourceToCount.ContainsKey(ipAddress))
                             sourceToCount.Add(ipAddress, 1);
                         else
                             sourceToCount[ipAddress]++;
+
+                        _logger.Dump($"{Name}: found {ipAddress}, trigger count is {sourceToCount[ipAddress]}", SeverityLevel.Verbose);
                     }
                 }
             }
@@ -136,11 +148,13 @@ namespace EvlWatcher.Tasks
             {
                 if (kvp.Value >= TriggerCount && !_blockedIPsToDate.ContainsKey(kvp.Key))
                 {
-                    _blockedIPsToDate.Add(kvp.Key, System.DateTime.Now);
+                    _blockedIPsToDate.Add(kvp.Key, DateTime.Now);
                     if (!_bannedCount.ContainsKey(kvp.Key))
                         _bannedCount[kvp.Key] = 1;
                     else
                         _bannedCount[kvp.Key] += 1;
+
+                    _logger.Dump($"Banning {kvp.Key}, this is strike {_bannedCount[kvp.Key]}", SeverityLevel.Verbose);
                 }
             }
         }
