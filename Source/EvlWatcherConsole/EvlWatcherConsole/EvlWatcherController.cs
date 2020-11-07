@@ -13,6 +13,7 @@ using System.Windows.Input;
 using EvlWatcherConsole.MVVMBase;
 using EvlWatcher.WCF;
 using System.Xml.Schema;
+using EvlWatcher.Logging;
 
 namespace EvlWatcherConsole
 {
@@ -33,7 +34,8 @@ namespace EvlWatcherConsole
         private ObservableCollection<IPAddress> _temporarilyBannedIps = new ObservableCollection<IPAddress>();
         private ObservableCollection<IPAddress> _permanentlyBannedIps = new ObservableCollection<IPAddress>();
         private ObservableCollection<string> _whiteListPattern = new ObservableCollection<string>();
-
+        private ObservableCollection<LogEntry> _consoleHistory = new ObservableCollection<LogEntry>();
+        
         private string _permaBanIPString = "";
         private string _whiteListFilter = "";
         private string _consoleText;
@@ -134,7 +136,12 @@ namespace EvlWatcherConsole
 
                     try
                     {
-                        ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
+                        var binding = new NetNamedPipeBinding()
+                        {
+                            MaxReceivedMessageSize = Int32.MaxValue //Setting to receive big console logs
+                        };
+
+                        ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(binding, new EndpointAddress("net.pipe://localhost/EvlWatcher"));
                         IEvlWatcherService service = f.CreateChannel();
 
                         running = service.GetIsRunning();
@@ -186,7 +193,27 @@ namespace EvlWatcherConsole
 
         private void UpdateConsole(IEvlWatcherService service)
         {
-            ConsoleText += $"\n{DateTime.Now}: working on it, will be part of v2.0 release.. (github #24, #25) {new Random().Next(1000)} ";
+            if(string.IsNullOrEmpty(ConsoleLevel))
+                return;
+
+            if(!Enum.TryParse(ConsoleLevel, out SeverityLevel severityLvl))
+                return;
+
+            if (severityLvl == SeverityLevel.Off)
+                return;
+
+            var data = service.GetConsoleHistory();
+            var sb = new StringBuilder();
+
+            foreach (var log in data)
+            {
+                if (log.Severity == severityLvl)
+                    sb.AppendLine($"{log.Date.ToString()} - [{log.Severity.ToString()}]: {log.Message}");
+            }
+
+            ConsoleText = sb.ToString();
+            
+            //ConsoleText += $"\n{DateTime.Now}: working on it, will be part of v2.0 release.. (github #24, #25) {new Random().Next(1000)} ";
         }
 
         private void UpdateWhileListPattern(IEvlWatcherService service)
@@ -297,17 +324,17 @@ namespace EvlWatcherConsole
 
         public string ConsoleLevel
         {
-            get
-            {
-                return "Not implemented.";
-            }
-            set
-            {
-                
-                //_consoleLevel = Enum.Parse(typeof(SeverityType value;
-                Notify("ConsoleLevel");
-            }
+            get;
+            set;
+
         }
+
+        public bool ConsoleAutoScroll
+        {
+            get;
+            set;
+
+        } = true;
 
         public IPAddress SelectedPermanentIP
         {
@@ -501,6 +528,14 @@ namespace EvlWatcherConsole
             {
                 _consoleText = value;
                 Notify("ConsoleText");
+            }
+        }
+
+        public ObservableCollection<LogEntry> ConsoleHistory
+        {
+            get
+            {
+                return _consoleHistory;
             }
         }
 

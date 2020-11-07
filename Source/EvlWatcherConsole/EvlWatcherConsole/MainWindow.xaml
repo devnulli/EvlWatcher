@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:e="clr-namespace:EvlWatcherConsole"
-        Title="EvlWatcher v2.0 Console" Height="550" Width="725" Icon="pack://application:,,,/RES/EvlWatcher.ico" WindowStyle="ThreeDBorderWindow">
+        Title="EvlWatcher v2.0 Console" Height="550" Width="725" Icon="pack://application:,,,/RES/EvlWatcher.ico" WindowStyle="ThreeDBorderWindow" Initialized="Window_Initialized">
     <Window.DataContext>
         <e:EvlWatcherController/>
     </Window.DataContext>
@@ -119,21 +119,15 @@
                     </Grid.RowDefinitions>
 
                     <Label Grid.ColumnSpan="2">Showing recent console output of the service: (simulation.. coming in the next days)</Label>
-                    <TextBox Name="ConsoleTextbox" Grid.Row="1" Background="Black" Foreground="Green" FontFamily="Courier" IsReadOnly="True" Text="{Binding ConsoleText}" Grid.ColumnSpan="2" TextChanged="ConsoleTextBox_TextChanged" VerticalScrollBarVisibility="Visible">
+                    <TextBox Name="ConsoleTextbox" Grid.Row="1" Background="Black" Foreground="Green" FontFamily="Courier" IsReadOnly="True" Text="{Binding ConsoleText}" Grid.ColumnSpan="2" TextChanged="ConsoleTextBox_TextChanged" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" 
+                             AcceptsReturn="True">
 
                     </TextBox>
                     <StackPanel  Grid.Row="2" Orientation="Horizontal" Grid.ColumnSpan="2">
                         <Label VerticalAlignment="Center">Console verbosity:</Label>
-                        <ComboBox VerticalAlignment="Center" Width="100" Margin="5" Text="Verbosity" SelectedValue="{Binding ConsoleLevel}" IsEnabled="False">
-                            <ComboBoxItem>Off</ComboBoxItem>
-                            <ComboBoxItem>Critical</ComboBoxItem>
-                            <ComboBoxItem>Error</ComboBoxItem>
-                            <ComboBoxItem>Warning</ComboBoxItem>
-                            <ComboBoxItem>Info</ComboBoxItem>
-                            <ComboBoxItem>Verbose</ComboBoxItem>
-                            <ComboBoxItem>Debug</ComboBoxItem>
+                        <ComboBox x:Name="ComboVerbosity" VerticalAlignment="Center" Width="100" Margin="5" Text="Verbosity" SelectedValue="{Binding ConsoleLevel}" IsEnabled="True">
                         </ComboBox>
-                        <CheckBox VerticalAlignment="Center" Name="AutoscrollCheckBox" Content="Autoscroll" IsChecked="True"></CheckBox>
+                        <CheckBox VerticalAlignment="Center" Name="AutoscrollCheckBox" Content="Autoscroll"  IsChecked="{Binding ConsoleAutoScroll}"></CheckBox>
                     </StackPanel>
                 </Grid>
             </TabItem>
