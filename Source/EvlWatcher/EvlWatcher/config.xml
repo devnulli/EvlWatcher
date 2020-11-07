@@ -2,7 +2,7 @@
 <Config>
   <Global>
 
-    <!-- Levels are: Off, Critical, Warning, Error, Info, Debug. Loglevel means written to EventLog, ConsoleLevel means written to "stdout"-->
+    <!-- Levels are: Off, Critical, Warning, Error, Info, Verbose, Debug. Loglevel means written to EventLog, ConsoleLevel means viewable in Console-->
     <LogLevel>Warning</LogLevel>
     <ConsoleLevel>Debug</ConsoleLevel>
     
