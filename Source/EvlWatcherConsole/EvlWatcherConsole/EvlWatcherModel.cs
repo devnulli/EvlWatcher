@@ -17,7 +17,7 @@ using EvlWatcher.Logging;
 
 namespace EvlWatcherConsole
 {
-    public class EvlWatcherController : GuiObject
+    public class EvlWatcherModel : GuiObject
     {
         #region private members
 
@@ -39,17 +39,18 @@ namespace EvlWatcherConsole
         private string _permaBanIPString = "";
         private string _whiteListFilter = "";
         private string _consoleText;
+        private SeverityLevel _selectedConsoleLevel = SeverityLevel.Info;
 
         #endregion
 
         #region constructor / destructor
 
-        public EvlWatcherController()
+        public EvlWatcherModel()
         {
             StartUpdating();
         }
 
-        ~EvlWatcherController()
+        ~EvlWatcherModel()
         {
             StopUpdating();
         }
@@ -65,6 +66,21 @@ namespace EvlWatcherConsole
                 ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
                 IEvlWatcherService service = f.CreateChannel();
                 service.AddWhiteListEntry(s);
+            }
+        }
+
+        public  IList<SeverityLevel> ConsoleLevels
+        {
+            get
+            {
+                return new List<SeverityLevel>()
+                    { SeverityLevel.Off,
+                    SeverityLevel.Debug,
+                    SeverityLevel.Verbose,
+                    SeverityLevel.Info,
+                    SeverityLevel.Warning,
+                    SeverityLevel.Error,
+                    SeverityLevel.Critical };
             }
         }
 
@@ -193,19 +209,13 @@ namespace EvlWatcherConsole
 
         private void UpdateConsole(IEvlWatcherService service)
         {
-            if (string.IsNullOrEmpty(ConsoleLevel))
-                return;
-
-            if (!Enum.TryParse(ConsoleLevel, out SeverityLevel severityLvl))
-                return;
-
-            if (severityLvl == SeverityLevel.Off)
+            if (_selectedConsoleLevel == SeverityLevel.Off)
                 return;
 
             var data = service.GetConsoleHistory();
             var sb = new StringBuilder();
 
-            foreach (var log in data.Where(l => l.Severity >= severityLvl))
+            foreach (var log in data.Where(l => l.Severity >= _selectedConsoleLevel))
                 sb.AppendLine($"{log.Date} - [{log.Severity}]: {log.Message}");
 
             ConsoleText = sb.ToString();
@@ -317,19 +327,18 @@ namespace EvlWatcherConsole
             set;
         }
 
-        public string ConsoleLevel
+        public SeverityLevel SelectedConsoleLevel
         {
-            get;
-            set;
-
+            get
+            {
+                return _selectedConsoleLevel;
+            }
+            set
+            {
+                _selectedConsoleLevel = value;
+                Notify("ConsoleLevel");
+            }
         }
-
-        public bool ConsoleAutoScroll
-        {
-            get;
-            set;
-
-        } = true;
 
         public IPAddress SelectedPermanentIP
         {

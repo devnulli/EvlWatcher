@@ -70,7 +70,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="EvlWatcherController.cs" />
+    <Compile Include="EvlWatcherModel.cs" />
     <Compile Include="MVVMBase\GuiObject.cs" />
     <Compile Include="MVVMBase\RelayCommand.cs" />
     <Page Include="MainWindow.xaml">

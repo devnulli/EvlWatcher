@@ -24,21 +24,11 @@ namespace EvlWatcherConsole
         private void ConsoleTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (AutoscrollCheckBox.IsChecked == true)
+            {
                 ConsoleTextbox.Focus();
                 ConsoleTextbox.CaretIndex = ConsoleTextbox.Text.Length;
                 ConsoleTextbox.ScrollToEnd();
-        }
-
-        private void Window_Initialized(object sender, EventArgs e)
-        {
-            ComboVerbosity.Items.Add(SeverityLevel.Off);
-            ComboVerbosity.Items.Add(SeverityLevel.Critical);
-            ComboVerbosity.Items.Add(SeverityLevel.Debug);
-            ComboVerbosity.Items.Add(SeverityLevel.Error);
-            ComboVerbosity.Items.Add(SeverityLevel.Info);
-            ComboVerbosity.Items.Add(SeverityLevel.Verbose);
-            ComboVerbosity.Items.Add(SeverityLevel.Warning);
-            ComboVerbosity.SelectedIndex = 0;
+            }
         }
     }
 }
