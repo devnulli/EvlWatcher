@@ -31,15 +31,10 @@ namespace EvlWatcherConsole
         private int _permaBanTrigger = -1;
 
         private bool _isRunning = false;
-        private ObservableCollection<IPAddress> _temporarilyBannedIps = new ObservableCollection<IPAddress>();
-        private ObservableCollection<IPAddress> _permanentlyBannedIps = new ObservableCollection<IPAddress>();
-        private ObservableCollection<string> _whiteListPattern = new ObservableCollection<string>();
-        private ObservableCollection<LogEntry> _consoleHistory = new ObservableCollection<LogEntry>();
-        
         private string _permaBanIPString = "";
         private string _whiteListFilter = "";
         private string _consoleText;
-        private SeverityLevel _selectedConsoleLevel = SeverityLevel.Info;
+        private SeverityLevel _selectedConsoleLevel = SeverityLevel.Verbose;
 
         #endregion
 
@@ -229,19 +224,19 @@ namespace EvlWatcherConsole
 
             foreach (string s in entries)
             {
-                if (!_whiteListPattern.Contains(s))
+                if (!WhiteListedIPs.Contains(s))
                     toAdd.Add(s);
             }
-            foreach (string s in _whiteListPattern)
+            foreach (string s in WhiteListedIPs)
             {
                 if (!entries.Contains(s))
                     toRemove.Add(s);
             }
             foreach (string s in toAdd)
-                Application.Current.Dispatcher.Invoke(new Action(() => _whiteListPattern.Add(s)));
+                Application.Current.Dispatcher.Invoke(new Action(() => WhiteListedIPs.Add(s)));
 
             foreach (string s in toRemove)
-                Application.Current.Dispatcher.Invoke(new Action(() => _whiteListPattern.Remove(s)));
+                Application.Current.Dispatcher.Invoke(new Action(() => WhiteListedIPs.Remove(s)));
         }
 
         private void UpdateIPLists(IEvlWatcherService service)
@@ -252,38 +247,38 @@ namespace EvlWatcherConsole
 
             foreach (IPAddress i in ips)
             {
-                if (!_temporarilyBannedIps.Contains(i))
+                if (!TemporarilyBannedIPs.Contains(i))
                     toAdd.Add(i);
             }
-            foreach (IPAddress i in _temporarilyBannedIps)
+            foreach (IPAddress i in TemporarilyBannedIPs)
             {
                 if (!ips.Contains(i))
                     toRemove.Add(i);
             }
             foreach (IPAddress i in toAdd)
-                Application.Current.Dispatcher.Invoke(new Action(() => _temporarilyBannedIps.Add(i)));
+                Application.Current.Dispatcher.Invoke(new Action(() => TemporarilyBannedIPs.Add(i)));
 
             foreach (IPAddress i in toRemove)
-                Application.Current.Dispatcher.Invoke(new Action(() => _temporarilyBannedIps.Remove(i)));
+                Application.Current.Dispatcher.Invoke(new Action(() => TemporarilyBannedIPs.Remove(i)));
 
             ips = new List<IPAddress>(service.GetPermanentlyBannedIPs());
             toAdd = new List<IPAddress>();
             toRemove = new List<IPAddress>();
             foreach (IPAddress i in ips)
             {
-                if (!_permanentlyBannedIps.Contains(i))
+                if (!PermanentlyBannedIPs.Contains(i))
                     toAdd.Add(i);
             }
-            foreach (IPAddress i in _permanentlyBannedIps)
+            foreach (IPAddress i in PermanentlyBannedIPs)
             {
                 if (!ips.Contains(i))
                     toRemove.Add(i);
             }
             foreach (IPAddress i in toAdd)
-                Application.Current.Dispatcher.Invoke(new Action(() => _permanentlyBannedIps.Add(i)));
+                Application.Current.Dispatcher.Invoke(new Action(() => PermanentlyBannedIPs.Add(i)));
 
             foreach (IPAddress i in toRemove)
-                Application.Current.Dispatcher.Invoke(new Action(() => _permanentlyBannedIps.Remove(i)));
+                Application.Current.Dispatcher.Invoke(new Action(() => PermanentlyBannedIPs.Remove(i)));
         }
 
         #endregion
@@ -336,7 +331,7 @@ namespace EvlWatcherConsole
             set
             {
                 _selectedConsoleLevel = value;
-                Notify("ConsoleLevel");
+                Notify(nameof(SelectedConsoleLevel));
             }
         }
 
@@ -379,7 +374,7 @@ namespace EvlWatcherConsole
             set
             {
                 _whiteListFilter = value;
-                Notify("WhiteListFilter");
+                Notify(nameof(WhiteListFilter));
             }
         }
 
@@ -410,7 +405,7 @@ namespace EvlWatcherConsole
             set
             {
                 _permaBanIPString = value;
-                Notify("PermaBanIPString");
+                Notify(nameof(PermaBanIPString));
             }
         }
 
@@ -427,7 +422,7 @@ namespace EvlWatcherConsole
                     ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
                     IEvlWatcherService service = f.CreateChannel();
                     _permaBanTrigger = value;
-                    Notify("PermaBanCount");
+                    Notify(nameof(PermaBanCount));
                 }
             }
         }
@@ -445,7 +440,7 @@ namespace EvlWatcherConsole
                     ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
                     IEvlWatcherService service = f.CreateChannel();
                     _triggerCount = value;
-                    Notify("TriggerCount");
+                    Notify(nameof(TriggerCount));
                 }
             }
         }
@@ -463,7 +458,7 @@ namespace EvlWatcherConsole
                     ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
                     IEvlWatcherService service = f.CreateChannel();
                     _timeFrame = value;
-                    Notify("TimeFrame");
+                    Notify(nameof(TimeFrame));
                 }
             }
         }
@@ -481,7 +476,7 @@ namespace EvlWatcherConsole
                     ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/EvlWatcher"));
                     IEvlWatcherService service = f.CreateChannel();
                     _lockTime = value;
-                    Notify("LockTime");
+                    Notify(nameof(LockTime));
                 }
             }
         }
@@ -496,31 +491,13 @@ namespace EvlWatcherConsole
             private set
             {
                 _isRunning = value;
-                Notify("IsRunning");
+                Notify(nameof(IsRunning));
             }
         }
 
-        public ObservableCollection<IPAddress> TemporarilyBannedIPs
-        {
-            get
-            {
-                return _temporarilyBannedIps;
-            }
-        }
-        public ObservableCollection<IPAddress> PermanentlyBannedIPs
-        {
-            get
-            {
-                return _permanentlyBannedIps;
-            }
-        }
-        public ObservableCollection<string> WhiteListedIPs
-        {
-            get
-            {
-                return _whiteListPattern;
-            }
-        }
+        public ObservableCollection<IPAddress> TemporarilyBannedIPs { get; } = new ObservableCollection<IPAddress>();
+        public ObservableCollection<IPAddress> PermanentlyBannedIPs { get; } = new ObservableCollection<IPAddress>();
+        public ObservableCollection<string> WhiteListedIPs { get; } = new ObservableCollection<string>();
 
         public string ConsoleText
         {
@@ -531,17 +508,11 @@ namespace EvlWatcherConsole
             set
             {
                 _consoleText = value;
-                Notify("ConsoleText");
+                Notify(nameof(ConsoleText));
             }
         }
 
-        public ObservableCollection<LogEntry> ConsoleHistory
-        {
-            get
-            {
-                return _consoleHistory;
-            }
-        }
+        public ObservableCollection<LogEntry> ConsoleHistory { get; } = new ObservableCollection<LogEntry>();
 
         #endregion
     }
