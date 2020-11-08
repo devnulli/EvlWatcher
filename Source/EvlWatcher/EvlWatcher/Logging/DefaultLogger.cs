@@ -14,7 +14,7 @@ namespace EvlWatcher.Logging
 
         private void ManageConsoleHistory(string message, SeverityLevel severity, DateTime date)
         {
-            if ( ConsoleHistory.Count >= ConsoleHistoryMaxCount )
+            if (ConsoleHistory.Count >= ConsoleHistoryMaxCount)
             {
                 ConsoleHistory.RemoveAt(0);
             }
@@ -35,10 +35,13 @@ namespace EvlWatcher.Logging
                 EventLog.WriteEntry(source, message, SeverityToEventLogEntryType.Convert(severity));
             }
 
-                var date = DateTime.Now;
+            var date = DateTime.Now;
+
+            if (Environment.UserInteractive)
                 Console.WriteLine($"{date.Hour}:{date.Minute}:{date.Second},{date.Millisecond} {message}");
-                ManageConsoleHistory(message, severity, date);
-            
+
+            ManageConsoleHistory(message, severity, date);
+
         }
 
         public void Dump(Exception e, SeverityLevel level = SeverityLevel.Error)
