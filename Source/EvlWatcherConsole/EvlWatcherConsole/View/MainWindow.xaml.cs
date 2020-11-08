@@ -14,7 +14,7 @@ using System.Windows.Shapes;
 using System.Net;
 using EvlWatcher.Logging;
 
-namespace EvlWatcherConsole
+namespace EvlWatcherConsole.View
 {
     /// <summary>
     /// Interaktionslogik für MainWindow.xaml

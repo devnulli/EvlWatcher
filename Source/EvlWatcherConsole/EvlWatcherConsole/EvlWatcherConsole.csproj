@@ -70,10 +70,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="EvlWatcherModel.cs" />
+    <Compile Include="Model\EvlWatcherModel.cs" />
+    <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="MVVMBase\GuiObject.cs" />
     <Compile Include="MVVMBase\RelayCommand.cs" />
-    <Page Include="MainWindow.xaml">
+    <Page Include="View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -81,7 +82,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -113,29 +114,30 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="RES\add_32.ico" />
+    <Resource Include="Resources\add_32.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="RES\EvlWatcher.ico" />
+    <Resource Include="Resources\EvlWatcher.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="RES\close_32.ico" />
+    <Resource Include="Resources\close_32.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="RES\lock_open_32.ico" />
+    <Resource Include="Resources\lock_open_32.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="RES\lock_32.ico" />
+    <Resource Include="Resources\lock_32.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="RES\149667-3f51b5.png" />
+    <Resource Include="Resources\149667-3f51b5.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="RES\49090725942_794806e948_b.jpg" />
+    <Resource Include="Resources\49090725942_794806e948_b.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="RES\Dtjohnnymonkey-Stopwatch-no-shading.png" />
+    <Resource Include="Resources\Dtjohnnymonkey-Stopwatch-no-shading.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
