@@ -193,10 +193,10 @@ namespace EvlWatcherConsole
 
         private void UpdateConsole(IEvlWatcherService service)
         {
-            if(string.IsNullOrEmpty(ConsoleLevel))
+            if (string.IsNullOrEmpty(ConsoleLevel))
                 return;
 
-            if(!Enum.TryParse(ConsoleLevel, out SeverityLevel severityLvl))
+            if (!Enum.TryParse(ConsoleLevel, out SeverityLevel severityLvl))
                 return;
 
             if (severityLvl == SeverityLevel.Off)
@@ -205,15 +205,10 @@ namespace EvlWatcherConsole
             var data = service.GetConsoleHistory();
             var sb = new StringBuilder();
 
-            foreach (var log in data)
-            {
-                if (log.Severity == severityLvl)
-                    sb.AppendLine($"{log.Date.ToString()} - [{log.Severity.ToString()}]: {log.Message}");
-            }
+            foreach (var log in data.Where(l => l.Severity >= severityLvl))
+                sb.AppendLine($"{log.Date} - [{log.Severity}]: {log.Message}");
 
             ConsoleText = sb.ToString();
-            
-            //ConsoleText += $"\n{DateTime.Now}: working on it, will be part of v2.0 release.. (github #24, #25) {new Random().Next(1000)} ";
         }
 
         private void UpdateWhileListPattern(IEvlWatcherService service)
