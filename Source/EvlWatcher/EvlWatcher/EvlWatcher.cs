@@ -5,6 +5,7 @@ using EvlWatcher.Logging;
 using EvlWatcher.SystemAPI;
 using EvlWatcher.Tasks;
 using EvlWatcher.WCF;
+using EvlWatcher.WCF.DTO;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
@@ -156,13 +157,16 @@ namespace EvlWatcher
             }
         }
 
-        public IList<LogEntry> GetConsoleHistory()
+        public IList<LogEntryDTO> GetConsoleHistory()
         {
             EnsureClientPrivileges();
 
             lock (_syncObject)
             {
-                return _logger.GetConsoleHistory();
+                return _logger.GetConsoleHistory().Select(entry => new LogEntryDTO() { 
+                    Date = entry.Date, 
+                    Message = entry.Message, 
+                    Severity = (SeverityLevelDTO)Enum.Parse(typeof(SeverityLevelDTO), entry.Severity.ToString()) }).ToList();
             }
         }
 
@@ -251,9 +255,9 @@ namespace EvlWatcher
             if (!IsClientAdministrator())
             {
                 _logger.Dump($"There was an attempt to access the named pipe without authorization. ({ServiceSecurityContext.Current.WindowsIdentity.Name})", SeverityLevel.Warning);
-                throw new FaultException<ExceptionFaultContract>(
-                    new ExceptionFaultContract(
-                        ExceptionFaultContractCode.clientNotAdministrator,
+                throw new FaultException<ServiceFaultDTO>(
+                    new ServiceFaultDTO(
+                        ServiceErorCode.clientNotAdministrator,
                         $"Your account {ServiceSecurityContext.Current.WindowsIdentity.Name} is not an Administrator! Please run this software with Administrator privileges. The client will exit..."
                         , true), "error"
                     );

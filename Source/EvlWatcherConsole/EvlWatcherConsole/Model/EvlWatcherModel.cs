@@ -1,14 +1,10 @@
-﻿using EvlWatcher.Logging;
-using EvlWatcher.WCF;
+﻿using EvlWatcher.WCF;
+using EvlWatcher.WCF.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.ServiceModel;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace EvlWatcherConsole.Model
 {
@@ -22,18 +18,18 @@ namespace EvlWatcherConsole.Model
 
         #region public properties
 
-        public IList<SeverityLevel> ConsoleLevels
+        public IReadOnlyList<SeverityLevelDTO> ConsoleLevels
         {
             get
             {
-                return new List<SeverityLevel>()
-                    { SeverityLevel.Off,
-                    SeverityLevel.Debug,
-                    SeverityLevel.Verbose,
-                    SeverityLevel.Info,
-                    SeverityLevel.Warning,
-                    SeverityLevel.Error,
-                    SeverityLevel.Critical };
+                return new List<SeverityLevelDTO>()
+                    { SeverityLevelDTO.Off,
+                    SeverityLevelDTO.Debug,
+                    SeverityLevelDTO.Verbose,
+                    SeverityLevelDTO.Info,
+                    SeverityLevelDTO.Warning,
+                    SeverityLevelDTO.Error,
+                    SeverityLevelDTO.Critical }.AsReadOnly();
             }
         }
 
@@ -63,16 +59,22 @@ namespace EvlWatcherConsole.Model
             return Service.GetWhiteListEntries().AsQueryable();
         }
 
-        public IQueryable<LogEntry> GetConsoleHistory(SeverityLevel severityLevel)
+        public IQueryable<LogEntryDTO> GetConsoleHistory(SeverityLevelDTO severityLevel)
         {
-            if (severityLevel == SeverityLevel.Off)
+            if (severityLevel == SeverityLevelDTO.Off)
             {
-                return new List<LogEntry>().AsQueryable();
+                return new List<LogEntryDTO>().AsQueryable();
             }
             else
             {
                 return Service.GetConsoleHistory().Where(entry => entry.Severity >= severityLevel).AsQueryable();
             }
+        }
+
+        public IQueryable<EvlWatcherTask> GetTasks()
+        {
+            //var tasks = Service.GetTasks();
+            throw new NotImplementedException();
         }
 
         public void AddWhiteListEntry(string s)

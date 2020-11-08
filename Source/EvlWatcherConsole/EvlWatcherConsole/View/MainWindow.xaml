@@ -125,7 +125,7 @@
                     </TextBox>
                     <StackPanel  Grid.Row="2" Orientation="Horizontal" Grid.ColumnSpan="2">
                         <Label VerticalAlignment="Center">Console verbosity:</Label>
-                        <ComboBox x:Name="ComboVerbosity" VerticalAlignment="Center" Width="100" Margin="5" Text="Verbosity" ItemsSource="{Binding ConsoleLevels}" SelectedValue="{Binding SelectedConsoleLevel}" IsEnabled="True">
+                        <ComboBox x:Name="ComboVerbosity" VerticalAlignment="Center" Width="100" Margin="5" Text="Verbosity" ItemsSource="{Binding AvailableConsoleLevels}" SelectedValue="{Binding SelectedConsoleLevel}" IsEnabled="True">
                         </ComboBox>
                         <CheckBox VerticalAlignment="Center" Name="AutoscrollCheckBox" Content="Autoscroll" IsChecked="True"></CheckBox>
                     </StackPanel>

@@ -1,4 +1,5 @@
 ﻿using EvlWatcher.Config;
+using EvlWatcher.Logging;
 
 namespace EvlWatcher.Tasks
 {

@@ -73,6 +73,7 @@
     <Compile Include="DTOs\ExtractedEventRecord.cs" />
     <Compile Include="Logging\DefaultLogger.cs" />
     <Compile Include="Logging\ILogger.cs" />
+    <Compile Include="Logging\LogEntry.cs" />
     <Compile Include="Tasks\DefaultGenericTaskFactory.cs" />
     <Compile Include="Tasks\GenericTask.cs" />
     <Compile Include="SystemApi\FirewallAPI.cs">

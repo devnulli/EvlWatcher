@@ -7,11 +7,9 @@ using System.Windows;
 using System.Net;
 using System.Windows.Input;
 using EvlWatcherConsole.MVVMBase;
-using EvlWatcher.WCF;
-using EvlWatcher.Logging;
 using EvlWatcherConsole.Model;
 using System.Threading;
-using System.Runtime.CompilerServices;
+using EvlWatcher.WCF.DTO;
 
 namespace EvlWatcherConsole.ViewModel
 {
@@ -28,7 +26,7 @@ namespace EvlWatcherConsole.ViewModel
         private string _permaBanIPString = "";
         private string _whiteListFilter = "";
         private string _consoleText;
-        private SeverityLevel _selectedConsoleLevel = SeverityLevel.Info;
+        private SeverityLevelDTO _selectedConsoleLevel = SeverityLevelDTO.Info;
 
         #endregion
 
@@ -99,12 +97,16 @@ namespace EvlWatcherConsole.ViewModel
                         {
                             UpdateConsole();
                         }
+                        if(IsRuleEditorTabSelected)
+                        {
+                            UpdateTasks();
+                        }
 
                     }
                 }
-                catch(Exception ex)
+                catch(Exception)
                 {
-                    
+                    //dont do anything.
                 }
                 finally
                 {
@@ -175,9 +177,21 @@ namespace EvlWatcherConsole.ViewModel
                 Application.Current.Dispatcher.Invoke(new Action(() => PermanentlyBannedIPs.Remove(i)));
         }
 
+        private void UpdateTasks()
+        {
+            var tasks = _model.GetTasks();
+        }
         #endregion
 
         #region public properties
+
+        public IReadOnlyList<SeverityLevelDTO> AvailableConsoleLevels
+        {
+            get
+            {
+                return _model.ConsoleLevels;
+            }
+        }
 
         public ICommand MoveTemporaryToPermaCommand
         {
@@ -216,7 +230,7 @@ namespace EvlWatcherConsole.ViewModel
             set;
         }
 
-        public SeverityLevel SelectedConsoleLevel
+        public SeverityLevelDTO SelectedConsoleLevel
         {
             get
             {
@@ -240,6 +254,8 @@ namespace EvlWatcherConsole.ViewModel
             get;
             set;
         }
+
+        public ObservableCollection<GenericTaskViewModel> AvailableTasks => new ObservableCollection<GenericTaskViewModel>();
 
         public ICommand AddPermaBanCommand
         {
@@ -333,7 +349,7 @@ namespace EvlWatcherConsole.ViewModel
             }
         }
 
-        public ObservableCollection<LogEntry> ConsoleHistory { get; } = new ObservableCollection<LogEntry>();
+        public ObservableCollection<LogEntryDTO> ConsoleHistory { get; } = new ObservableCollection<LogEntryDTO>();
 
         #endregion
     }

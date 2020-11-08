@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EvlWatcher.Logging;
 
-namespace EvlWatcher.Logging
+
+namespace EvlWatcher.WCF.DTO
 {
-    public enum SeverityLevel
+    public enum SeverityLevelDTO
     {
         Off = 6,
         Critical = 5,
@@ -17,11 +13,10 @@ namespace EvlWatcher.Logging
         Verbose = 1,
         Debug = 0
     };
-
-    public class LogEntry
+    public class LogEntryDTO
     {
         public DateTime Date { get; set; }
         public string Message { get; set; }
-        public SeverityLevel Severity { get; set; }
+        public SeverityLevelDTO Severity { get; set; }
     }
 }

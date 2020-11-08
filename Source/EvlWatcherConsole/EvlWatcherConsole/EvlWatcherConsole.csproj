@@ -71,6 +71,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Model\EvlWatcherModel.cs" />
+    <Compile Include="Model\EvlWatcherTask.cs" />
+    <Compile Include="ViewModel\GenericTaskViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="MVVMBase\GuiObject.cs" />
     <Compile Include="MVVMBase\RelayCommand.cs" />

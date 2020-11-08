@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ServiceModel;
 using System.Net;
-using EvlWatcher.Logging;
-
+using EvlWatcher.WCF.DTO;
 
 namespace EvlWatcher.WCF
 {
@@ -11,32 +9,32 @@ namespace EvlWatcher.WCF
     public interface IEvlWatcherService
     {
         [OperationContract]
-        [FaultContract(typeof(ExceptionFaultContract))]
+        [FaultContract(typeof(ServiceFaultDTO))]
         bool GetIsRunning();
         [OperationContract]
-        [FaultContract(typeof(ExceptionFaultContract))]
+        [FaultContract(typeof(ServiceFaultDTO))]
         IPAddress[] GetTemporarilyBannedIPs();
         [OperationContract]
-        [FaultContract(typeof(ExceptionFaultContract))]
+        [FaultContract(typeof(ServiceFaultDTO))]
         IPAddress[] GetPermanentlyBannedIPs();
         [OperationContract]
-        [FaultContract(typeof(ExceptionFaultContract))]
+        [FaultContract(typeof(ServiceFaultDTO))]
         void SetPermanentBan(IPAddress address);
         [OperationContract]
-        [FaultContract(typeof(ExceptionFaultContract))]
+        [FaultContract(typeof(ServiceFaultDTO))]
         void ClearPermanentBan(IPAddress address);
         [OperationContract]
-        [FaultContract(typeof(ExceptionFaultContract))]
+        [FaultContract(typeof(ServiceFaultDTO))]
         void AddWhiteListEntry(string filter);
         [OperationContract]
-        [FaultContract(typeof(ExceptionFaultContract))]
+        [FaultContract(typeof(ServiceFaultDTO))]
         void RemoveWhiteListEntry(string filter);
         [OperationContract]
-        [FaultContract(typeof(ExceptionFaultContract))]
+        [FaultContract(typeof(ServiceFaultDTO))]
         string[] GetWhiteListEntries();
         [OperationContract]
-        [FaultContract(typeof(ExceptionFaultContract))]
-        IList<LogEntry> GetConsoleHistory();
+        [FaultContract(typeof(ServiceFaultDTO))]
+        IList<LogEntryDTO> GetConsoleHistory();
 
     }
 }

@@ -1,15 +1,15 @@
 ﻿using System.Runtime.Serialization;
 
-namespace EvlWatcher.WCF
+namespace EvlWatcher.WCF.DTO
 {
 
-    public enum ExceptionFaultContractCode
+    public enum ServiceErorCode
     {
         clientNotAdministrator = 01
     } 
 
     [DataContract]
-    public class ExceptionFaultContract
+    public class ServiceFaultDTO
     {
         /// <summary>
         /// Fault Code List
@@ -20,7 +20,7 @@ namespace EvlWatcher.WCF
 
 
         [DataMember]
-        public ExceptionFaultContractCode Code { get; set; }
+        public ServiceErorCode Code { get; set; }
         [DataMember]
         public string Message { get; set; }
         [DataMember]
@@ -28,7 +28,7 @@ namespace EvlWatcher.WCF
         [DataMember]
         public bool CanTerminate { get; set; }
 
-        public ExceptionFaultContract(ExceptionFaultContractCode _code, string _message, bool _canTerminate = false, string _description = "")
+        public ServiceFaultDTO(ServiceErorCode _code, string _message, bool _canTerminate = false, string _description = "")
         {
             Code = _code;
             Message = _message;
