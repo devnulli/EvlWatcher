@@ -84,7 +84,7 @@ namespace EvlWatcher
         public bool GetIsRunning()
         {
             EnsureClientPrivileges();
-            
+
             return true;
         }
 
@@ -249,12 +249,15 @@ namespace EvlWatcher
         private void EnsureClientPrivileges()
         {
             if (!IsClientAdministrator())
+            {
+                _logger.Dump($"There was an attempt to access the named pipe without authorization. ({ServiceSecurityContext.Current.WindowsIdentity.Name})", SeverityLevel.Warning);
                 throw new FaultException<ExceptionFaultContract>(
                     new ExceptionFaultContract(
                         ExceptionFaultContractCode.clientNotAdministrator,
                         $"Your account {ServiceSecurityContext.Current.WindowsIdentity.Name} is not an Administrator! Please run this software with Administrator privileges. The client will exit..."
                         , true), "error"
                     );
+            }
         }
 
         /// <summary>
