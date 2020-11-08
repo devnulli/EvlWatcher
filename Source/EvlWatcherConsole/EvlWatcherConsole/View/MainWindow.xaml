@@ -131,6 +131,9 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
+            <TabItem Header="Global Settings" ToolTip="Edit global settings" IsSelected="{Binding IsRuleEditorTabSelected, Mode=OneWayToSource}">
+                
+            </TabItem>
             <TabItem Header="Rule Editor" ToolTip="Edit existing EvlWatcherRules" IsSelected="{Binding IsRuleEditorTabSelected, Mode=OneWayToSource}">
                 <Grid>
                     <Grid.RowDefinitions>

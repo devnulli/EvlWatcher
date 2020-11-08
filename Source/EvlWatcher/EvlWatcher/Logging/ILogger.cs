@@ -16,7 +16,6 @@ namespace EvlWatcher.Logging
     public interface ILogger
     {
         SeverityLevel LogLevel { get; set; }
-        SeverityLevel ConsoleLevel { get; set; }
 
         void Dump(string message, SeverityLevel severity);
         void Dump(Exception e, SeverityLevel severity = SeverityLevel.Error);

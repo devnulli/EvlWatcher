@@ -12,10 +12,6 @@ namespace EvlWatcher.Config
         SeverityLevel LogLevel { get; set; }
 
         /// <summary>
-        /// Messages at or above this level will be put to the Console (if present -> i.e when you are debugging the service )
-        /// </summary>
-        SeverityLevel ConsoleLevel { get; set; }
-        /// <summary>
         /// this is the interval the log files should be checked, in seconds
         /// </summary>
         int EventLogInterval { get; set; }

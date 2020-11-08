@@ -371,7 +371,8 @@ namespace EvlWatcher
                 {
                     DateTime scanStart = DateTime.Now;
 
-                    _logger.Dump("Scanning the logs now, scanned logs are:", SeverityLevel.Verbose);
+                    _logger.Dump($"Scanning the logs now.", SeverityLevel.Debug);
+                    
 
                     DateTime referenceTimeForTimeFramedEvents = DateTime.Now;
                     try
@@ -382,6 +383,7 @@ namespace EvlWatcher
                         //first read all relevant events (events that are required by any of the tasks)
                         foreach (string requiredEventType in requiredEventTypesToLogTasks.Keys)
                         {
+                            _logger.Dump($"Scanning {requiredEventType}", SeverityLevel.Debug);
                             eventTypesToNewEvents.Add(requiredEventType, new List<ExtractedEventRecord>());
                             eventTypesToTimeFramedEvents.Add(requiredEventType, new List<ExtractedEventRecord>());
 
@@ -435,7 +437,7 @@ namespace EvlWatcher
                             }
                         }
 
-                        _logger.Dump($"Scanning finished in {DateTime.Now.Subtract(scanStart).TotalMilliseconds}[ms] ", SeverityLevel.Verbose);
+                        _logger.Dump($"Scanning finished in {DateTime.Now.Subtract(scanStart).TotalMilliseconds}[ms] ", SeverityLevel.Debug);
 
 
                         //then supply the events to the requesting tasks
@@ -454,7 +456,8 @@ namespace EvlWatcher
                                             eventsForThisTask.Add(e);
                                     }
 
-                                    _logger.Dump($"Provided {eventsForThisTask.Count} events for {t.Name}", SeverityLevel.Verbose);
+                                    if (eventsForThisTask.Count > 0)
+                                        _logger.Dump($"Provided {eventsForThisTask.Count} events for {t.Name}", SeverityLevel.Verbose);
 
                                     if (eventsForThisTask.Count > 0)
                                     {

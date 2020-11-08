@@ -9,8 +9,6 @@ namespace EvlWatcher.Logging
     {
         public SeverityLevel LogLevel { get; set; } = SeverityLevel.Warning;
 
-        public SeverityLevel ConsoleLevel { get; set; } = SeverityLevel.Info;
-
         private int ConsoleHistoryMaxCount { get; set; } = 1000;
         private IList<LogEntry> ConsoleHistory { get; set; } = new List<LogEntry>();
 
@@ -36,12 +34,11 @@ namespace EvlWatcher.Logging
 
                 EventLog.WriteEntry(source, message, SeverityToEventLogEntryType.Convert(severity));
             }
-            if (severity >= ConsoleLevel)
-            {
+
                 var date = DateTime.Now;
                 Console.WriteLine($"{date.Hour}:{date.Minute}:{date.Second},{date.Millisecond} {message}");
                 ManageConsoleHistory(message, severity, date);
-            }
+            
         }
 
         public void Dump(Exception e, SeverityLevel level = SeverityLevel.Error)

@@ -48,23 +48,6 @@ namespace EvlWatcher.Config
             }
         }
 
-        public SeverityLevel ConsoleLevel
-        {
-            get
-            {
-                return _logger.ConsoleLevel;
-            }
-            set
-            {
-                if (_logger.ConsoleLevel != value)
-                {
-                    _logger.ConsoleLevel = value;
-                    if (!_inLoading)
-                        WriteGlobalConfig("ConsoleLevel", value.ToString());
-                }
-            }
-        }
-
         public SeverityLevel LogLevel
         {
             get
@@ -297,12 +280,7 @@ namespace EvlWatcher.Config
             if (logLevelElement != null)
                 LogLevel = GetLogLevelFromString(logLevelElement.Value);
 
-            XElement consoleLevelElement = globalConfig.Element("ConsoleLevel");
-            if (consoleLevelElement != null)
-                ConsoleLevel = GetLogLevelFromString(consoleLevelElement.Value);
-
             _logger.Dump($"Log level is set to : {LogLevel} ", SeverityLevel.Verbose);
-            _logger.Dump($"Console level is set to : {ConsoleLevel} ", SeverityLevel.Verbose);
 
             XElement checkIntervalElement = globalConfig.Element("CheckInterval");
             if (checkIntervalElement != null)
