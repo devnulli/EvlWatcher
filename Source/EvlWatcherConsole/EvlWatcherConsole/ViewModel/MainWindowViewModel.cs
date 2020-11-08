@@ -41,6 +41,11 @@ namespace EvlWatcherConsole.ViewModel
             StartUpdating();
         }
 
+        ~MainWindowViewModel()
+        {
+            StopUpdating();
+        }
+
         #endregion
 
         #region private operations
@@ -241,7 +246,7 @@ namespace EvlWatcherConsole.ViewModel
             get
             {
                 return new RelayCommand(p =>
-                   { _model.AddPermanentIPBan(IPAddress.Parse(PermaBanIPString)); PermaBanIPString = ""; }, p => { IPAddress dummy; return IPAddress.TryParse(PermaBanIPString, out dummy); });
+                   { _model.AddPermanentIPBan(IPAddress.Parse(PermaBanIPString)); PermaBanIPString = ""; }, p => { IPAddress dummy; return IPAddress.TryParse(PermaBanIPString, out dummy) && IsServiceResponding; });
             }
         }
 
@@ -249,7 +254,7 @@ namespace EvlWatcherConsole.ViewModel
         {
             get
             {
-                return new RelayCommand(p => _model.RemovePermanentIPBan(SelectedPermanentIP), p => { return SelectedPermanentIP != null; });
+                return new RelayCommand(p => _model.RemovePermanentIPBan(SelectedPermanentIP), p => { return SelectedPermanentIP != null && IsServiceResponding; });
             }
         }
 
@@ -271,8 +276,7 @@ namespace EvlWatcherConsole.ViewModel
         {
             get
             {
-                //TODO create execute predicate
-                return new RelayCommand(p => { _model.AddWhiteListEntry(WhiteListFilter); WhiteListFilter = ""; }, p => { return WhiteListFilter.Length > 0; });
+                return new RelayCommand(p => { _model.AddWhiteListEntry(WhiteListFilter); WhiteListFilter = ""; }, p => { return IsServiceResponding; });
             }
         }
 
@@ -280,7 +284,7 @@ namespace EvlWatcherConsole.ViewModel
         {
             get
             {
-                return new RelayCommand(p => { _model.RemoveWhiteListEntry(SelectedWhiteListPattern); }, p => { return SelectedWhiteListPattern != null; });
+                return new RelayCommand(p => { _model.RemoveWhiteListEntry(SelectedWhiteListPattern); }, p => { return SelectedWhiteListPattern != null && IsServiceResponding; });
             }
         }
 

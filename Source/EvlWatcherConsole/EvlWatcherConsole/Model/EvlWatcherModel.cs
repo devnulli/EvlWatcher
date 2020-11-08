@@ -17,21 +17,6 @@ namespace EvlWatcherConsole.Model
         #region private members
 
         private readonly object _syncObject = new object();
-        private IEvlWatcherService _service;
-        #endregion
-
-        #region public .ctor
-
-        public EvlWatcherModel()
-        {
-            var binding = new NetNamedPipeBinding()
-            {
-                MaxReceivedMessageSize = Int32.MaxValue //Setting to receive big console logs
-            };
-
-            ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(binding, new EndpointAddress("net.pipe://localhost/EvlWatcher"));
-            _service = f.CreateChannel();
-        }
 
         #endregion
 
@@ -56,7 +41,7 @@ namespace EvlWatcherConsole.Model
         {
             get
             {
-                return _service.GetIsRunning();
+                return Service.GetIsRunning();
             }
         }
         #endregion
@@ -65,17 +50,17 @@ namespace EvlWatcherConsole.Model
 
         public IQueryable<IPAddress> GetTemporarilyBannedIPs()
         {
-            return _service.GetTemporarilyBannedIPs().AsQueryable();
+            return Service.GetTemporarilyBannedIPs().AsQueryable();
         }
 
         public IQueryable<IPAddress> GetPermanentlyBannedIPs()
         {
-            return _service.GetPermanentlyBannedIPs().AsQueryable();
+            return Service.GetPermanentlyBannedIPs().AsQueryable();
         }
 
         public IQueryable<string> GetWhiteListPatterns()
         {
-            return _service.GetWhiteListEntries().AsQueryable();
+            return Service.GetWhiteListEntries().AsQueryable();
         }
 
         public IQueryable<LogEntry> GetConsoleHistory(SeverityLevel severityLevel)
@@ -86,7 +71,7 @@ namespace EvlWatcherConsole.Model
             }
             else
             {
-                return _service.GetConsoleHistory().Where(entry => entry.Severity >= severityLevel).AsQueryable();
+                return Service.GetConsoleHistory().Where(entry => entry.Severity >= severityLevel).AsQueryable();
             }
         }
 
@@ -129,6 +114,24 @@ namespace EvlWatcherConsole.Model
                 service.ClearPermanentBan(a);
             }
         }
+        #endregion
+
+        #region private operations
+
+        private IEvlWatcherService Service
+        {
+            get
+            {
+                var binding = new NetNamedPipeBinding()
+                {
+                    MaxReceivedMessageSize = Int32.MaxValue //Setting to receive big console logs
+                };
+
+                ChannelFactory<IEvlWatcherService> f = new ChannelFactory<IEvlWatcherService>(binding, new EndpointAddress("net.pipe://localhost/EvlWatcher"));
+                return f.CreateChannel();
+            }
+        }
+
         #endregion
     }
 }

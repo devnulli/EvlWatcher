@@ -4,7 +4,6 @@
         xmlns:vm="clr-namespace:EvlWatcherConsole.ViewModel"
         Title="EvlWatcher v2.0 Console" Height="550" Width="725" Icon="pack://application:,,,/Resources/EvlWatcher.ico" WindowStyle="ThreeDBorderWindow">
     <Window.DataContext>
-        <!-- directly binding to model instead of VM ... until otherwise needed-->
         <vm:MainWindowViewModel/>
     </Window.DataContext>
     <Grid>
@@ -147,15 +146,15 @@
         </TabControl>
         <StatusBar Grid.Row="1" Grid.ColumnSpan="2">
             <StatusBarItem>
-                <Label IsEnabled="{Binding IsServiceResponding}">
+                <Label>
                     <Label.Style>
                         <Style TargetType="Label">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Path=IsRunning}" Value="True">
+                                <DataTrigger Binding="{Binding Path=IsServiceResponding}" Value="True">
                                     <Setter Property="Content" Value="Service is currently responding." />
                                     <Setter Property="Foreground" Value="Green" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding Path=IsRunning}" Value="False">
+                                <DataTrigger Binding="{Binding Path=IsServiceResponding}" Value="False">
                                     <Setter Property="Content" Value="Service is currently not responding." />
                                     <Setter Property="Foreground" Value="Red" />
                                 </DataTrigger>
