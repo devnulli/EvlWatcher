@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace EvlWatcher.Logging
 {
     internal class DefaultLogger : ILogger
     {
+        private object _syncObject = new object();
         public SeverityLevel LogLevel { get; set; } = SeverityLevel.Warning;
 
         private int ConsoleHistoryMaxCount { get; set; } = 1000;
@@ -14,11 +16,14 @@ namespace EvlWatcher.Logging
 
         private void ManageConsoleHistory(string message, SeverityLevel severity, DateTime date)
         {
-            if (ConsoleHistory.Count >= ConsoleHistoryMaxCount)
+            lock (_syncObject)
             {
-                ConsoleHistory.RemoveAt(0);
+                if (ConsoleHistory.Count >= ConsoleHistoryMaxCount)
+                {
+                    ConsoleHistory.RemoveAt(0);
+                }
+                ConsoleHistory.Add(new LogEntry() { Message = message, Severity = severity, Date = date });
             }
-            ConsoleHistory.Add(new LogEntry() { Message = message, Severity = severity, Date = date });
         }
 
         public void Dump(string message, SeverityLevel severity)
@@ -54,7 +59,10 @@ namespace EvlWatcher.Logging
         /// <returns></returns>
         public IList<LogEntry> GetConsoleHistory()
         {
-            return ConsoleHistory;
+            lock (_syncObject)
+            {
+                return ConsoleHistory.ToList();
+            }
         }
         /// <summary>
         /// Default ConsoleHistoryMaxCount is 1000
