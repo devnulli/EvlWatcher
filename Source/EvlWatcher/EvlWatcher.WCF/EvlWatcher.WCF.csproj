@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DTOs\GlobalConfigDTO.cs" />
     <Compile Include="DTOs\ServiceFaultDTO.cs" />
     <Compile Include="IEvlWatcherService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

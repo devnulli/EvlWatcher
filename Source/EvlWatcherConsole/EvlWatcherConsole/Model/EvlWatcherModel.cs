@@ -33,6 +33,11 @@ namespace EvlWatcherConsole.Model
             }
         }
 
+        public GlobalConfigDTO GetGlobalConfig()
+        {
+            return Service.GetGlobalConfig();
+        }
+
         public bool IsServiceResponding
         {
             get

@@ -82,6 +82,33 @@ namespace EvlWatcher
         #endregion
 
         #region public operations
+
+        public GlobalConfigDTO GetGlobalConfig()
+        {
+            EnsureClientPrivileges();
+
+            return new GlobalConfigDTO()
+            {
+                ConsoleBackLog = _serviceconfiguration.ConsoleBackLog,
+                EventLogInterval = _serviceconfiguration.EventLogInterval,
+                LogLevel = (SeverityLevelDTO)Enum.Parse(typeof(SeverityLevelDTO), _serviceconfiguration.LogLevel.ToString()),
+                GenericTaskConfigurations = _logTasks.Where(t => t is GenericIPBlockingTask).Select(t => (GenericIPBlockingTask)t).Select(ipt => new GenericIPBlockingTaskDTO() {
+                    Active = ipt.Active,
+                    Description = ipt.Description,
+                    EventAge = ipt.EventAge,
+                    EventPath = ipt.EventPath,
+                    LockTime = ipt.LockTime,
+                    OnlyNewEvents = ipt.OnlyNew,
+                    PermaBanCount = ipt.PermaBanCount,
+                    Regex = ipt.Regex.ToString(),
+                    RegexBoosters = ipt.Boosters,
+                    TaskName = ipt.Name,
+                    TriggerCount = ipt.TriggerCount
+
+                }).ToList()
+
+            };
+        }
         public bool GetIsRunning()
         {
             EnsureClientPrivileges();
@@ -566,7 +593,7 @@ namespace EvlWatcher
                 w.OnStop();
             }
         }
-        
+
         #endregion
     }
 }

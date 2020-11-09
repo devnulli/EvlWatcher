@@ -28,6 +28,14 @@ namespace EvlWatcherConsole.ViewModel
         private string _consoleText;
         private SeverityLevelDTO _selectedConsoleLevel = SeverityLevelDTO.Info;
 
+        private bool _isInRuleEditMode;
+        private bool _isInGlobalEditMode;
+
+        //global config
+        private SeverityLevelDTO _loglevel;
+        private int _consoleBackLog;
+        private int _checkInterval;
+
         #endregion
 
         #region public .ctor
@@ -75,7 +83,6 @@ namespace EvlWatcherConsole.ViewModel
             _updater.Start();
         }
 
-
         private void Run()
         {
             while (_run)
@@ -97,14 +104,13 @@ namespace EvlWatcherConsole.ViewModel
                         {
                             UpdateConsole();
                         }
-                        if(IsRuleEditorTabSelected)
+                        if ((IsGlobalConfigSelected && !IsInGlobalEditMode) || (IsRuleEditorTabSelected && !IsInRuleEditMode))
                         {
-                            UpdateTasks();
+                            UpdateGlobalConfig();
                         }
-
                     }
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     //dont do anything.
                 }
@@ -129,7 +135,7 @@ namespace EvlWatcherConsole.ViewModel
         private void UpdateConsole()
         {
             var data = _model.GetConsoleHistory(SelectedConsoleLevel);
-         
+
             var sb = new StringBuilder();
 
             foreach (var log in data)
@@ -138,13 +144,21 @@ namespace EvlWatcherConsole.ViewModel
             ConsoleText = sb.ToString();
         }
 
+        private void UpdateGlobalConfig()
+        {
+            var globalConfig = _model.GetGlobalConfig();
+            LogLevel = globalConfig.LogLevel;
+            CheckInterval = globalConfig.EventLogInterval;
+            ConsoleBackLog = globalConfig.ConsoleBackLog;
+        }
+
         private void UpdateWhileListPattern()
         {
             var whiteListEntries = _model.GetWhiteListPatterns();
             List<string> toAdd = whiteListEntries.Where(IP => !WhiteListedPatterns.Contains(IP)).ToList();
             List<string> toRemove = WhiteListedPatterns.Where(IP => !whiteListEntries.Contains(IP)).ToList();
 
-         
+
             foreach (string s in toAdd)
                 Application.Current.Dispatcher.Invoke(new Action(() => WhiteListedPatterns.Add(s)));
 
@@ -169,7 +183,7 @@ namespace EvlWatcherConsole.ViewModel
 
             toAdd = permanentlyBannedIPs.Where(IP => !PermanentlyBannedIPs.Contains(IP)).ToList();
             toRemove = PermanentlyBannedIPs.Where(IP => !permanentlyBannedIPs.Contains(IP)).ToList();
-            
+
             foreach (IPAddress i in toAdd)
                 Application.Current.Dispatcher.Invoke(new Action(() => PermanentlyBannedIPs.Add(i)));
 
@@ -177,20 +191,71 @@ namespace EvlWatcherConsole.ViewModel
                 Application.Current.Dispatcher.Invoke(new Action(() => PermanentlyBannedIPs.Remove(i)));
         }
 
-        private void UpdateTasks()
-        {
-            var tasks = _model.GetTasks();
-        }
         #endregion
 
         #region public properties
 
-        public IReadOnlyList<SeverityLevelDTO> AvailableConsoleLevels
+        public bool IsInRuleEditMode
+        {
+            get
+            {
+                return _isInRuleEditMode;
+            }
+            set
+            {
+                _isInRuleEditMode = value;
+                Notify(nameof(IsInRuleEditMode));
+            }
+        }
+        public bool IsInGlobalEditMode
+        {
+            get
+            {
+                return _isInGlobalEditMode;
+            }
+            set
+            {
+                _isInGlobalEditMode = value;
+                Notify(nameof(IsInGlobalEditMode));
+            }
+        }
+
+        public IReadOnlyList<SeverityLevelDTO> AvailableLogLevels
         {
             get
             {
                 return _model.ConsoleLevels;
             }
+        }
+
+        public ICommand SaveGlobalConfigCommand
+        {
+            get
+            {
+                return new RelayCommand(p => { SaveConfiguration(); }, p => IsInGlobalEditMode);
+            }
+        }
+
+        public ICommand CancelGlobalEditingCommand
+        {
+            get
+            {
+                return new RelayCommand(p => { IsInGlobalEditMode = false; }, p => IsInGlobalEditMode);
+            }
+        }
+
+        public ICommand ToggleGlobalConfigEditModeCommand
+        {
+            get
+            {
+                return new RelayCommand(p => { IsInGlobalEditMode = true; }, p => !IsInGlobalEditMode);
+            }
+        }
+
+        private void SaveConfiguration()
+        {
+            //TODO SAVE
+            IsInGlobalEditMode = false;
         }
 
         public ICommand MoveTemporaryToPermaCommand
@@ -215,6 +280,11 @@ namespace EvlWatcherConsole.ViewModel
         {
             get; set;
         }
+        public bool IsGlobalConfigSelected
+        {
+            get; set;
+        }
+
 
         public ICommand MoveTemporaryToWhiteListCommand
         {
@@ -336,6 +406,32 @@ namespace EvlWatcherConsole.ViewModel
         public ObservableCollection<IPAddress> PermanentlyBannedIPs { get; } = new ObservableCollection<IPAddress>();
         public ObservableCollection<string> WhiteListedPatterns { get; } = new ObservableCollection<string>();
 
+        public int CheckInterval
+        {
+            get
+            {
+                return _checkInterval;
+            }
+            set
+            {
+                _checkInterval = value;
+                Notify(nameof(CheckInterval));
+            }
+        }
+
+        public int ConsoleBackLog
+        {
+            get
+            {
+                return _consoleBackLog;
+            }
+            set
+            {
+                _consoleBackLog = value;
+                Notify(nameof(ConsoleBackLog));
+            }
+        }
+
         public string ConsoleText
         {
             get
@@ -350,6 +446,19 @@ namespace EvlWatcherConsole.ViewModel
         }
 
         public ObservableCollection<LogEntryDTO> ConsoleHistory { get; } = new ObservableCollection<LogEntryDTO>();
+
+        public SeverityLevelDTO LogLevel
+        {
+            get
+            {
+                return _loglevel;
+            }
+            set
+            {
+                _loglevel = value;
+                Notify(nameof(LogLevel));
+            }
+        }
 
         #endregion
     }

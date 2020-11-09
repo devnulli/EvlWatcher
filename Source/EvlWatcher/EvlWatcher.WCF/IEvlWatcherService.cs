@@ -10,6 +10,9 @@ namespace EvlWatcher.WCF
     {
         [OperationContract]
         [FaultContract(typeof(ServiceFaultDTO))]
+        GlobalConfigDTO GetGlobalConfig();
+        [OperationContract]
+        [FaultContract(typeof(ServiceFaultDTO))]
         bool GetIsRunning();
         [OperationContract]
         [FaultContract(typeof(ServiceFaultDTO))]

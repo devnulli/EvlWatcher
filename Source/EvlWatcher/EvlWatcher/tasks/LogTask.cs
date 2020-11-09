@@ -12,7 +12,9 @@ namespace EvlWatcher.Tasks
         /// <summary>
         /// The name of the task
         /// </summary>
-        public string Name;
+        public string Name { get; protected set; }
+
+        public bool Active { get; protected set; }
 
         /// <summary>
         /// The description of the task

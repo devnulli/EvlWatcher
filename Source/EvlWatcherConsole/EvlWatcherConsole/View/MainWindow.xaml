@@ -30,7 +30,7 @@
                             <RowDefinition Height="30"></RowDefinition>
                         </Grid.RowDefinitions>
                         <Label Grid.ColumnSpan="2">temporarily banned IPs:</Label>
-                        <ListView Grid.Row="1" SelectedItem="{Binding SelectedTemporaryIP}" IsEnabled="{Binding IsRunning}" ItemsSource="{Binding TemporarilyBannedIPs}" Grid.ColumnSpan="2">
+                        <ListView Grid.Row="1" SelectedItem="{Binding SelectedTemporaryIP}" IsEnabled="{Binding IsServiceResponding}" ItemsSource="{Binding TemporarilyBannedIPs}" Grid.ColumnSpan="2">
                             <ListBox.Background>
                                 <ImageBrush ImageSource="pack://application:,,,/Resources/Dtjohnnymonkey-Stopwatch-no-shading.png" TileMode="None" Opacity="0.25"/>
                             </ListBox.Background>
@@ -41,10 +41,10 @@
                                 <ColumnDefinition Width="30"></ColumnDefinition>
                                 <ColumnDefinition Width="30"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="1" Command="{Binding MoveTemporaryToPermaCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}" ToolTip="Move to permanent ban list">
+                            <Button Grid.Column="1" Command="{Binding MoveTemporaryToPermaCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Move to permanent ban list">
                                 <Image Source="pack://application:,,,/Resources/lock_32.ico"></Image>
                             </Button>
-                            <Button Grid.Column="2" Command="{Binding MoveTemporaryToWhiteListCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}" ToolTip="Whitelist this IP">
+                            <Button Grid.Column="2" Command="{Binding MoveTemporaryToWhiteListCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Whitelist this IP">
                                 <Image Source="pack://application:,,,/Resources/lock_open_32.ico"></Image>
                             </Button>
                         </Grid>
@@ -56,7 +56,7 @@
                             <RowDefinition Height="30"></RowDefinition>
                         </Grid.RowDefinitions>
                         <Label>permanently banned IPs:</Label>
-                        <ListView Grid.Row="1" SelectedItem="{Binding SelectedPermanentIP}" IsEnabled="{Binding IsRunning}" ItemsSource="{Binding PermanentlyBannedIPs}">
+                        <ListView Grid.Row="1" SelectedItem="{Binding SelectedPermanentIP}" IsEnabled="{Binding IsServiceResponding}" ItemsSource="{Binding PermanentlyBannedIPs}">
                             <ListBox.Background>
                                 <ImageBrush ImageSource="pack://application:,,,/Resources/149667-3f51b5.png" TileMode="None" Opacity="0.25"/>
                             </ListBox.Background>
@@ -68,10 +68,10 @@
                                 <ColumnDefinition Width="30"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <TextBox Text="{Binding PermaBanIPString, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,5,5"></TextBox>
-                            <Button Grid.Column="1" Command="{Binding AddPermaBanCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}" ToolTip="Add to permanent ban list">
+                            <Button Grid.Column="1" Command="{Binding AddPermaBanCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Add to permanent ban list">
                                 <Image Source="pack://application:,,,/Resources/add_32.ico"></Image>
                             </Button>
-                            <Button Grid.Column="2" Command="{Binding RemovePermaBanCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}" ToolTip="Remove from permanent ban list">
+                            <Button Grid.Column="2" Command="{Binding RemovePermaBanCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Remove from permanent ban list">
                                 <Image Source="pack://application:,,,/Resources/close_32.ico"></Image>
                             </Button>
                         </Grid>
@@ -83,7 +83,7 @@
                             <RowDefinition Height="30"></RowDefinition>
                         </Grid.RowDefinitions>
                         <Label>white-listed IP Patterns:</Label>
-                        <ListView FontWeight="DemiBold" Grid.Row="1" SelectedItem="{Binding SelectedWhiteListPattern}" IsEnabled="{Binding IsRunning}" ItemsSource="{Binding WhiteListedPatterns}">
+                        <ListView FontWeight="DemiBold" Grid.Row="1" SelectedItem="{Binding SelectedWhiteListPattern}" IsEnabled="{Binding IsServiceResponding}" ItemsSource="{Binding WhiteListedPatterns}">
                             <ListBox.Background>
                                 <ImageBrush ImageSource="pack://application:,,,/Resources/49090725942_794806e948_b.jpg" TileMode="None" Opacity="0.25"/>
                             </ListBox.Background>
@@ -96,10 +96,10 @@
                                 <ColumnDefinition Width="30"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <TextBox Text="{Binding WhiteListFilter, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,5,5"></TextBox>
-                            <Button Grid.Column="1" Command="{Binding AddWhiteListFilterCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}" ToolTip="Add to whitelist">
+                            <Button Grid.Column="1" Command="{Binding AddWhiteListFilterCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Add to whitelist">
                                 <Image Source="pack://application:,,,/Resources/add_32.ico"></Image>
                             </Button>
-                            <Button Grid.Column="2" Command="{Binding RemoveWhiteListFilterCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsRunning}" ToolTip="Remove from whitelist">
+                            <Button Grid.Column="2" Command="{Binding RemoveWhiteListFilterCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Remove from whitelist">
                                 <Image Source="pack://application:,,,/Resources/close_32.ico"></Image>
                             </Button>
                         </Grid>
@@ -125,14 +125,83 @@
                     </TextBox>
                     <StackPanel  Grid.Row="2" Orientation="Horizontal" Grid.ColumnSpan="2">
                         <Label VerticalAlignment="Center">Console verbosity:</Label>
-                        <ComboBox x:Name="ComboVerbosity" VerticalAlignment="Center" Width="100" Margin="5" Text="Verbosity" ItemsSource="{Binding AvailableConsoleLevels}" SelectedValue="{Binding SelectedConsoleLevel}" IsEnabled="True">
+                        <ComboBox x:Name="ComboVerbosity" VerticalAlignment="Center" Width="100" Margin="5" Text="Verbosity" ItemsSource="{Binding AvailableLogLevels}" SelectedValue="{Binding SelectedConsoleLevel}" IsEnabled="True">
                         </ComboBox>
                         <CheckBox VerticalAlignment="Center" Name="AutoscrollCheckBox" Content="Autoscroll" IsChecked="True"></CheckBox>
                     </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Global Settings" ToolTip="Edit global settings" IsSelected="{Binding IsRuleEditorTabSelected, Mode=OneWayToSource}">
-                
+            <TabItem Header="Global Settings" ToolTip="Edit global settings" IsSelected="{Binding IsGlobalConfigSelected, Mode=OneWayToSource}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition Height="40"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <Label VerticalAlignment="Center">LogLevel:</Label>
+                            <ComboBox Margin="5" Width="100" ItemsSource="{Binding AvailableLogLevels}" IsEnabled="{Binding IsInGlobalEditMode}" SelectedItem="{Binding LogLevel}"></ComboBox>
+                            <Label VerticalAlignment="Center" Foreground="Gray">Messages from EvlWatcher greater or equal this level will be written to the Windows-Eventlog</Label>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label VerticalAlignment="Center">Console Backlog:</Label>
+                            <TextBox Margin="5" Width="60" Text="{Binding ConsoleBackLog}" IsEnabled="{Binding IsInGlobalEditMode}"></TextBox>
+                            <Label>entries</Label>
+                            <Label VerticalAlignment="Center" Foreground="Gray">Basically, how far you can scroll up in the "Live" tab.</Label>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label VerticalAlignment="Center">Check interval:</Label>
+                            <TextBox Margin="5" Width="60" Text="{Binding CheckInterval}"  IsEnabled="{Binding IsInGlobalEditMode}"></TextBox>
+                            <Label>ms</Label>
+                            <Label VerticalAlignment="Center"  Foreground="Gray">How often the Eventlog will be checked.</Label>
+                        </StackPanel>
+                        
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" FlowDirection="RightToLeft">
+                        <Button Margin="5" Padding="2" Content="Save" Command="{Binding SaveGlobalConfigCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsInGlobalEditMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"></Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsInGlobalEditMode}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Margin="5" Padding="2" Content="Cancel" Command="{Binding CancelGlobalEditingCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsInGlobalEditMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"></Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsInGlobalEditMode}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Margin="5" Padding="2" Content="Edit" Command="{Binding ToggleGlobalConfigEditModeCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsInGlobalEditMode}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"></Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsInGlobalEditMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </Grid>
             </TabItem>
             <TabItem Header="Rule Editor" ToolTip="Edit existing EvlWatcherRules" IsSelected="{Binding IsRuleEditorTabSelected, Mode=OneWayToSource}">
                 <Grid>
