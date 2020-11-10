@@ -2,7 +2,7 @@
 
 ### 2020-11-10 release of v2.0 finally complete
 So, this was about time that software got a new paint applied. The release of EvlWatcher 2.0 could finally be made, many thanks go to NukeDev and shimuldn.
-You get it here [EvlWatcher v2.0](https://github.com/devnulli/EvlWatcher/raw/master/Versions/v2/EvlWatcher-v2.0%20setup.exe). And it gives you a Windows Defender Warning right on. Damn.. anyway..
+You get it here [EvlWatcher v2.0](https://github.com/devnulli/EvlWatcher/raw/master/Versions/v2/EvlWatcher-v2.0%20setup.exe). And it gives you a Windows Defender warning right away. What the heck? Damn.. anyway..
 If anyone needs something or has questions about it, feel free to open an issue. Im pretty pleased its finally finished.
 
 # Short description of what EvlWatcher does
