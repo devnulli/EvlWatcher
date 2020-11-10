@@ -3,40 +3,120 @@ using System.Collections.Generic;
 using NetFwTypeLib;
 using System.Net;
 using EvlWatcher.Comparer;
+using System.Runtime.InteropServices;
 
 namespace EvlWatcher.SystemAPI
 {
     /// <summary>
     /// this class wraps required parts of the Microsoft Firewall with Enhanced Security COM API
     /// </summary>
-    public static class FirewallAPI
+    public class FirewallAPI : IDisposable
     {
+        #region private members
         private const string CLSID_FWPOLICY2 = "{E2B3C97F-6AE1-41AC-817A-F6F92166D7DD}";
         private const string CLSID_FWRULE = "{2C5BC43E-3369-4C33-AB0C-BE9469677AF4}";
+        private bool _disposed;
 
-        private static INetFwPolicy2 GetPolicy2()
+        private INetFwPolicy2 _fwPolicy2 = null;
+        private INetFwRule _fwRule = null;
+
+        #endregion
+
+        #region .ctor
+
+        ~FirewallAPI()
         {
-            Type objectType = Type.GetTypeFromCLSID(
-                new Guid(CLSID_FWPOLICY2));
-            return Activator.CreateInstance(objectType)
-                  as INetFwPolicy2;
+            Dispose(disposing: false);
         }
 
-        private static INetFwRule GetFwRule()
+        #endregion
+
+        #region private operations
+
+        private INetFwRule GetOrCreateEvlWatcherRule()
         {
-            Type objectType = Type.GetTypeFromCLSID(new Guid(CLSID_FWRULE));
-            return Activator.CreateInstance(objectType)
-                  as INetFwRule;
+            return GetOrCreateEvlWatcherRule(true);
         }
 
-        public static void ClearIPBanList()
+        private INetFwRule GetOrCreateEvlWatcherRule(bool create)
+        {
+            INetFwPolicy2 policies = GetPolicy2();
+            INetFwRule rule = null;
+
+            bool found = false;
+            foreach (INetFwRule r in policies.Rules)
+            {
+                if (r.Name == "EvlWatcher")
+                {
+                    found = true;
+                    rule = r;
+                    break;
+                }
+            }
+
+            if (!found && create)
+            {
+                rule = GetFwRule();
+                rule.Enabled = false;
+                rule.Action = NET_FW_ACTION_.NET_FW_ACTION_BLOCK;
+                rule.Description = "This is the rule EvlWatcher uses for temporarily banning IPs. It will enable/disable automatically when IPs need to be banned. You don't have to manually enable it.";
+                rule.Direction = NET_FW_RULE_DIRECTION_.NET_FW_RULE_DIR_IN;
+                rule.EdgeTraversal = false;
+                rule.LocalAddresses = "*";
+                rule.Name = "EvlWatcher";
+                rule.Profiles = 2147483647; // = means all Profiles
+                rule.Protocol = 256;
+                policies.Rules.Add(rule);
+            }
+
+            return rule;
+        }
+
+
+        private INetFwPolicy2 GetPolicy2()
+        {
+            if (_fwPolicy2 == null)
+            {
+                Type objectType = Type.GetTypeFromCLSID(
+                    new Guid(CLSID_FWPOLICY2));
+                _fwPolicy2 = Activator.CreateInstance(objectType)
+                      as INetFwPolicy2;
+            }
+
+            return _fwPolicy2;
+        }
+
+        private INetFwRule GetFwRule()
+        {
+            if (_fwRule == null)
+            {
+                Type objectType = Type.GetTypeFromCLSID(new Guid(CLSID_FWRULE));
+                _fwRule = Activator.CreateInstance(objectType)
+                      as INetFwRule;
+            }
+
+            return _fwRule;
+        }
+
+        #endregion
+
+        #region public operations
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        public void ClearIPBanList()
         {
             INetFwRule rule = GetOrCreateEvlWatcherRule(false);
             if (rule != null)
                 GetPolicy2().Rules.Remove(rule.Name);
         }
 
-        public static bool AdjustIPBanList(List<IPAddress> ips)
+        public bool AdjustIPBanList(List<IPAddress> ips)
         {
             ips.Sort(new IPAddressComparer());
 
@@ -81,48 +161,10 @@ namespace EvlWatcher.SystemAPI
             }
 
             return changed;
+            
         }
-
-        private static INetFwRule GetOrCreateEvlWatcherRule()
-        {
-            return GetOrCreateEvlWatcherRule(true);
-        }
-
-        private static INetFwRule GetOrCreateEvlWatcherRule(bool create)
-        {
-            INetFwPolicy2 policies = GetPolicy2();
-            INetFwRule rule = null;
-
-            bool found = false;
-            foreach (INetFwRule r in policies.Rules)
-            {
-                if (r.Name == "EvlWatcher")
-                {
-                    found = true;
-                    rule = r;
-                    break;
-                }
-            }
-
-            if (!found && create)
-            {
-                rule = GetFwRule();
-                rule.Enabled = false;
-                rule.Action = NET_FW_ACTION_.NET_FW_ACTION_BLOCK;
-                rule.Description = "This is the rule EvlWatcher uses for temporarily banning IPs. It will enable/disable automatically when IPs need to be banned. You don't have to manually enable it.";
-                rule.Direction = NET_FW_RULE_DIRECTION_.NET_FW_RULE_DIR_IN;
-                rule.EdgeTraversal = false;
-                rule.LocalAddresses = "*";
-                rule.Name = "EvlWatcher";
-                rule.Profiles = 2147483647; // = means all Profiles
-                rule.Protocol = 256;
-                policies.Rules.Add(rule);
-            }
-
-            return rule;
-        }
-
-        public static List<string> GetBannedIPs()
+     
+        public List<string> GetBannedIPs()
         {
             List<string> currentlyBannedIPs = new List<string>();
 
@@ -140,5 +182,35 @@ namespace EvlWatcher.SystemAPI
 
             return currentlyBannedIPs;
         }
+
+        #endregion
+
+        #region protected operations
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                if(_fwRule != null)
+                {
+                    Marshal.ReleaseComObject(_fwRule);
+                    _fwRule = null;
+                }
+
+                if(_fwPolicy2 == null)
+                {
+                    Marshal.ReleaseComObject(_fwPolicy2);
+                    _fwPolicy2 = null;
+                }
+                _disposed = true;
+            }
+        }
+
+        #endregion
     }
 }

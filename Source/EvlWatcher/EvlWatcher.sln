@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvlWatcher", "EvlWatcher\EvlWatcher.csproj", "{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvlWatcher.WCF", "EvlWatcher.WCF\EvlWatcher.WCF.csproj", "{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,17 +28,23 @@ Global
 		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Release|Mixed Platforms.Build.0 = Release|x86
 		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Release|x86.ActiveCfg = Release|x86
 		{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}.Release|x86.Build.0 = Release|x86
+		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Debug|x86.Build.0 = Debug|Any CPU
+		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Release|x86.ActiveCfg = Release|Any CPU
+		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 2
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://nerderies.visualstudio.com/
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = EvlWatcher\\EvlWatcher.csproj
-		SccProjectName1 = EvlWatcher
-		SccLocalPath1 = EvlWatcher
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {86D85393-ED5F-4C8D-BA36-0C8CE1882299}
 	EndGlobalSection
 EndGlobal

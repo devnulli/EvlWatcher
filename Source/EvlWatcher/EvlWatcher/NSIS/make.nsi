@@ -2,7 +2,7 @@ Name "EvlWatcher"
 
 ; The file to write
 Icon EvlWatcher.ico
-OutFile "EvlWatcher-v2.0 alpha-setup.exe"
+OutFile "EvlWatcher-v2.0 setup.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\EvlWatcher
@@ -11,7 +11,7 @@ InstallDir $PROGRAMFILES\EvlWatcher
 ; overwrite the old one automatically)
 InstallDirRegKey HKLM "Software\EvlWatcher" "InstallDir"
 
-; Request application privileges for Windows Vista
+; Request application privileges
 RequestExecutionLevel admin
 
 ;--------------------------------
@@ -52,20 +52,23 @@ Section "EvlWatcher Service"
   Delete $INSTDIR\Interop.NetFwTypeLib.dll
   Delete $INSTDIR\EvlWatcher.exe
   Delete $INSTDIR\gpl-3.0.txt
+  Delete $INSTDIR\license.txt
   Delete $INSTDIR\source.zip
   Delete $INSTDIR\config.xml
   Delete $INSTDIR\EvlWatcherConsole.exe
   Delete $INSTDIR\EvlWatcher.ico
+  Delete $INSTDIR\EvlWatcher.WCF.dll
 
   ; Set output path to the installation directory.
   SetOutPath $INSTDIR
   
   ; Put file there
-  ;;; removed (is now embedded as of .NET Framework 4.0 File "Interop.NetFwTypeLib.dll"
 
   File "EvlWatcher.exe"
-  File "gpl-3.0.txt"
+  File "license.txt"
   File "config.xml"
+  File "EvlWatcher.WCF.dll"
+  File "EvlWatcherConsole.exe"
 
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\EvlWatcher "Install_Dir" "$INSTDIR"
@@ -122,10 +125,12 @@ Section "Uninstall"
   Delete $INSTDIR\Interop.NetFwTypeLib.dll
   Delete $INSTDIR\EvlWatcher.exe
   Delete $INSTDIR\gpl-3.0.txt
+  Delete $INSTDIR\license.txt
   Delete $INSTDIR\config.xml
   Delete $INSTDIR\EvlWatcherConsole.exe
   Delete $INSTDIR\source.zip
   Delete $INSTDIR\EvlWatcher.ico
+  Delete $INSTDIR\EvlWatcher.WCF.dll
 
   Delete $INSTDIR\Source\Constants.cs
   Delete $INSTDIR\Source\FirewallAPI.cs

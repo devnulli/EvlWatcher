@@ -1,30 +1,40 @@
-﻿using EvlWatcher.Converter;
+﻿using EvlWatcher.Config;
+using EvlWatcher.Converter;
+using EvlWatcher.DTOs;
+using EvlWatcher.Logging;
 using EvlWatcher.SystemAPI;
 using EvlWatcher.Tasks;
+using EvlWatcher.WCF;
+using EvlWatcher.WCF.DTO;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
+using System.Security.Principal;
 using System.ServiceModel;
 using System.ServiceProcess;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Xml.Linq;
 
 namespace EvlWatcher
 {
-    public class EvlWatcher : ServiceBase, WCF.IEvlWatcherService
+    [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Single, InstanceContextMode = InstanceContextMode.Single)]
+    public class EvlWatcher : ServiceBase, IEvlWatcherService
     {
         #region private members
 
         /// <summary>
         /// this thread does the actual log scanning
         /// </summary>
-        Thread _workerThread;
+        private Thread _workerThread;
+        private bool _disposed = false;
+
+        private readonly FirewallAPI _firewallApi = new FirewallAPI();
+
+        private readonly ILogger _logger;
+        private readonly IPersistentServiceConfiguration _serviceconfiguration;
+        private readonly IGenericTaskFactory _genericTaskFactory;
 
         /// <summary>
         /// this is the servicehost for management apps
@@ -37,19 +47,9 @@ namespace EvlWatcher
         private static readonly IList<LogTask> _logTasks = new List<LogTask>();
 
         /// <summary>
-        /// this flag determines if EvlWatcher should be run as application standalone(i.e. from VS when you debug it), or as windows service
-        /// </summary>
-        private const bool _runasApplication = true;
-
-        /// <summary>
         /// adds some extra output
         /// </summary>
-        private static bool _verbose = true;
 
-        private static int _eventLogInterval = 30000;
-
-        private static readonly List<IPAddress> _permaBannedIPs = new List<IPAddress>();
-        private static readonly List<string> _whiteListPatterns = new List<string>();
         private static List<IPAddress> _lastPolledTempBans = new List<IPAddress>();
         private static List<IPAddress> _lastBannedIPs = new List<IPAddress>();
 
@@ -57,114 +57,143 @@ namespace EvlWatcher
 
         private volatile bool _stop = false;
 
+        private bool IsClientAdministrator()
+        {
+            if( ServiceSecurityContext.Current.WindowsIdentity.IsAuthenticated &&
+                new WindowsPrincipal(ServiceSecurityContext.Current.WindowsIdentity).IsInRole(WindowsBuiltInRole.Administrator) )
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region public constructor
+
+        public EvlWatcher(ILogger logger, IPersistentServiceConfiguration configuration, IGenericTaskFactory genericTaskFactory)
+        {
+            _logger = logger;
+            _serviceconfiguration = configuration;
+            _genericTaskFactory = genericTaskFactory;
+        }
+
         #endregion
 
         #region public operations
 
+        public GlobalConfigDTO GetGlobalConfig()
+        {
+            EnsureClientPrivileges();
+
+            return new GlobalConfigDTO()
+            {
+                ConsoleBackLog = _serviceconfiguration.ConsoleBackLog,
+                EventLogInterval = _serviceconfiguration.EventLogInterval,
+                LogLevel = (SeverityLevelDTO)Enum.Parse(typeof(SeverityLevelDTO), _serviceconfiguration.LogLevel.ToString()),
+                GenericTaskConfigurations = _logTasks.Where(t => t is GenericIPBlockingTask).Select(t => (GenericIPBlockingTask)t).Select(ipt => new GenericIPBlockingTaskDTO() {
+                    Active = ipt.Active,
+                    Description = ipt.Description,
+                    EventAge = ipt.EventAge,
+                    EventPath = ipt.EventPath,
+                    LockTime = ipt.LockTime,
+                    OnlyNewEvents = ipt.OnlyNew,
+                    PermaBanCount = ipt.PermaBanCount,
+                    Regex = ipt.Regex.ToString(),
+                    RegexBoosters = ipt.Boosters,
+                    TaskName = ipt.Name,
+                    TriggerCount = ipt.TriggerCount
+
+                }).ToList()
+
+            };
+        }
         public bool GetIsRunning()
         {
+            EnsureClientPrivileges();
+
             return true;
         }
 
         public IPAddress[] GetPermanentlyBannedIPs()
         {
+            EnsureClientPrivileges();
+
             lock (_syncObject)
             {
-                return _permaBannedIPs.ToArray();
+                return _serviceconfiguration.BlacklistAddresses.ToArray();
             }
         }
 
         public string[] GetWhiteListEntries()
         {
+            EnsureClientPrivileges();
+
             lock (_syncObject)
-                return _whiteListPatterns.ToArray();
+                return _serviceconfiguration.WhitelistPatterns.ToArray();
         }
 
         public void SetPermanentBan(IPAddress address)
         {
-            lock (_syncObject)
-            {
-                if (!_permaBannedIPs.Contains(address))
-                    _permaBannedIPs.Add(address);
+            EnsureClientPrivileges();
 
-                string s = "";
-                foreach (IPAddress ip in _permaBannedIPs)
-                    s += ip.ToString() + ";";
-
-                WriteConfig("GLOBAL", "Banlist", s);
-            }
+            _serviceconfiguration.AddBlackListAddress(address);
 
             PushBanList();
         }
 
         public void ClearPermanentBan(IPAddress address)
         {
-            lock (_syncObject)
-            {
-                if (_permaBannedIPs.Contains(address))
-                    _permaBannedIPs.Remove(address);
+            EnsureClientPrivileges();
 
-                string s = "";
-                foreach (IPAddress ip in _permaBannedIPs)
-                    s += ip.ToString() + ";";
-
-                WriteConfig("GLOBAL", "Banlist", s);
-            }
+            _serviceconfiguration.RemoveBlackListAddress(address);
 
             PushBanList();
         }
 
         public void AddWhiteListEntry(string filter)
         {
-            if (filter.Contains(";"))
-                return;
+            EnsureClientPrivileges();
 
-            lock (_syncObject)
-            {
-                if (!_whiteListPatterns.Contains(filter))
-                    _whiteListPatterns.Add(filter);
-
-                string s = "";
-                foreach (string pattern in _whiteListPatterns)
-                    s += pattern + ";";
-
-                WriteConfig("GLOBAL", "WhiteList", s);
-
-            }
+            _serviceconfiguration.AddWhiteListPattern(filter);
 
             PushBanList();
         }
 
         public void RemoveWhiteListEntry(string filter)
         {
-            lock (_syncObject)
-            {
-                if (_whiteListPatterns.Contains(filter))
-                    _whiteListPatterns.Remove(filter);
+            EnsureClientPrivileges();
 
-                string s = "";
-                foreach (string pattern in _whiteListPatterns)
-                    s += pattern + ";";
-
-                WriteConfig("GLOBAL", "WhiteList", s);
-            }
+            _serviceconfiguration.RemoveWhiteListPattern(filter);
 
             PushBanList();
         }
 
         public IPAddress[] GetTemporarilyBannedIPs()
         {
+            EnsureClientPrivileges();
+
             lock (_syncObject)
             {
                 List<IPAddress> result = new List<IPAddress>(_lastPolledTempBans);
 
-                foreach (IPAddress a in _permaBannedIPs)
-                {
-                    if (result.Contains(a))
-                        result.Remove(a);
-                }
+                result.RemoveAll(p => _serviceconfiguration.BlacklistAddresses.Contains(p));
 
                 return result.ToArray();
+            }
+        }
+
+        public IList<LogEntryDTO> GetConsoleHistory()
+        {
+            EnsureClientPrivileges();
+
+            lock (_syncObject)
+            {
+                return _logger.GetConsoleHistory().Select(entry => new LogEntryDTO() { 
+                    Date = entry.Date, 
+                    Message = entry.Message, 
+                    Severity = (SeverityLevelDTO)Enum.Parse(typeof(SeverityLevelDTO), entry.Severity.ToString()) }).ToList();
             }
         }
 
@@ -172,16 +201,34 @@ namespace EvlWatcher
 
         #region protected operations
 
+        protected override void Dispose(bool disposing)
+        {
+            if(_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                
+            }
+
+            _disposed = true;
+
+            base.Dispose(disposing);
+        }
+
         protected override void OnStart(string[] args)
         {
-            //TODO UNSAFE
             lock (_syncObject)
             {
-                _serviceHost = new ServiceHost(typeof(EvlWatcher), new Uri[] { new Uri("net.pipe://localhost") });
-                _serviceHost.AddServiceEndpoint(typeof(WCF.IEvlWatcherService), new NetNamedPipeBinding(), "EvlWatcher");
+                _serviceHost = new ServiceHost(this, new Uri[] { new Uri("net.pipe://localhost") });
+                var binding = new NetNamedPipeBinding();
+                
+                _serviceHost.AddServiceEndpoint(typeof(IEvlWatcherService), binding, "EvlWatcher");
                 _serviceHost.Open();
 
-                _workerThread = new Thread(new ThreadStart(this.Run))
+                _workerThread = new Thread(new ThreadStart(Run))
                 {
                     IsBackground = true
                 };
@@ -215,144 +262,60 @@ namespace EvlWatcher
                 //if the thread doesnt come back in 5s post error and exit hard
                 if (DateTime.Now.Subtract(start).TotalSeconds > 5)
                 {
-                    Dump("Service could not terminate normally.", EventLogEntryType.Warning);
+                    _logger.Dump("Service could not terminate normally.", SeverityLevel.Warning);
                     return;
                 }
             }
 
-            Dump("Service terminated OK", EventLogEntryType.Information);
+            _logger.Dump("Service terminated OK", SeverityLevel.Info);
         }
 
         #endregion
 
         #region private operations
 
-        private void WriteConfig(string task, string property, string value)
+        /// <summary>
+        /// ensures the requestor is authenticated as privileged user
+        /// </summary>
+        private void EnsureClientPrivileges()
         {
-            if (_verbose)
-                Dump($"Writing config for: {task}: {property} = {value}", EventLogEntryType.Information);
-
-            XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config.xml"));
-            XElement taskEl = d.Root.Element(task);
-            if (taskEl == null)
+            if (!IsClientAdministrator())
             {
-                taskEl = new XElement(task);
-                d.Root.Add(taskEl);
+                _logger.Dump($"There was an attempt to access the named pipe without authorization. ({ServiceSecurityContext.Current.WindowsIdentity.Name})", SeverityLevel.Warning);
+                throw new FaultException<ServiceFaultDTO>(
+                    new ServiceFaultDTO(
+                        ServiceErorCode.clientNotAdministrator,
+                        $"Your account {ServiceSecurityContext.Current.WindowsIdentity.Name} is not an Administrator! Please run this software with Administrator privileges. The client will exit..."
+                        , true), "error"
+                    );
             }
-            if (taskEl != null)
-            {
-                XElement val = taskEl.Element(property);
-                if (val == null)
-                {
-                    val = new XElement(property);
-                    taskEl.Add(val);
-                }
-                if (val != null)
-                {
-                    val.Value = value.ToString();
-                }
-
-            }
-            d.Save(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config.xml"));
         }
 
-        private void WriteConfig(string task, string property, int value)
-        {
-            WriteConfig(task, property, value.ToString());
-        }
-
-        private void InitExternalWorkerDLLs(XDocument d)
+        /// <summary>
+        /// creates generic log tasks from configuration
+        /// </summary>
+        /// <param name="d"></param>
+        private void InitWorkersFromConfig(IQueryable<IPersistentTaskConfiguration> taskConfigurations)
         {
             lock (_syncObject)
             {
-                string loadedTasks = "";
-                string failedTasks = "";
+                foreach (var config in taskConfigurations.Where(c => c.Active == false))
+                    _logger.Dump($"Skipped {config.TaskName} (set inactive)", SeverityLevel.Info);
 
-                //do startup
-                foreach (FileInfo fileInfo in new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.GetFiles())
+                foreach (var config in taskConfigurations.Where(c => c.Active == true))
                 {
-                    if (!fileInfo.FullName.EndsWith(".dll"))
-                        continue;
-
-                    Assembly a = null;
-                    try
-                    {
-                        a = Assembly.LoadFrom(fileInfo.FullName);
-                    }
-                    catch
-                    {
-                        Dump($"Could not load assembly {fileInfo.FullName}", EventLogEntryType.Warning);
-                        continue;
-                    }
-
-                    foreach (Type t in a.GetTypes())
-                    {
-                        if (!t.IsAbstract && t.IsSubclassOf(typeof(LogTask)))
-                        {
-                            try
-                            {
-                                LogTask instance = (LogTask)Activator.CreateInstance(t);
-
-                                loadedTasks += $"\n{instance.Name}\n{instance.Description}\n";
-
-                                _logTasks.Add(instance);
-                            }
-                            catch (Exception e)
-                            {
-                                failedTasks += $"\n{t.Name}\n Reason: {e.Message}";
-                            }
-                        }
-                    }
+                    _logTasks.Add(_genericTaskFactory.CreateFromConfiguration(config));
                 }
-                if (loadedTasks.Length > 0 || failedTasks.Length > 0)
-                    Dump($"External DLLs loaded, loaded tasks are: \n{loadedTasks}" + (failedTasks.Length > 0 ? $"\nFailing Tasks:\n{failedTasks}" : ""), failedTasks.Length > 0 ? EventLogEntryType.Warning : EventLogEntryType.Information);
-                else
-                    Dump("No external DLLs loaded", EventLogEntryType.Information);
             }
         }
 
-        private void InitWorkersFromConfig(XDocument d)
+        /// <summary>
+        /// returns true when given address is whitelisted and should not be banned
+        /// </summary>
+        private bool IsWhiteListed(IPAddress address)
         {
-            lock (_syncObject)
-            {
-                string loadedTasks = "";
-                string failedTasks = "";
-
-                try
-                {
-                    HashSet<string> taskNames = new HashSet<string>();
-                    foreach (string taskToLoad in from e in d.Root.Element("GenericTaskLoader").Elements("Load") select e.Value)
-                    {
-                        taskNames.Add(taskToLoad);
-                    }
-                    foreach (string s in taskNames)
-                    {
-                        var e = d.Root.Element(s);
-                        try
-                        {
-                            LogTask instance = GenericIPBlockingTask.FromXML(e);
-
-                            loadedTasks += $"\n{instance.Name}\n{ instance.Description}\n";
-
-                            _logTasks.Add(instance);
-                        }
-                        catch (Exception ex)
-                        {
-                            failedTasks += $"\n{s}\n Reason: {ex.Message}";
-                        }
-                    }
-                }
-                catch
-                {
-                    Dump("Did not load default tasks. None present, or the XML is corrupted", EventLogEntryType.Warning);
-                    throw;
-                }
-
-                if (loadedTasks.Length > 0 || failedTasks.Length > 0)
-                    Dump($"Generic Tasks loaded, loaded tasks are: \n{loadedTasks}" + (failedTasks.Length > 0 ? $"\nFailing Tasks:\n{failedTasks}" : ""), failedTasks.Length > 0 ? EventLogEntryType.Warning : EventLogEntryType.Information);
-                else
-                    Dump("No Generic Tasks loaded", EventLogEntryType.Information);
-            }
+            return _serviceconfiguration.WhitelistPatterns
+                .Any(p => IsPatternMatch(address, p));
         }
 
         /// <summary>
@@ -362,52 +325,22 @@ namespace EvlWatcher
         {
             lock (_syncObject)
             {
-                List<IPAddress> banList = new List<IPAddress>();
-                if (_lastPolledTempBans != null)
-                {
-                    foreach (IPAddress a in _lastPolledTempBans)
-                        if (!banList.Contains(a))
-                            banList.Add(a);
-                }
-                if (_permaBannedIPs != null)
-                {
-                    foreach (IPAddress p in _permaBannedIPs)
-                        if (!banList.Contains(p))
-                            banList.Add(p);
-                }
+                List<IPAddress> banList = _lastPolledTempBans
+                    .Union(_serviceconfiguration.BlacklistAddresses)
+                    .Distinct()
+                    .Where(address => !IsWhiteListed(address))
+                    .ToList();
 
-                List<IPAddress> unbanned = new List<IPAddress>();
-                foreach (IPAddress i in banList)
-                {
-                    foreach (string pattern in _whiteListPatterns)
-                    {
-                        if (IsPatternMatch(i, pattern) && !unbanned.Contains(i))
-                            unbanned.Add(i);
-                    }
-                }
+                _firewallApi.AdjustIPBanList(banList);
 
-                foreach (IPAddress u in unbanned)
-                    banList.Remove(u);
+                foreach (IPAddress ip in _lastBannedIPs.Where(ip => !banList.Contains(ip)))
+                    _logger.Dump($"Removed {ip} from the ban list", SeverityLevel.Info);
 
-                FirewallAPI.AdjustIPBanList(banList);
-
-                foreach (IPAddress ip in _lastBannedIPs)
-                {
-                    if (!banList.Contains(ip))
-                    {
-                        Dump($"Removed {ip} from the ban list", EventLogEntryType.Information);
-                    }
-                }
-
-                foreach (IPAddress ip in banList)
-                {
-                    if (!_lastBannedIPs.Contains(ip))
-                    {
-                        Dump($"Banned {ip}", EventLogEntryType.Information);
-                    }
-                }
+                foreach (IPAddress ip in banList.Where(ip => !_lastBannedIPs.Contains(ip)))
+                    _logger.Dump($"Banned {ip}", SeverityLevel.Info);
 
                 _lastBannedIPs = banList;
+                _logger.Dump($"Pushed {banList.Count} IPs down to the firewall for banning.", SeverityLevel.Debug);
             }
         }
 
@@ -421,11 +354,14 @@ namespace EvlWatcher
 
         private void Run()
         {
+            //reload configuration in case of external changes
+            _serviceconfiguration.Load();
+
+            //create generic tasks from configuration
+            InitWorkersFromConfig(_serviceconfiguration.TaskConfigurations);
+
             try
             {
-                //Init Worker Thread
-                LoadConfiguration();
-
                 //prepare datastructures
                 Dictionary<string, List<LogTask>> requiredEventTypesToLogTasks = new Dictionary<string, List<LogTask>>();
                 foreach (LogTask l in _logTasks)
@@ -441,8 +377,8 @@ namespace EvlWatcher
 
                 var eventTypesToLastEvent = new Dictionary<string, DateTime>();
                 var eventTypesToMaxAge = new Dictionary<string, int>();
-                var eventTypesToNewEvents = new Dictionary<string, List<EventRecord>>();
-                var eventTypesToTimeFramedEvents = new Dictionary<string, List<EventRecord>>();
+                var eventTypesToNewEvents = new Dictionary<string, List<ExtractedEventRecord>>();
+                var eventTypesToTimeFramedEvents = new Dictionary<string, List<ExtractedEventRecord>>();
 
                 //load structure so that only required events are read
                 foreach (string requiredEventType in requiredEventTypesToLogTasks.Keys)
@@ -462,8 +398,8 @@ namespace EvlWatcher
                 {
                     DateTime scanStart = DateTime.Now;
 
-                    if (_verbose)
-                        Dump("Scanning the logs now, scanned logs are:", EventLogEntryType.Information, true);
+                    _logger.Dump($"Scanning the logs now.", SeverityLevel.Debug);
+                    
 
                     DateTime referenceTimeForTimeFramedEvents = DateTime.Now;
                     try
@@ -474,8 +410,9 @@ namespace EvlWatcher
                         //first read all relevant events (events that are required by any of the tasks)
                         foreach (string requiredEventType in requiredEventTypesToLogTasks.Keys)
                         {
-                            eventTypesToNewEvents.Add(requiredEventType, new List<EventRecord>());
-                            eventTypesToTimeFramedEvents.Add(requiredEventType, new List<EventRecord>());
+                            _logger.Dump($"Scanning {requiredEventType}", SeverityLevel.Debug);
+                            eventTypesToNewEvents.Add(requiredEventType, new List<ExtractedEventRecord>());
+                            eventTypesToTimeFramedEvents.Add(requiredEventType, new List<ExtractedEventRecord>());
 
                             var eventLogQuery = new EventLogQuery(requiredEventType, PathType.LogName)
                             {
@@ -484,42 +421,51 @@ namespace EvlWatcher
 
                             try
                             {
-                                var eventLogReader = new EventLogReader(eventLogQuery);
-                                EventRecord r;
-
-                                while ((r = eventLogReader.ReadEvent()) != null)
+                                using (var eventLogReader = new EventLogReader(eventLogQuery))
                                 {
-                                    if (!r.TimeCreated.HasValue)
-                                        continue;
+                                    EventRecord r;
 
-                                    bool canbreak = false;
-
-                                    //fill new event list
-                                    if (r.TimeCreated > eventTypesToLastEvent[requiredEventType])
+                                    while ((r = eventLogReader.ReadEvent()) != null)
                                     {
-                                        eventTypesToNewEvents[requiredEventType].Add(r);
-                                        eventTypesToLastEvent[requiredEventType] = r.TimeCreated.Value;
-                                    }
-                                    else
-                                        canbreak = true;
+                                        //r.Dispose();
+                                        if (!r.TimeCreated.HasValue)
+                                            continue;
 
-                                    //fill time framed event list
-                                    if (r.TimeCreated > referenceTimeForTimeFramedEvents.Subtract(new TimeSpan(0, 0, eventTypesToMaxAge[requiredEventType])))
-                                        eventTypesToTimeFramedEvents[requiredEventType].Add(r);
-                                    else if (canbreak)
-                                        break;
+                                        ExtractedEventRecord eer = new ExtractedEventRecord()
+                                        {
+                                            TimeCreated = r.TimeCreated.Value,
+                                            Xml = r.ToXml()
+                                        };
+
+                                        r.Dispose();
+
+                                        bool canbreak = false;
+
+                                        //fill new event list
+                                        if (r.TimeCreated > eventTypesToLastEvent[requiredEventType])
+                                        {
+                                            eventTypesToNewEvents[requiredEventType].Add(eer);
+                                            eventTypesToLastEvent[requiredEventType] = r.TimeCreated.Value;
+                                        }
+                                        else
+                                            canbreak = true;
+
+                                        //fill time framed event list
+                                        if (r.TimeCreated > referenceTimeForTimeFramedEvents.Subtract(new TimeSpan(0, 0, eventTypesToMaxAge[requiredEventType])))
+                                            eventTypesToTimeFramedEvents[requiredEventType].Add(eer);
+                                        else if (canbreak)
+                                            break;
+                                    }
                                 }
                             }
                             catch (EventLogNotFoundException)
                             {
-                                Dump($"Event Log {requiredEventType} was not found, tasks that require these events will not work", EventLogEntryType.Warning);
+                                _logger.Dump($"Event Log {requiredEventType} was not found, tasks that require these events will not work", SeverityLevel.Error);
                             }
                         }
 
-                        if (_verbose)
-                        {
-                            Dump($"Scanning finished in {DateTime.Now.Subtract(scanStart).TotalMilliseconds}[ms] ", EventLogEntryType.Information, true);
-                        }
+                        _logger.Dump($"Scanning finished in {DateTime.Now.Subtract(scanStart).TotalMilliseconds}[ms] ", SeverityLevel.Debug);
+
 
                         //then supply the events to the requesting tasks
                         foreach (string key in requiredEventTypesToLogTasks.Keys)
@@ -530,17 +476,16 @@ namespace EvlWatcher
                                     t.ProvideEvents(eventTypesToNewEvents[key]);
                                 else
                                 {
-                                    var eventsForThisTask = new List<EventRecord>();
-                                    foreach (EventRecord e in eventTypesToTimeFramedEvents[key])
+                                    var eventsForThisTask = new List<ExtractedEventRecord>();
+                                    foreach (ExtractedEventRecord e in eventTypesToTimeFramedEvents[key])
                                     {
                                         if (e.TimeCreated > referenceTimeForTimeFramedEvents.Subtract(new TimeSpan(0, 0, t.EventAge)))
                                             eventsForThisTask.Add(e);
                                     }
 
-                                    if (_verbose)
-                                    {
-                                        Dump($"Provided {eventsForThisTask.Count} events for {t.Name}", EventLogEntryType.Information, true);
-                                    }
+                                    if (eventsForThisTask.Count > 0)
+                                        _logger.Dump($"Provided {eventsForThisTask.Count} events for {t.Name}", SeverityLevel.Verbose);
+
                                     if (eventsForThisTask.Count > 0)
                                     {
                                         DateTime start = DateTime.Now;
@@ -548,7 +493,7 @@ namespace EvlWatcher
                                         t.ProvideEvents(eventsForThisTask);
 
                                         if (DateTime.Now.Subtract(start).TotalMilliseconds > 500)
-                                            Dump($"Warning: Task {t.Name} takes a lot of resources. This can make your server vulnerable to DOS attacks. Try better boosters.", EventLogEntryType.Warning);
+                                            _logger.Dump($"Warning: Task {t.Name} takes a lot of resources. This can make your server vulnerable to DOS attacks. Try better boosters.", SeverityLevel.Warning);
                                     }
                                 }
                             }
@@ -566,8 +511,8 @@ namespace EvlWatcher
 
                                 List<IPAddress> blockedIPs = ipTask.GetTempBanVictims();
 
-                                if (_verbose)
-                                    Dump($"Polled {t.Name} and got {blockedIPs.Count} temporary and {_permaBannedIPs.Count} permanent ban(s)", EventLogEntryType.Information, true);
+
+                                _logger.Dump($"Polled {t.Name} and got {blockedIPs.Count} temporary and {_serviceconfiguration.BlacklistAddresses.Count()} permanent ban(s)", SeverityLevel.Verbose);
 
                                 foreach (IPAddress blockedIP in blockedIPs)
                                     if (!blackList.Contains(blockedIP))
@@ -575,21 +520,21 @@ namespace EvlWatcher
                             }
                         }
 
-                        if (_verbose)
-                            Dump($"\r\n-----Cycle complete, sleeping {_eventLogInterval / 1000} s......\r\n", EventLogEntryType.Information);
-
+                        _logger.Dump($"\r\n-----Cycle complete, sleeping {_serviceconfiguration.EventLogInterval} s......\r\n", SeverityLevel.Debug);
+                        
                         _lastPolledTempBans = blackList;
+
                         PushBanList();
                     }
                     catch (Exception executionException)
                     {
-                        Dump(executionException, EventLogEntryType.Error);
+                        _logger.Dump(executionException, SeverityLevel.Error);
                     }
 
                     //wait for next iteration or kill signal
                     try
                     {
-                        Thread.Sleep(_eventLogInterval);
+                        Thread.Sleep(_serviceconfiguration.EventLogInterval * 1000);
                     }
                     catch (ThreadInterruptedException)
                     {
@@ -606,11 +551,11 @@ namespace EvlWatcher
                     {
                         try
                         {
-                            FirewallAPI.ClearIPBanList();
+                            _firewallApi.ClearIPBanList();
                         }
                         catch (Exception ex)
                         {
-                            Dump(ex, EventLogEntryType.Warning);
+                            _logger.Dump(ex, SeverityLevel.Warning);
                         }
                         return;
                     }
@@ -618,107 +563,42 @@ namespace EvlWatcher
             }
             catch (Exception e)
             {
-                Dump(e, EventLogEntryType.Error);
+                _logger.Dump(e, SeverityLevel.Error);
                 Stop();
             }
         }
 
-        private void LoadConfiguration()
-        {
-            XDocument d = XDocument.Load(Assembly.GetExecutingAssembly().Location.Replace("EvlWatcher.exe", "config\\config.xml"));
-
-            LoadGlobalSettings(d);
-            InitWorkersFromConfig(d);
-            InitExternalWorkerDLLs(d);
-        }
-
-        private void LoadGlobalSettings(XDocument d)
-        {
-            XElement debugModeElement = d.Root.Element("DebugMode");
-            if (debugModeElement != null)
-            {
-                _verbose = bool.Parse(debugModeElement.Value);
-            }
-
-            XElement checkIntervalElement = d.Root.Element("CheckInterval");
-            if (checkIntervalElement != null)
-            {
-                _eventLogInterval = int.Parse(checkIntervalElement.Value) * 1000;
-            }
-
-            XElement globalConfig = d.Root.Element("GLOBAL");
-            if (globalConfig != null)
-            {
-                XElement banlist = globalConfig.Element("Banlist");
-                if (banlist != null)
-                {
-                    string banstring = banlist.Value;
-                    foreach (string ip in banstring.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        _permaBannedIPs.Add(IPAddress.Parse(ip));
-
-                    }
-                    if (_verbose)
-                        Dump($"Loaded permabanlist: {banstring}", EventLogEntryType.Information);
-                }
-
-                XElement whitelist = globalConfig.Element("WhiteList");
-                if (whitelist != null)
-                {
-                    string wstring = whitelist.Value;
-                    foreach (string ipPattern in wstring.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        _whiteListPatterns.Add(ipPattern);
-
-                    }
-                    if (_verbose)
-                        Dump($"Loaded whitelist: {wstring}", EventLogEntryType.Information);
-                }
-            }
-        }
 
         #endregion
 
         #region public static operations
 
-        public static void Dump(Exception e, EventLogEntryType t)
-        {
-            Dump(e.Message, t);
-        }
-
-        public static void Dump(string s, EventLogEntryType t)
-        {
-            Dump(s, t, false);
-        }
-
-        public static void Dump(string s, EventLogEntryType t, bool supressProtocol)
-        {
-            string source = "EvlWatcher";
-            string log = "Application";
-
-            //you must run this as admin for the first time - so that the eventlog source can be created
-            if (!EventLog.SourceExists(source))
-                EventLog.CreateEventSource(source, log);
-
-            EventLog.WriteEntry(source, s, t);
-            Console.WriteLine($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second},{DateTime.Now.Millisecond} {s}");
-        }
-
         public static void Main(string[] args)
         {
-            if (!_runasApplication)
+            //build dependencies
+            ILogger logger = new DefaultLogger();
+            IPersistentServiceConfiguration serviceConfiguration = new XmlServiceConfiguration(logger);
+            IGenericTaskFactory genericTaskFactory = new DefaultGenericTaskFactory(logger);
+
+            if (!Environment.UserInteractive)
             {
-                //service
-                Run(new EvlWatcher());
+                Run(new EvlWatcher(logger, serviceConfiguration, genericTaskFactory));
             }
             else
             {
                 //debug
-                EvlWatcher w = new EvlWatcher();
+                EvlWatcher w = new EvlWatcher(logger, serviceConfiguration, genericTaskFactory);
                 w.OnStart(null);
                 Thread.Sleep(60000000);
                 w.OnStop();
             }
+        }
+
+        public void SaveGlobalConfig(SeverityLevelDTO logLevel, int consoleBackLog, int checkInterval)
+        {
+            _serviceconfiguration.LogLevel = (SeverityLevel) Enum.Parse(typeof(SeverityLevel), logLevel.ToString());
+            _serviceconfiguration.ConsoleBackLog = consoleBackLog;
+            _serviceconfiguration.EventLogInterval = checkInterval;
         }
 
         #endregion
