@@ -6,7 +6,7 @@ You get the release [here](https://github.com/devnulli/EvlWatcher/raw/master/Ver
 
 You can get the whole story [here](https://github.com/devnulli/EvlWatcher/commit/aa2ac2ba9b72c194c99e250d1bc1d711d61d25ab), or you just check the [release notes](https://github.com/devnulli/EvlWatcher/blob/master/Versions/v2/EvlWatcher-v2.0%20release%20notes.txt)
 
-If anyone needs something or has questions about it, feel free to open an issue. Im pretty pleased its finally finished.
+If anyone needs something or has questions about it, feel free to open an issue. YEAH! I'm pretty pleased it's finally finished. I was procrastenating that for over a year after I promised it.
 
 # Short description of what EvlWatcher does
 
