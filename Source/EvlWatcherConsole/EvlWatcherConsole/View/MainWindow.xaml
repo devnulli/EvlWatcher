@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:EvlWatcherConsole.ViewModel"
-        Title="EvlWatcher v2.0 Console" Height="550" Width="725" Icon="pack://application:,,,/Resources/EvlWatcher.ico" WindowStyle="ThreeDBorderWindow">
+        Title="EvlWatcher v2.0 Console" Height="650" Width="825" MinHeight="650" MinWidth="825" Icon="pack://application:,,,/Resources/EvlWatcher.ico" WindowStyle="ThreeDBorderWindow">
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
@@ -16,7 +16,7 @@
             <RowDefinition Height="40"></RowDefinition>
         </Grid.RowDefinitions>
         <TabControl Grid.ColumnSpan="2">
-            <TabItem Header="Currently Banned" IsSelected="{Binding IsIPTabSelected, Mode=OneWayToSource}" ToolTip="View currently banned, permanently banned, and whitelisted IPs">
+            <TabItem Header="Currently Banned" IsSelected="{Binding IsIPTabSelected, Mode=OneWayToSource}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition></ColumnDefinition>
@@ -106,7 +106,7 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Live" ToolTip="Live output what the service is doing." IsSelected="{Binding IsConsoleTabSelected, Mode=OneWayToSource}">
+            <TabItem Header="Live" IsSelected="{Binding IsConsoleTabSelected, Mode=OneWayToSource}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="25*"/>
@@ -131,7 +131,7 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Global Settings" ToolTip="Edit global settings" IsSelected="{Binding IsGlobalConfigSelected, Mode=OneWayToSource}">
+            <TabItem Header="Global Settings" IsSelected="{Binding IsGlobalConfigSelected, Mode=OneWayToSource}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition></RowDefinition>
@@ -152,13 +152,13 @@
                         <StackPanel Orientation="Horizontal">
                             <Label VerticalAlignment="Center">Check interval:</Label>
                             <TextBox Margin="5" Width="60" Text="{Binding CheckInterval}"  IsEnabled="{Binding IsInGlobalEditMode}"></TextBox>
-                            <Label>ms</Label>
+                            <Label>s</Label>
                             <Label VerticalAlignment="Center"  Foreground="Gray">How often the Eventlog will be checked.</Label>
                         </StackPanel>
                         
                     </StackPanel>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" FlowDirection="RightToLeft">
-                        <Button Margin="5" Padding="2" Content="Save" Command="{Binding SaveGlobalConfigCommand}">
+                        <Button Margin="5" Padding="2" Content="Save" Command="{Binding SaveGlobalConfigCommand}" ToolTip="Apply to EvlWatcher">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Style.Triggers>
@@ -172,7 +172,7 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <Button Margin="5" Padding="2" Content="Cancel" Command="{Binding CancelGlobalEditingCommand}">
+                        <Button Margin="5" Padding="2" Content="Cancel" Command="{Binding CancelGlobalEditingCommand}" ToolTip="Discard changes">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Style.Triggers>
@@ -186,7 +186,7 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <Button Margin="5" Padding="2" Content="Edit" Command="{Binding ToggleGlobalConfigEditModeCommand}">
+                        <Button Margin="5" Padding="2" Content="Edit" Command="{Binding ToggleGlobalConfigEditModeCommand}" ToolTip="To begin editing above values.">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Style.Triggers>
@@ -203,18 +203,56 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Rule Editor" ToolTip="Edit existing EvlWatcherRules" IsSelected="{Binding IsRuleEditorTabSelected, Mode=OneWayToSource}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40"></RowDefinition>
-                        <RowDefinition></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Label VerticalAlignment="Center">Select task:</Label>
-                        <ComboBox Margin="5" Width="200"  ItemsSource="{Binding AvailableTasks}" SelectedItem="{Binding SelectedTask}"></ComboBox>
-                    </StackPanel>
-                </Grid>
+            <TabItem Header="Rule Tester" IsSelected="{Binding IsRuleEditorTabSelected, Mode=OneWayToSource}">
+                <StackPanel Orientation="Vertical">
+                    <Label Grid.Row="0">On this tab you can test out the rules of EvlWatcher, to find out if it would block against en event-log entry</Label>
+                    <Border Margin="5" BorderBrush="DarkGray" BorderThickness="2" CornerRadius="3">
+                        <StackPanel Orientation="Vertical">
+                            <Label VerticalAlignment="Center">1) Select task:</Label>
+                            <ComboBox HorizontalAlignment="Left" Margin="20,5,5,5" Width="200"  ItemsSource="{Binding AvailableTaskNames}" SelectedItem="{Binding SelectedTaskName}"></ComboBox>
+                            <StackPanel Orientation="Horizontal">
+                                <Label VerticalAlignment="Center">Regex:</Label>
+                                <Label Content="{Binding CurrentTaskRegex}"></Label>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label VerticalAlignment="Center">Event Path:</Label>
+                                <Label Content="{Binding CurrentTaskEventPath}"></Label>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label VerticalAlignment="Center">Booster Words:</Label>
+                                <Label Content="{Binding CurrentTaskBoosters}"></Label>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border >
+                    <Border Margin="5" BorderBrush="DarkGray" BorderThickness="2" CornerRadius="3" Height="140">
+                        <StackPanel Orientation="Vertical">
+                            <Label>2) Insert XML from event-log</Label>
+                            <TextBox TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" Text="{Binding XMLText}" Height="100" VerticalScrollBarVisibility="Visible"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="5" BorderBrush="DarkGray" BorderThickness="2" CornerRadius="3" Height="90">
+                        <StackPanel Orientation="Vertical">
+                        <Label>3) Hit the test button. If it doesn't work, fiddle with that XML and hit the test button again..</Label>
+                            <StackPanel Orientation="Horizontal">
+                                <Label>Test with XML:</Label>
+                                <TextBox VerticalAlignment="Center" MinWidth="100" Text="{Binding CurrentTestRegex}"></TextBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Margin="5" Command="{Binding TestRegexCommand}">Test</Button>
+                                <Button Margin="5" Command="{Binding ResetRegexCommand}">Reset</Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="5" BorderBrush="DarkGray" BorderThickness="2" CornerRadius="3" Height="90">
+                        <StackPanel Orientation="Vertical">
+                            <Label> 4) React</Label>
+                            <TextBlock Margin="5" TextWrapping="Wrap">You found something that should be blocked but isn't? (RDP or any other protocol?). Feel free to repair or create new tasks in your config.xml file. But hey.. please don't just correct it in your config file.. instead, please make a github issue (and paste above XML), so other users can benefit of that.</TextBlock>
+
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
             </TabItem>
+            
         </TabControl>
         <StatusBar Grid.Row="1" Grid.ColumnSpan="2">
             <StatusBarItem>

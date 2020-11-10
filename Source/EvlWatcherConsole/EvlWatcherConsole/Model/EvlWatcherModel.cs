@@ -139,6 +139,11 @@ namespace EvlWatcherConsole.Model
             }
         }
 
+        internal void SaveGlobalConfig(SeverityLevelDTO logLevel, int consoleBackLog, int checkInterval)
+        {
+            Service.SaveGlobalConfig(logLevel, consoleBackLog, checkInterval);
+        }
+
         #endregion
     }
 }

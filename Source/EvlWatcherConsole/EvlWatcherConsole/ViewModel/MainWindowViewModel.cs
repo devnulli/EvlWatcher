@@ -10,6 +10,9 @@ using EvlWatcherConsole.MVVMBase;
 using EvlWatcherConsole.Model;
 using System.Threading;
 using EvlWatcher.WCF.DTO;
+using System.Windows.Threading;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 namespace EvlWatcherConsole.ViewModel
 {
@@ -35,6 +38,13 @@ namespace EvlWatcherConsole.ViewModel
         private SeverityLevelDTO _loglevel;
         private int _consoleBackLog;
         private int _checkInterval;
+        private IList<string> _availableTaskNames;
+        private string _selectedTaskName;
+        private string _currentTaskRegex;
+        private string _currentTaskEventPath;
+        private string _currentTaskBoosters;
+        private string _currentTestRegex;
+        private string _xmltext;
 
         #endregion
 
@@ -195,6 +205,82 @@ namespace EvlWatcherConsole.ViewModel
 
         #region public properties
 
+        public string SelectedTaskName
+        {
+            get
+            {
+                return _selectedTaskName;
+            }
+            set
+            {
+                _selectedTaskName = value;
+                try
+                {
+                    var config = _model.GetGlobalConfig().GenericTaskConfigurations.Where(t => t.TaskName == value).FirstOrDefault();
+                    CurrentTaskRegex = config.Regex;
+                    CurrentTaskEventPath = config.EventPath.Aggregate((x, y) => x + ", " + y);
+                    CurrentTaskBoosters = config.RegexBoosters.Aggregate((x, y) => x + ", " + y);
+                    CurrentTestRegex = CurrentTaskRegex;
+                }
+                catch
+                {
+                    _selectedTaskName = null;
+                }
+            }
+        }
+
+        public string CurrentTaskRegex
+        {
+            get
+            {
+                return _currentTaskRegex;
+            }
+            set
+            {
+                _currentTaskRegex = value;
+                Notify(nameof(CurrentTaskRegex));
+            }
+        }
+
+        public string CurrentTestRegex
+        {
+            get
+            {
+                return _currentTestRegex;
+            }
+            set
+            {
+                _currentTestRegex = value;
+                Notify(nameof(CurrentTestRegex));
+            }
+        }
+
+        public string CurrentTaskEventPath
+        {
+            get
+            {
+                return _currentTaskEventPath;
+            }
+            set
+            {
+                _currentTaskEventPath = value;
+                Notify(nameof(CurrentTaskEventPath));
+            }
+        }
+
+        public string CurrentTaskBoosters
+        {
+            get
+            {
+                return _currentTaskBoosters;
+            }
+            set
+            {
+                _currentTaskBoosters = value;
+                Notify(nameof(CurrentTaskBoosters));
+            }
+        }
+
         public bool IsInRuleEditMode
         {
             get
@@ -232,7 +318,7 @@ namespace EvlWatcherConsole.ViewModel
         {
             get
             {
-                return new RelayCommand(p => { SaveConfiguration(); }, p => IsInGlobalEditMode);
+                return new RelayCommand(p => { SaveConfiguration(); }, p => IsInGlobalEditMode && IsServiceResponding);
             }
         }
 
@@ -241,6 +327,56 @@ namespace EvlWatcherConsole.ViewModel
             get
             {
                 return new RelayCommand(p => { IsInGlobalEditMode = false; }, p => IsInGlobalEditMode);
+            }
+        }
+
+        public ICommand TestRegexCommand
+        {
+            get
+            {
+                return new RelayCommand(p => { TestRegex(); }, p => true);
+            }
+        }
+
+        public string XMLText
+        {
+            get
+            {
+                return _xmltext;
+            }
+            set
+            {
+                _xmltext = value;
+                Notify(nameof(XMLText));
+            }
+        }
+
+        private void TestRegex()
+        {
+            try
+            {
+                var regex = new Regex(CurrentTestRegex, RegexOptions.Compiled);
+                var match = regex.Match(XMLText);
+                if (match.Success && match.Groups.Count == 2 && IPAddress.TryParse(match.Groups[1].Value, out IPAddress ipAddress))
+                {
+                    MessageBox.Show($"We could extract the IP {ipAddress} from that.", "Success", MessageBoxButton.OK, MessageBoxImage.None);
+                }
+                else
+                {
+                    MessageBox.Show("We couldnt extract an IP from that.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch
+            {
+                MessageBox.Show("We couldnt test that.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public ICommand ResetRegexCommand
+        {
+            get
+            {
+                return new RelayCommand(p => { CurrentTestRegex = CurrentTaskRegex; }, p => true);
             }
         }
 
@@ -254,7 +390,7 @@ namespace EvlWatcherConsole.ViewModel
 
         private void SaveConfiguration()
         {
-            //TODO SAVE
+            _model.SaveGlobalConfig(LogLevel, ConsoleBackLog, CheckInterval);
             IsInGlobalEditMode = false;
         }
 
@@ -325,7 +461,16 @@ namespace EvlWatcherConsole.ViewModel
             set;
         }
 
-        public ObservableCollection<GenericTaskViewModel> AvailableTasks => new ObservableCollection<GenericTaskViewModel>();
+
+        public IList<string> AvailableTaskNames
+        {
+            get
+            {
+                if(_availableTaskNames == null)
+                    _availableTaskNames = _model.GetGlobalConfig().GenericTaskConfigurations.Select(p => p.TaskName).ToList();
+                return _availableTaskNames;
+            }
+        }
 
         public ICommand AddPermaBanCommand
         {

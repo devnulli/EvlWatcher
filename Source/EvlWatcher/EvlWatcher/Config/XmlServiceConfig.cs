@@ -21,6 +21,7 @@ namespace EvlWatcher.Config
         private readonly ILogger _logger;
         private bool _inLoading = false;
         private int _consoleBacklog;
+        private int _eventLogInterval;
 
         #endregion
 
@@ -34,7 +35,22 @@ namespace EvlWatcher.Config
 
         #region public properties
 
-        public int EventLogInterval { get; set; }
+        public int EventLogInterval
+        {
+            get
+            {
+                return _eventLogInterval;
+            }
+            set
+            {
+                if (_eventLogInterval != value)
+                {
+                    _eventLogInterval = value;
+                    if (!_inLoading)
+                        WriteGlobalConfig("CheckInterval", value.ToString());
+                }
+            }
+        }
 
         public IQueryable<string> WhitelistPatterns => _whiteListPatterns.AsQueryable();
 
@@ -285,9 +301,9 @@ namespace EvlWatcher.Config
             XElement checkIntervalElement = globalConfig.Element("CheckInterval");
             if (checkIntervalElement != null)
             {
-                EventLogInterval = int.Parse(checkIntervalElement.Value) * 1000;
+                EventLogInterval = int.Parse(checkIntervalElement.Value);
 
-                _logger.Dump($"Check interval is set to : {EventLogInterval / 1000} s", SeverityLevel.Verbose);
+                _logger.Dump($"Check interval is set to : {EventLogInterval} s", SeverityLevel.Verbose);
             }
 
             XElement banlist = globalConfig.Element("Banlist");

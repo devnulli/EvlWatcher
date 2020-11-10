@@ -4,6 +4,7 @@ namespace EvlWatcher.WCF.DTO
 {
     public class GenericIPBlockingTaskDTO
     {
+
         /// <summary>
         /// indicates whether the task is active
         /// </summary>
@@ -58,5 +59,21 @@ namespace EvlWatcher.WCF.DTO
         /// the regex used to extract an attackers IP address.
         /// </summary>
         public string Regex { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is GenericIPBlockingTaskDTO dTO &&
+                   TaskName == dTO.TaskName;
+        }
+
+        public override string ToString()
+        {
+            return TaskName;
+        }
+
+        public override int GetHashCode()
+        {
+            return 1575259903 + EqualityComparer<string>.Default.GetHashCode(TaskName);
+        }
     }
 }

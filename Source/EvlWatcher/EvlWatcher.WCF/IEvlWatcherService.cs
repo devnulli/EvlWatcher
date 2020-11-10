@@ -39,5 +39,8 @@ namespace EvlWatcher.WCF
         [FaultContract(typeof(ServiceFaultDTO))]
         IList<LogEntryDTO> GetConsoleHistory();
 
+        [OperationContract]
+        [FaultContract(typeof(ServiceFaultDTO))]
+        void SaveGlobalConfig(SeverityLevelDTO logLevel, int consoleBackLog, int checkInterval);
     }
 }

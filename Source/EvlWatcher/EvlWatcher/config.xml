@@ -5,8 +5,8 @@
     <!-- Levels are: Off, Critical, Warning, Error, Info, Verbose, Debug. Loglevel means written to EventLog, ConsoleLevel means viewable in Console-->
     <LogLevel>Warning</LogLevel>
     
-    <!-- how many lines of console output will be provided by the wcf service (max). This is used by the EvlConsole to query the latest output-->
-    <ConsoleBacklog>1000</ConsoleBacklog>
+    <!-- how many lines of console output will be stored to provide to the wcf console (max). This is used by the EvlConsole to query the latest output-->
+    <ConsoleBacklog>3000</ConsoleBacklog>
     <!-- this is the interval the log files are checked, in seconds-->
     <CheckInterval>30</CheckInterval>
 

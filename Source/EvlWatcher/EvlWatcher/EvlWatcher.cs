@@ -520,7 +520,7 @@ namespace EvlWatcher
                             }
                         }
 
-                        _logger.Dump($"\r\n-----Cycle complete, sleeping {_serviceconfiguration.EventLogInterval / 1000} s......\r\n", SeverityLevel.Debug);
+                        _logger.Dump($"\r\n-----Cycle complete, sleeping {_serviceconfiguration.EventLogInterval} s......\r\n", SeverityLevel.Debug);
                         
                         _lastPolledTempBans = blackList;
 
@@ -534,7 +534,7 @@ namespace EvlWatcher
                     //wait for next iteration or kill signal
                     try
                     {
-                        Thread.Sleep(_serviceconfiguration.EventLogInterval);
+                        Thread.Sleep(_serviceconfiguration.EventLogInterval * 1000);
                     }
                     catch (ThreadInterruptedException)
                     {
@@ -592,6 +592,13 @@ namespace EvlWatcher
                 Thread.Sleep(60000000);
                 w.OnStop();
             }
+        }
+
+        public void SaveGlobalConfig(SeverityLevelDTO logLevel, int consoleBackLog, int checkInterval)
+        {
+            _serviceconfiguration.LogLevel = (SeverityLevel) Enum.Parse(typeof(SeverityLevel), logLevel.ToString());
+            _serviceconfiguration.ConsoleBackLog = consoleBackLog;
+            _serviceconfiguration.EventLogInterval = checkInterval;
         }
 
         #endregion
