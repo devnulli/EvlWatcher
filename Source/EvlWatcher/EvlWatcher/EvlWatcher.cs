@@ -4,11 +4,14 @@ using EvlWatcher.DTOs;
 using EvlWatcher.Logging;
 using EvlWatcher.SystemAPI;
 using EvlWatcher.Tasks;
+using EvlWatcher.WCF;
+using EvlWatcher.WCF.DTO;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Net;
+using System.Security.Principal;
 using System.ServiceModel;
 using System.ServiceProcess;
 using System.Text.RegularExpressions;
@@ -17,7 +20,7 @@ using System.Threading;
 namespace EvlWatcher
 {
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Single, InstanceContextMode = InstanceContextMode.Single)]
-    public class EvlWatcher : ServiceBase, WCF.IEvlWatcherService
+    public class EvlWatcher : ServiceBase, IEvlWatcherService
     {
         #region private members
 
@@ -54,6 +57,17 @@ namespace EvlWatcher
 
         private volatile bool _stop = false;
 
+        private bool IsClientAdministrator()
+        {
+            if( ServiceSecurityContext.Current.WindowsIdentity.IsAuthenticated &&
+                new WindowsPrincipal(ServiceSecurityContext.Current.WindowsIdentity).IsInRole(WindowsBuiltInRole.Administrator) )
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region public constructor
@@ -68,13 +82,44 @@ namespace EvlWatcher
         #endregion
 
         #region public operations
+
+        public GlobalConfigDTO GetGlobalConfig()
+        {
+            EnsureClientPrivileges();
+
+            return new GlobalConfigDTO()
+            {
+                ConsoleBackLog = _serviceconfiguration.ConsoleBackLog,
+                EventLogInterval = _serviceconfiguration.EventLogInterval,
+                LogLevel = (SeverityLevelDTO)Enum.Parse(typeof(SeverityLevelDTO), _serviceconfiguration.LogLevel.ToString()),
+                GenericTaskConfigurations = _logTasks.Where(t => t is GenericIPBlockingTask).Select(t => (GenericIPBlockingTask)t).Select(ipt => new GenericIPBlockingTaskDTO() {
+                    Active = ipt.Active,
+                    Description = ipt.Description,
+                    EventAge = ipt.EventAge,
+                    EventPath = ipt.EventPath,
+                    LockTime = ipt.LockTime,
+                    OnlyNewEvents = ipt.OnlyNew,
+                    PermaBanCount = ipt.PermaBanCount,
+                    Regex = ipt.Regex.ToString(),
+                    RegexBoosters = ipt.Boosters,
+                    TaskName = ipt.Name,
+                    TriggerCount = ipt.TriggerCount
+
+                }).ToList()
+
+            };
+        }
         public bool GetIsRunning()
         {
+            EnsureClientPrivileges();
+
             return true;
         }
 
         public IPAddress[] GetPermanentlyBannedIPs()
         {
+            EnsureClientPrivileges();
+
             lock (_syncObject)
             {
                 return _serviceconfiguration.BlacklistAddresses.ToArray();
@@ -83,12 +128,16 @@ namespace EvlWatcher
 
         public string[] GetWhiteListEntries()
         {
+            EnsureClientPrivileges();
+
             lock (_syncObject)
                 return _serviceconfiguration.WhitelistPatterns.ToArray();
         }
 
         public void SetPermanentBan(IPAddress address)
         {
+            EnsureClientPrivileges();
+
             _serviceconfiguration.AddBlackListAddress(address);
 
             PushBanList();
@@ -96,6 +145,8 @@ namespace EvlWatcher
 
         public void ClearPermanentBan(IPAddress address)
         {
+            EnsureClientPrivileges();
+
             _serviceconfiguration.RemoveBlackListAddress(address);
 
             PushBanList();
@@ -103,6 +154,8 @@ namespace EvlWatcher
 
         public void AddWhiteListEntry(string filter)
         {
+            EnsureClientPrivileges();
+
             _serviceconfiguration.AddWhiteListPattern(filter);
 
             PushBanList();
@@ -110,6 +163,8 @@ namespace EvlWatcher
 
         public void RemoveWhiteListEntry(string filter)
         {
+            EnsureClientPrivileges();
+
             _serviceconfiguration.RemoveWhiteListPattern(filter);
 
             PushBanList();
@@ -117,6 +172,8 @@ namespace EvlWatcher
 
         public IPAddress[] GetTemporarilyBannedIPs()
         {
+            EnsureClientPrivileges();
+
             lock (_syncObject)
             {
                 List<IPAddress> result = new List<IPAddress>(_lastPolledTempBans);
@@ -124,6 +181,19 @@ namespace EvlWatcher
                 result.RemoveAll(p => _serviceconfiguration.BlacklistAddresses.Contains(p));
 
                 return result.ToArray();
+            }
+        }
+
+        public IList<LogEntryDTO> GetConsoleHistory()
+        {
+            EnsureClientPrivileges();
+
+            lock (_syncObject)
+            {
+                return _logger.GetConsoleHistory().Select(entry => new LogEntryDTO() { 
+                    Date = entry.Date, 
+                    Message = entry.Message, 
+                    Severity = (SeverityLevelDTO)Enum.Parse(typeof(SeverityLevelDTO), entry.Severity.ToString()) }).ToList();
             }
         }
 
@@ -150,11 +220,12 @@ namespace EvlWatcher
 
         protected override void OnStart(string[] args)
         {
-            //TODO UNSAFE
             lock (_syncObject)
             {
                 _serviceHost = new ServiceHost(this, new Uri[] { new Uri("net.pipe://localhost") });
-                _serviceHost.AddServiceEndpoint(typeof(WCF.IEvlWatcherService), new NetNamedPipeBinding(), "EvlWatcher");
+                var binding = new NetNamedPipeBinding();
+                
+                _serviceHost.AddServiceEndpoint(typeof(IEvlWatcherService), binding, "EvlWatcher");
                 _serviceHost.Open();
 
                 _workerThread = new Thread(new ThreadStart(Run))
@@ -202,6 +273,24 @@ namespace EvlWatcher
         #endregion
 
         #region private operations
+
+        /// <summary>
+        /// ensures the requestor is authenticated as privileged user
+        /// </summary>
+        private void EnsureClientPrivileges()
+        {
+            if (!IsClientAdministrator())
+            {
+                _logger.Dump($"There was an attempt to access the named pipe without authorization. ({ServiceSecurityContext.Current.WindowsIdentity.Name})", SeverityLevel.Warning);
+                throw new FaultException<ServiceFaultDTO>(
+                    new ServiceFaultDTO(
+                        ServiceErorCode.clientNotAdministrator,
+                        $"Your account {ServiceSecurityContext.Current.WindowsIdentity.Name} is not an Administrator! Please run this software with Administrator privileges. The client will exit..."
+                        , true), "error"
+                    );
+            }
+        }
+
         /// <summary>
         /// creates generic log tasks from configuration
         /// </summary>
@@ -211,7 +300,7 @@ namespace EvlWatcher
             lock (_syncObject)
             {
                 foreach (var config in taskConfigurations.Where(c => c.Active == false))
-                    _logger.Dump($"Skipped {config.TaskName} (set inactive)", SeverityLevel.Verbose);
+                    _logger.Dump($"Skipped {config.TaskName} (set inactive)", SeverityLevel.Info);
 
                 foreach (var config in taskConfigurations.Where(c => c.Active == true))
                 {
@@ -309,7 +398,8 @@ namespace EvlWatcher
                 {
                     DateTime scanStart = DateTime.Now;
 
-                    _logger.Dump("Scanning the logs now, scanned logs are:", SeverityLevel.Verbose);
+                    _logger.Dump($"Scanning the logs now.", SeverityLevel.Debug);
+                    
 
                     DateTime referenceTimeForTimeFramedEvents = DateTime.Now;
                     try
@@ -320,6 +410,7 @@ namespace EvlWatcher
                         //first read all relevant events (events that are required by any of the tasks)
                         foreach (string requiredEventType in requiredEventTypesToLogTasks.Keys)
                         {
+                            _logger.Dump($"Scanning {requiredEventType}", SeverityLevel.Debug);
                             eventTypesToNewEvents.Add(requiredEventType, new List<ExtractedEventRecord>());
                             eventTypesToTimeFramedEvents.Add(requiredEventType, new List<ExtractedEventRecord>());
 
@@ -373,7 +464,7 @@ namespace EvlWatcher
                             }
                         }
 
-                        _logger.Dump($"Scanning finished in {DateTime.Now.Subtract(scanStart).TotalMilliseconds}[ms] ", SeverityLevel.Verbose);
+                        _logger.Dump($"Scanning finished in {DateTime.Now.Subtract(scanStart).TotalMilliseconds}[ms] ", SeverityLevel.Debug);
 
 
                         //then supply the events to the requesting tasks
@@ -392,7 +483,8 @@ namespace EvlWatcher
                                             eventsForThisTask.Add(e);
                                     }
 
-                                    _logger.Dump($"Provided {eventsForThisTask.Count} events for {t.Name}", SeverityLevel.Verbose);
+                                    if (eventsForThisTask.Count > 0)
+                                        _logger.Dump($"Provided {eventsForThisTask.Count} events for {t.Name}", SeverityLevel.Verbose);
 
                                     if (eventsForThisTask.Count > 0)
                                     {
@@ -428,9 +520,10 @@ namespace EvlWatcher
                             }
                         }
 
-                        _logger.Dump($"\r\n-----Cycle complete, sleeping {_serviceconfiguration.EventLogInterval / 1000} s......\r\n", SeverityLevel.Debug);
-
+                        _logger.Dump($"\r\n-----Cycle complete, sleeping {_serviceconfiguration.EventLogInterval} s......\r\n", SeverityLevel.Debug);
+                        
                         _lastPolledTempBans = blackList;
+
                         PushBanList();
                     }
                     catch (Exception executionException)
@@ -441,7 +534,7 @@ namespace EvlWatcher
                     //wait for next iteration or kill signal
                     try
                     {
-                        Thread.Sleep(_serviceconfiguration.EventLogInterval);
+                        Thread.Sleep(_serviceconfiguration.EventLogInterval * 1000);
                     }
                     catch (ThreadInterruptedException)
                     {
@@ -485,7 +578,7 @@ namespace EvlWatcher
             //build dependencies
             ILogger logger = new DefaultLogger();
             IPersistentServiceConfiguration serviceConfiguration = new XmlServiceConfiguration(logger);
-            IGenericTaskFactory genericTaskFactory = new DefaultGenericTaskFactory();
+            IGenericTaskFactory genericTaskFactory = new DefaultGenericTaskFactory(logger);
 
             if (!Environment.UserInteractive)
             {
@@ -499,6 +592,13 @@ namespace EvlWatcher
                 Thread.Sleep(60000000);
                 w.OnStop();
             }
+        }
+
+        public void SaveGlobalConfig(SeverityLevelDTO logLevel, int consoleBackLog, int checkInterval)
+        {
+            _serviceconfiguration.LogLevel = (SeverityLevel) Enum.Parse(typeof(SeverityLevel), logLevel.ToString());
+            _serviceconfiguration.ConsoleBackLog = consoleBackLog;
+            _serviceconfiguration.EventLogInterval = checkInterval;
         }
 
         #endregion

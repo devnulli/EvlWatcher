@@ -1,12 +1,11 @@
 ﻿using EvlWatcher.Config;
 using EvlWatcher.DTOs;
+using EvlWatcher.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace EvlWatcher.Tasks
 {
@@ -14,9 +13,9 @@ namespace EvlWatcher.Tasks
     {
         #region static
 
-        internal static GenericIPBlockingTask FromConfiguration(IPersistentTaskConfiguration configuration)
+        internal static GenericIPBlockingTask FromConfiguration(IPersistentTaskConfiguration configuration, ILogger logger)
         {
-            GenericIPBlockingTask t = new GenericIPBlockingTask()
+            GenericIPBlockingTask t = new GenericIPBlockingTask(logger)
             {
                 Name = configuration.TaskName,
                 Description = configuration.Description,
@@ -33,47 +32,22 @@ namespace EvlWatcher.Tasks
             return t;
         }
 
-        internal static GenericIPBlockingTask FromXML(XElement element)
-        {
-            GenericIPBlockingTask t =
-            new GenericIPBlockingTask()
-            {
-                Name = element.Name.LocalName
-            };
-
-            t.Description = element.Element("Description").Value.Trim();
-            t.LockTime = int.Parse(element.Element("LockTime").Value.Trim());
-            t.OnlyNew = bool.Parse(element.Element("OnlyNew").Value.Trim());
-            t.EventAge = int.Parse(element.Element("EventAge").Value.Trim());
-            t.TriggerCount = int.Parse(element.Element("TriggerCount").Value.Trim());
-            t.PermaBanCount = int.Parse(element.Element("PermaBanCount").Value.Trim());
-            t.EventPath= element.Element("EventPath").Value.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (XElement e in element.Element("RegexBoosters").Elements("Booster"))
-                t.Boosters.Add(e.Value.Trim());
-            try
-            {
-                t.Regex = new Regex(element.Element("Regex").Value.Trim(), RegexOptions.Compiled);
-            }
-            catch
-            {
-                throw new ArgumentException($"Regex not defined or invalid for Task: {t.Name}");
-            }
-            return t;
-        }
-
         #endregion
 
         #region private members
 
-        private Dictionary<IPAddress, DateTime> _blockedIPsToDate = new Dictionary<IPAddress, DateTime>();
-        private Dictionary<IPAddress, int> _bannedCount = new Dictionary<IPAddress, int>();
+        private readonly Dictionary<IPAddress, DateTime> _blockedIPsToDate = new Dictionary<IPAddress, DateTime>();
+        private readonly Dictionary<IPAddress, int> _bannedCount = new Dictionary<IPAddress, int>();
+        private readonly ILogger _logger;
 
         #endregion
 
         #region internal .ctor
 
-        internal GenericIPBlockingTask() { }
+        internal GenericIPBlockingTask(ILogger logger) 
+        {
+            _logger = logger;
+        }
 
         #endregion
 
@@ -131,28 +105,41 @@ namespace EvlWatcher.Tasks
             Dictionary<IPAddress, int> sourceToCount = new Dictionary<IPAddress, int>();
             foreach (ExtractedEventRecord e in events)
             {
+                _logger.Dump($"{Name}: Processing Event with timestamp {e.TimeCreated}", SeverityLevel.Debug);
+
                 string xml = e.Xml;
+
+                _logger.Dump($"Checking XML {xml} against boosters..", SeverityLevel.Debug);
 
                 bool abort = false;
                 foreach (string b in Boosters)
+                {
+                    _logger.Dump($"Booster: {b}", SeverityLevel.Debug);
                     if (!xml.Contains(b))
                     {
+                        _logger.Dump($"Booster not in XML, aborting.", SeverityLevel.Debug);
                         abort = true;
                         break;
                     }
+                }
                 if (abort)
                     continue;
 
+
+                _logger.Dump($"Checking XML against Regex {Regex} now..", SeverityLevel.Debug);
                 Match m = Regex.Match(xml);
 
                 if(m.Success)
                 {
                     if (m.Groups.Count == 2 && IPAddress.TryParse(m.Groups[1].Value, out IPAddress ipAddress))
                     {
+                        
                         if (!sourceToCount.ContainsKey(ipAddress))
                             sourceToCount.Add(ipAddress, 1);
                         else
                             sourceToCount[ipAddress]++;
+
+                        _logger.Dump($"{Name}: found {ipAddress}, trigger count is {sourceToCount[ipAddress]}", SeverityLevel.Verbose);
                     }
                 }
             }
@@ -161,11 +148,13 @@ namespace EvlWatcher.Tasks
             {
                 if (kvp.Value >= TriggerCount && !_blockedIPsToDate.ContainsKey(kvp.Key))
                 {
-                    _blockedIPsToDate.Add(kvp.Key, System.DateTime.Now);
+                    _blockedIPsToDate.Add(kvp.Key, DateTime.Now);
                     if (!_bannedCount.ContainsKey(kvp.Key))
                         _bannedCount[kvp.Key] = 1;
                     else
                         _bannedCount[kvp.Key] += 1;
+
+                    _logger.Dump($"Banning {kvp.Key}, this is strike {_bannedCount[kvp.Key]}", SeverityLevel.Verbose);
                 }
             }
         }

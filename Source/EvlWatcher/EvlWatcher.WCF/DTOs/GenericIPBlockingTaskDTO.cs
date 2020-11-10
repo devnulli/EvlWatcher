@@ -1,76 +1,79 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 
-namespace EvlWatcher.Config
+namespace EvlWatcher.WCF.DTO
 {
-    public interface IPersistentTaskConfiguration
+    public class GenericIPBlockingTaskDTO
     {
+
         /// <summary>
         /// indicates whether the task is active
         /// </summary>
-        bool Active { get; }
+        public bool Active { get; set; }
 
         /// <summary>
         /// the name of the tasks
         /// </summary>
-        string TaskName { get; }
+        public string TaskName { get; set; }
 
         /// <summary>
         /// the description of the tasks
         /// </summary>
-        string Description { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// the time to lock out the scroundlel
         /// </summary>
-        int LockTime { get; set; }
+        public int LockTime { get; set; }
 
         /// <summary>
         /// a flag to tell evlwatcher to not resupply already processed events
         /// </summary>
-        bool OnlyNewEvents { get; set; }
+        public bool OnlyNewEvents { get; set; }
 
         /// <summary>
         /// the time frame for the logs to be inspected
         /// </summary>
-        int EventAge { get; set; }
+        public int EventAge { get; set; }
 
         /// <summary>
         /// how many violations trigger a temporary ban
         /// </summary>
-        int TriggerCount { get; set; }
+        public int TriggerCount { get; set; }
 
         /// <summary>
         /// how many violations trigger a permanent ban
         /// </summary>
-        int PermaBanCount { get; set; }
+        public int PermaBanCount { get; set; }
 
         /// <summary>
         /// the eventlogs to be scanned, separated by comma
         /// </summary>
-        string EventPath { get; set; }
+        public IList<string> EventPath { get; set; }
 
         /// <summary>
         /// regex boosters to be applied before the actual regex (for performance)
         /// </summary>
-        IQueryable<string> RegexBoosters { get; }
-
-        /// <summary>
-        /// add a regex booster string
-        /// </summary>
-        /// <param name="regexBooster"></param>
-        /// <returns></returns>
-        bool AddRegexBooster(string regexBooster);
-
-        /// <summary>
-        /// remove a regex booster string
-        /// </summary>
-        /// <param name="regexBooster"></param>
-        /// <returns></returns>
-        bool RemoveRegexBooster(string regexBooster);
+        public IList<string> RegexBoosters { get; set; }
 
         /// <summary>
         /// the regex used to extract an attackers IP address.
         /// </summary>
-        string Regex { get; set; }
+        public string Regex { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is GenericIPBlockingTaskDTO dTO &&
+                   TaskName == dTO.TaskName;
+        }
+
+        public override string ToString()
+        {
+            return TaskName;
+        }
+
+        public override int GetHashCode()
+        {
+            return 1575259903 + EqualityComparer<string>.Default.GetHashCode(TaskName);
+        }
     }
 }

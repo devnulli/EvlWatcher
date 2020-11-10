@@ -73,8 +73,9 @@
     <Compile Include="DTOs\ExtractedEventRecord.cs" />
     <Compile Include="Logging\DefaultLogger.cs" />
     <Compile Include="Logging\ILogger.cs" />
+    <Compile Include="Logging\LogEntry.cs" />
     <Compile Include="Tasks\DefaultGenericTaskFactory.cs" />
-    <Compile Include="Tasks\GenericTask.cs" />
+    <Compile Include="Tasks\GenericIPBlockingTask.cs" />
     <Compile Include="SystemApi\FirewallAPI.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
@@ -95,11 +96,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WCF\IEvlWatcherService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.XML" />
@@ -158,7 +159,12 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\EvlWatcher.WCF\EvlWatcher.WCF.csproj">
+      <Project>{ab65ea0d-f9e8-4aee-b1bc-1691a2bf9e13}</Project>
+      <Name>EvlWatcher.WCF</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
