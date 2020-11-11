@@ -71,17 +71,35 @@ Theres several tabs.
 
 ## If you want to support EvlWatcher monetarily
 
-below has changed because, turns out, its not true [see here](https://github.com/devnulli/EvlWatcher/issues/32)
-~~To be honest, that chapter is only there because I was asked to do it.
-EvlWatcher doesnt have a lot of expenses, and therefore doesn't really need much monetary support. ~~
-Well, 
+I had to change the optimistic, world is good, text below, because, turns out, its not true [see here](https://github.com/devnulli/EvlWatcher/issues/32)
 
-If you want to say thanks, I would be happy if you would ~~buy me a coffe or a beer~~ help me afford a Certificate or so, either here: 
+~~To be honest, that chapter is only there because I was asked to do it.~~
+~~EvlWatcher doesnt have a lot of expenses, and therefore doesn't really need much monetary support.~~
+
+
+If you want to say thanks, I would be happy if you would ~~buy me a coffe or a beer~~ help me afford a certificate so I can sign the source code, either here: 
 <a href='https://ko-fi.com/F2F02MKY9' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi2.png?v=2' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 or here by donating to Bitcoin address `bc1q5hk4xum577t6zcfhxgtk2jrjjmxc2nq3uurvg3`.
 
 or just donate to you favorite charity.
+
+## Why is that a fucking Virus according to my virus-scanner?
+Its pretty sure not a virus, when you make sure of the following:
+- only download it from here (github)
+
+If you download it from somewhere else:
+- check its MD5
+  - for v2.0 the MD5 is `d658718ea9cc794e704b02b7c252365e`
+  
+EvlWatcher 2.0 is written in C# and therefore easily readable and changeable.
+So is it a virus when you didnt make sure of the above steps? Possibly, yea. Probably not, but possibly.
+
+## When will you fix that?
+While it's not certified, some heuristics say its a virus, because of some program code they find "sus". (like playing around with the firewall?)
+135€
+Donations received so far
+12€
 
 ## EvlWatcher is, and always will be, ad-free and without costs.
 
