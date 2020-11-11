@@ -91,7 +91,7 @@ Its pretty sure not a virus, when you make sure of the following:
 If you download it from somewhere else:
 - check its MD5
   - for v2.0 the MD5 is `d658718ea9cc794e704b02b7c252365e`
-  - to check an MD5 an windows, type `CertUtil -hashfile "EvlWatcher-v2.0 setup.exe" MD5`
+  - to check an MD5 on Windows, type `CertUtil -hashfile "EvlWatcher-v2.0 setup.exe" MD5`
   
 EvlWatcher 2.0 is written in C# and therefore easily readable and changeable.
 So is it a virus when you didnt make sure of the above steps? Possibly, yea. Probably not, but possibly.
