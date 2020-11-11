@@ -71,10 +71,12 @@ Theres several tabs.
 
 ## If you want to support EvlWatcher monetarily
 
-To be honest, that chapter is only there because I was asked to do it.
-EvlWatcher doesnt have a lot of expenses, and therefore doesn't really need much monetary support. 
+below has changed because, turns out, its not true [see here](https://github.com/devnulli/EvlWatcher/issues/32)
+~~To be honest, that chapter is only there because I was asked to do it.
+EvlWatcher doesnt have a lot of expenses, and therefore doesn't really need much monetary support. ~~
+Well, 
 
-If you want to say thanks, I would be happy if you would buy me a coffe or a beer or so, either here: 
+If you want to say thanks, I would be happy if you would ~~buy me a coffe or a beer~~ help me afford a Certificate or so, either here: 
 <a href='https://ko-fi.com/F2F02MKY9' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi2.png?v=2' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 or here by donating to Bitcoin address `bc1q5hk4xum577t6zcfhxgtk2jrjjmxc2nq3uurvg3`.
