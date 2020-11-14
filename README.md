@@ -84,7 +84,7 @@ or here by donating to Bitcoin address `bc1q5hk4xum577t6zcfhxgtk2jrjjmxc2nq3uurv
 
 or just donate to you favorite charity.
 
-## Why is that a fucking Virus according to my virus-scanner?
+## Why is that a Virus according to my virus-scanner?
 Its pretty sure not a virus, when you make sure of the following:
 - only download it from here (github)
 
