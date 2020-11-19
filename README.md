@@ -102,7 +102,8 @@ While it's not certified, some heuristics say its a virus, because of some progr
 
 ### Will-Fix-O-Meter
 **135€** est. price of certification
-**12€** donations so far
+**27€** donations so far
+~~**12€** donations so far~~
 
 ## EvlWatcher is, and always will be, ad-free and without costs (including me).
 
