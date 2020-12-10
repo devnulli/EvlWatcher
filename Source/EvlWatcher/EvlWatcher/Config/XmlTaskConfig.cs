@@ -240,7 +240,7 @@ namespace EvlWatcher.Config
             get => _active;
             private set
             {
-                _active = true;
+                _active = value;
             }
         }
 
