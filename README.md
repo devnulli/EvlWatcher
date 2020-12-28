@@ -1,4 +1,4 @@
-# _What's EvlWatcher?_
+# _What's EvlWatcher 2?_
 
 It's basically a fail2ban for windows. It also tries focus on *pre-configured, no-initial-fucking-around-with-scripts-or-config-files, install-and-done* magic of the original fail2ban.
 
@@ -24,9 +24,10 @@ We are especially happy to get issues about log-entry samples we don't react on,
 
 # A bit more detailed description of what EvlWatcher does
 
-## Scenario: there are those bad people out there, taunting your RDP service (or other services) with brute force attempts.
+## Scenario: there are those bad people out there, taunting your service (RDP and whatnot) with brute force attempts.
 
-- You have searched the web and yea, there are plenty of tools, scripts, and what not to solve you problem.
+- You can see it clearly in the Windows Event-Log. 
+- You have searched the web and yea, there are plenty of tools, scripts, and what not to read the event-log and automatically ban the attackers IP.
 - You however, are lazy. All these tools need configuration of some sorts. Damn it, there needs to be something like fail2ban, with a preconfigured set of rules to just RUN right away and it works. But then, it still needs enough flexibility to completely configure it, should you wish to do so.
 
 ## EvlWatcher does that. It scans the Windows-Event-Log, and reacts. 
@@ -105,8 +106,9 @@ However, since it really sucks, we also received some donations to go and buy ou
 
 **So versions beginning with 2.1 and above are signed, and should not make trouble.**
 
-Unit then, you can make sure that it's NOT a virus, by:
-- only downloading it from here (github)
+Until then, you can make sure that it's NOT a virus, by:
+- first, you need to win the struggle against your browser.  
+- only download it from here (github)
 
 In case you download it from somewhere else, check its MD5:
   - for v2.0 the MD5 is `d658718ea9cc794e704b02b7c252365e`
