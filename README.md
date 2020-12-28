@@ -1,5 +1,11 @@
 ## NEWS 
 
+### 2020-12-28 preparing the release of v2.1 
+- first, i want to say THANK YOU, to everyone who donated
+- finally, we have gotten enough donations, so we can sign the next release.
+- it contains minor bugfixes and corrections, but nothing interesting apart from that.
+- it will be released on January 3rd
+
 ### 2020-11-10 release of v2.0 finally complete
 So, this was about time that software got a new paint applied. The release of EvlWatcher 2.0 could finally be made, many thanks go to NukeDev and shimuldn.
 You get the release [here](https://github.com/devnulli/EvlWatcher/raw/master/Versions/v2/EvlWatcher-v2.0%20setup.exe). And it gives you a Windows Defender warning right away. What the heck? Damn.. anyway.. back to the release:
@@ -12,12 +18,12 @@ If anyone needs something or has questions about it, feel free to open an issue.
 
 It's basically a fail2ban for windows. 
 
-## Scenario: there are those bad people out there, hammering my RDP Server (or other service) with brute force attempts.
+## Scenario: there are those bad people out there, taunting your RDP service (or other services) with brute force attempts.
 
 - You have searched the web and yea, there are plenty of tools, scripts, and what not to solve you problem.
 - You however, are lazy. All these tools need configuration of some sorts. Damn it, there needs to be something like fail2ban, with a preconfigured set of rules to just RUN right away and it works. But then, it still needs enough flexibility to completely configure it, should you wish to do so.
 
-## EvlWatcher does that
+## EvlWatcher does that. It scans the Windows-Event-Log, and reacts. 
 
 It works by installing a service that scans the event log for unsuccessful login attempts. When one of its rules are violated (e.g. trying to log in without correct credentials, more than 5 times in 2 minutes) it will place that poor bastard into a generic firewall rule, and therby ban the attacker for 2 hours.
 
@@ -29,20 +35,24 @@ You can, of course, adjust the rules to your liking. They are basically a consis
 
 Run the setup executable. It is not required that you remove previous versions, the installer will take care of that.
 
-## After you have installed EvlWatcher 2.0 
+## After you have installed EvlWatcher
 
-Basically, youre done.
+You now have 2 things installed, a Windows Service (called EvlWatcher), with a default configuration file, and a management console.
 
 ## The Service
 
 Well, it makes a firewall rule called EvlWatcher. And updates it every 30 seconds, based on your event log. Simple as that.
 Just one thing: Its normal when the rule is disabled. When there are no IPs banned, its automatically disabled. Dont worry, EvlWatcher will enable it as soon as there is the first ban victim.
 
+## The Configuration
+
+It's made to cover all sorts of brute force attacks out of the box, but can also be expanded.
+
 ## The Console.
 
 You can use the console (in the binary directory of EvlWatcher) (NO, we dont make desktop links, start menu entries, ...) to see how your service is doing.
 
-Theres several tabs.
+There are several tabs.
 
 ### Overview Tab
 
@@ -62,7 +72,7 @@ Theres several tabs.
 
 # Community
 
-## General
+## If you want to support Evlwatcher practically
 - Please feel free to contribute
 - We always need good devs and testers to support us.
 - Please, if you have an MSSQL Server or FTP or whatever open to the webs, help up to also cover that with EvlWatcher, by providing us Events.
@@ -71,45 +81,34 @@ Theres several tabs.
 
 ## If you want to support EvlWatcher monetarily
 
-I had to change the optimistic, world is good, text below, because, turns out, its not true [see here](https://github.com/devnulli/EvlWatcher/issues/32)
+To be honest, that chapter is only there because I was asked to do it.
+EvlWatcher doesnt have a lot of expenses, except the initial cost of code-signing, which were already covered by donations,
+and about 25€ / year for keeping up the certificate. Therefore, we don't really need much monetary support. 
 
-~~To be honest, that chapter is only there because I was asked to do it.~~
-~~EvlWatcher doesnt have a lot of expenses, and therefore doesn't really need much monetary support.~~
+But if you want to say thanks, I would be happy if you would buy me a coffee or a beer here:
 
-
-If you want to say thanks, I would be happy if you would ~~buy me a coffe or a beer~~ help me afford a certificate so I can sign the source code, either here: 
 <a href='https://ko-fi.com/F2F02MKY9' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi2.png?v=2' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
-or here by donating to Bitcoin address `bc1q5hk4xum577t6zcfhxgtk2jrjjmxc2nq3uurvg3`.
-
-or just donate to you favorite charity.
+Or you could just donate to your favorite charity.
 
 ## Why is that a Virus according to my virus-scanner?
-Its pretty sure not a virus, when you make sure of the following:
-- only download it from here (github)
 
-If you download it from somewhere else:
-- check its MD5
+Welp, yes, we published the version 2.0 without signing. (its expensive, about € 150,-) 
+And the problem is, that while it's not signed, some heuristics say its a virus. Thats because of some program code they find "sus" (like playing around with the firewall).
+However, since it really sucks, we also received some donations to go and buy ourselves a certificate. Which is what we did.
+
+**So versions beginning with 2.1 and above are signed, and should not make trouble.**
+
+Unit then, you can make sure that it's NOT a virus, by:
+- only downloading it from here (github)
+
+In case you download it from somewhere else, check its MD5:
   - for v2.0 the MD5 is `d658718ea9cc794e704b02b7c252365e`
   - to check an MD5 on Windows, type `CertUtil -hashfile "EvlWatcher-v2.0 setup.exe" MD5`
   
-EvlWatcher 2.0 is written in C# and therefore easily readable and changeable.
+EvlWatcher is written in C#, and therefore easily readable and changeable.
 So is it a virus when you didnt make sure of the above steps? Possibly, yea. Probably not, but possibly.
-
-## When will you fix that?
-
-While it's not certified, some heuristics say its a virus, because of some program code they find "sus". (like playing around with the firewall?)
-
-### Will-Fix-O-Meter
-**135€** est. price of certification
-**33€** donations so far
-~~**27€** donations so far~~
-~~**12€** donations so far~~
-
-## EvlWatcher is, and always will be, ad-free and without costs (including me).
 
 Cya..
 
 Mike
-
-
