@@ -27,8 +27,8 @@ We are especially happy to get issues about log-entry samples we don't react on,
 ## Scenario: there are those bad people out there, taunting your service (RDP and whatnot) with brute force attempts.
 
 - You can see it clearly in the Windows Event-Log. 
-- You have searched the web and yea, there are plenty of tools, scripts, and what not to read the event-log and automatically ban the attackers IP.
-- You however, are lazy. All these tools need configuration of some sorts. Damn it, there needs to be something like fail2ban, with a preconfigured set of rules to just RUN right away and it works. But then, it still needs enough flexibility to completely configure it, should you wish to do so.
+- You have searched the web and yea, there are plenty of tools, scripts, and all that, to read the event-log and automatically ban the attackers IP.
+- *You however, are lazy.* All these tools need configuration of some sorts. Damn it, there needs to be something like fail2ban, with a preconfigured set of rules to just RUN right away and it works. But then, it still needs enough flexibility to completely configure it, should you wish to do so.
 
 ## EvlWatcher does that. It scans the Windows-Event-Log, and reacts. 
 
@@ -98,7 +98,7 @@ But if you want to say thanks, I would be happy if you would buy me a coffee or 
 
 Or you could just donate to your favorite charity.
 
-## Why is that a Virus according to my virus-scanner?
+## Hey, why is that a Virus according to my virus-scanner?
 
 Welp, yes, we published the version 2.0 without signing. (its expensive, about € 150,-) 
 And the problem is, that while it's not signed, some heuristics say its a virus. Thats because of some program code they find "sus" (like playing around with the firewall).
