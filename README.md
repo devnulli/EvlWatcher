@@ -1,22 +1,27 @@
+# _What's EvlWatcher?_
+
+It's basically a fail2ban for windows. It also tries focus on *pre-configured, no-initial-fucking-around-with-scripts-or-config-files, install-and-done* magic of the original fail2ban.
+
+## Also, we love issues!
+
+If anyone needs something or has questions about something, please feel free to open an issue. 
+We are especially happy to get issues about log-entry samples we don't react on, or ideas of how we can support more protocols. 
+
 ## NEWS 
 
 ### 2020-12-28 preparing the release of v2.1 
 - first, i want to say THANK YOU, to everyone who donated
-- finally, we have gotten enough donations, so we can sign the next release.
+- finally, we have received enough donations, so we can sign the next release. (and afford 3 beers on top of that)
 - it contains minor bugfixes and corrections, but nothing interesting apart from that.
-- it will be released on January 3rd
+- it is planned to be released on January 3rd, maybe earlier, depending on when we sober up :)
 
 ### 2020-11-10 release of v2.0 finally complete
-So, this was about time that software got a new paint applied. The release of EvlWatcher 2.0 could finally be made, many thanks go to NukeDev and shimuldn.
-You get the release [here](https://github.com/devnulli/EvlWatcher/raw/master/Versions/v2/EvlWatcher-v2.0%20setup.exe). And it gives you a Windows Defender warning right away. What the heck? Damn.. anyway.. back to the release:
+- So, this was about time that software got a new paint applied. The release of EvlWatcher 2.0 could finally be made, many thanks go to NukeDev and shimuldn.
+- And it gives you a Windows Defender warning right away. What the heck? Damn we urgently need to fix that.
+- You can get the whole story of the release [here](https://github.com/devnulli/EvlWatcher/pull/31), or you just check the [release notes](https://github.com/devnulli/EvlWatcher/blob/master/Versions/v2/EvlWatcher-v2.0%20release%20notes.txt)
+- YEAH! I'm pretty pleased it's finally finished. I was procrastenating that for over a year after I promised it.
 
-You can get the whole story of the release [here](https://github.com/devnulli/EvlWatcher/pull/31), or you just check the [release notes](https://github.com/devnulli/EvlWatcher/blob/master/Versions/v2/EvlWatcher-v2.0%20release%20notes.txt)
-
-If anyone needs something or has questions about it, feel free to open an issue. YEAH! I'm pretty pleased it's finally finished. I was procrastenating that for over a year after I promised it.
-
-# Short description of what EvlWatcher does
-
-It's basically a fail2ban for windows. 
+# A bit more detailed description of what EvlWatcher does
 
 ## Scenario: there are those bad people out there, taunting your RDP service (or other services) with brute force attempts.
 
