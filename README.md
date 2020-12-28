@@ -13,7 +13,8 @@ We are especially happy to get issues about log-entry samples we don't react on,
 - first, i want to say THANK YOU, to everyone who donated
 - finally, we have received enough donations, so we can sign the next release. (and afford 3 beers on top of that)
 - it contains minor bugfixes and corrections, but nothing interesting apart from that.
-- it is planned to be released on January 3rd, maybe earlier, depending on when we sober up :)
+- it is planned to be released in mid-January, depending on when the dongle from certum.eu arrives (it's already ordered)
+  
 
 ### 2020-11-10 release of v2.0 finally complete
 - So, this was about time that software got a new paint applied. The release of EvlWatcher 2.0 could finally be made, many thanks go to NukeDev and shimuldn.
