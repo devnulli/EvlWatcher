@@ -12,7 +12,7 @@ We are especially happy to get issues about log-entry samples we don't react on,
 ### 2020-12-28 preparing the release of v2.1 
 - first, i want to say THANK YOU, to everyone who donated
 - finally, we have received enough donations, so we can sign the next release. (and afford 3 beers on top of that)
-- it contains minor bugfixes and corrections, but nothing interesting apart from that.
+- it contains minor bugfixes and corrections, but nothing interesting apart from that its signed now.
 - it is planned to be released in mid-January, depending on when the dongle from certum.eu arrives (it's already ordered)
   
 
