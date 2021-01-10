@@ -3,7 +3,7 @@
   <Global>
 
     <!-- Levels are: Off, Critical, Warning, Error, Info, Verbose, Debug. Loglevel means written to EventLog, ConsoleLevel means viewable in Console-->
-    <LogLevel>Warning</LogLevel>
+    <LogLevel>Info</LogLevel>
     
     <!-- how many lines of console output will be stored to provide to the wcf console (max). This is used by the EvlConsole to query the latest output-->
     <ConsoleBacklog>3000</ConsoleBacklog>
