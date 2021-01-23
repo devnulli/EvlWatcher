@@ -205,7 +205,7 @@
             </TabItem>
             <TabItem Header="Rule Tester" IsSelected="{Binding IsRuleEditorTabSelected, Mode=OneWayToSource}">
                 <StackPanel Orientation="Vertical">
-                    <Label Grid.Row="0">On this tab you can test out the rules of EvlWatcher, to find out if it would block against en event-log entry</Label>
+                    <Label Grid.Row="0">On this tab you can test out the rules of EvlWatcher, to find out if it would work for a given event-log entry</Label>
                     <Border Margin="5" BorderBrush="DarkGray" BorderThickness="2" CornerRadius="3">
                         <StackPanel Orientation="Vertical">
                             <Label VerticalAlignment="Center">1) Select task:</Label>
@@ -232,9 +232,9 @@
                     </Border>
                     <Border Margin="5" BorderBrush="DarkGray" BorderThickness="2" CornerRadius="3" Height="90">
                         <StackPanel Orientation="Vertical">
-                        <Label>3) Hit the test button. If it doesn't work, fiddle with that XML and hit the test button again..</Label>
+                        <Label>3) Hit the test button. If it doesn't work, fiddle with the Regex and hit the test button again.. You can also try regex101.com, it's great for testing regexes.</Label>
                             <StackPanel Orientation="Horizontal">
-                                <Label>Test with XML:</Label>
+                                <Label>Test with Regex:</Label>
                                 <TextBox VerticalAlignment="Center" MinWidth="100" Text="{Binding CurrentTestRegex}"></TextBox>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
@@ -246,7 +246,7 @@
                     <Border Margin="5" BorderBrush="DarkGray" BorderThickness="2" CornerRadius="3" Height="90">
                         <StackPanel Orientation="Vertical">
                             <Label> 4) React</Label>
-                            <TextBlock Margin="5" TextWrapping="Wrap">You found something that should be blocked but isn't? (RDP or any other protocol?). Feel free to repair or create new tasks in your config.xml file. But hey.. please don't just correct it in your config file.. instead, please make a github issue (and paste above XML), so other users can benefit of that.</TextBlock>
+                            <TextBlock Margin="5" TextWrapping="Wrap">You found something that should be blocked but isn't? (RDP or any other protocol?). Feel free to repair or create new tasks in your config.xml file. But hey.. please don't just correct it in your config file.. instead, please make a github issue (and paste above XML and Regex), so other users can benefit of that.</TextBlock>
 
                         </StackPanel>
                     </Border>
