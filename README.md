@@ -1,34 +1,23 @@
 # _What's EvlWatcher 2?_
 
-It's basically a fail2ban for windows. It also tries focus on *pre-configured, no-initial-fucking-around-with-scripts-or-config-files, install-and-done* magic of the original fail2ban.
+It's basically a fail2ban for windows. Its goals are also mainly what we love about fail2ban:
+- *pre-configured*
+- *no-initial-fucking-around-with-scripts-or-config-files*
+- *install-and-forget*
 
 ## Also, we love issues!
 
 If anyone needs something or has questions about something, please feel free to open an issue. 
-We are especially happy to get issues about log-entry samples we don't react on, or ideas of how we can support more protocols. 
+We are especially happy to get issues about log-entry samples we don't react on, or ideas of how we can **support more protocols**. 
 
-## NEWS 
+# A bit more detailed description of what EvlWatcher does.
 
-### 2020-12-28 preparing the release of v2.1 
-- first, i want to say THANK YOU, to everyone who donated
-- finally, we have received enough donations, so we can sign the next release. (and afford 3 beers on top of that)
-- it contains minor bugfixes and corrections, but nothing interesting apart from that its signed now.
-- it is planned to be released in mid-January, depending on when the dongle from certum.eu arrives (it's already ordered) [update 2021-01-06: still waiting for it]
-  
+## Scenario: there are those bad people out there, hammering your service (RDP and whatnot) with brute force attempts.
 
-### 2020-11-10 release of v2.0 finally complete
-- So, this was about time that software got a new paint applied. The release of EvlWatcher 2.0 could finally be made, many thanks go to NukeDev and shimuldn.
-- And it gives you a Windows Defender warning right away. What the heck? Damn we urgently need to fix that.
-- You can get the whole story of the release [here](https://github.com/devnulli/EvlWatcher/pull/31), or you just check the [release notes](https://github.com/devnulli/EvlWatcher/blob/master/Versions/v2/EvlWatcher-v2.0%20release%20notes.txt)
-- YEAH! I'm pretty pleased it's finally finished. I was procrastenating that for over a year after I promised it.
-
-# A bit more detailed description of what EvlWatcher does
-
-## Scenario: there are those bad people out there, taunting your service (RDP and whatnot) with brute force attempts.
-
-- You can see it clearly in the Windows Event-Log. 
+- You can see them and their IPs clearly in the Windows Event-Log. 
 - You have searched the web and yea, there are plenty of tools, scripts, and all that, to read the event-log and automatically ban the attackers IP.
-- *You however, are lazy.* All these tools need configuration of some sorts. Damn it, there needs to be something like fail2ban, with a preconfigured set of rules to just RUN right away and it works. But then, it still needs enough flexibility to completely configure it, should you wish to do so.
+- *You however, are lazy.* You needs something like fail2ban, with a preconfigured set of rules to just RUN right away and it works. 
+- But then, it still needs enough flexibility to completely configure it, should you wish to do so.
 
 ## EvlWatcher does that. It scans the Windows-Event-Log, and reacts. 
 
@@ -40,32 +29,41 @@ You can, of course, adjust the rules to your liking. They are basically a consis
 
 # Installation
 
-Run the setup executable. It is not required that you remove previous versions, the installer will take care of that.
+Run the setup executable. It is not required that you remove previous versions of EvlWatcher, the installer will take care of that.
 
 ## After you have installed EvlWatcher
 
-You now have 2 things installed, a Windows Service (called EvlWatcher), with a default configuration file, and a management console.
+You now have 2 things installed, 
+ - a Windows Service that will immediately start running (called EvlWatcher) with its default configuration file
+ - a management Console (in the binary directory)
 
 ## The Service
 
-Well, it makes a firewall rule called EvlWatcher. And updates it every 30 seconds, based on your event log. Simple as that.
+You can see it in your Services as "EvlWatcher". It is set to local system and auto start - meaning it cannot communicate over the network, and will always run
+
+The service makes a firewall rule called EvlWatcher. And updates it every 30 seconds, based on your event log. Simple as that.
 Just one thing: Its normal when the rule is disabled. When there are no IPs banned, its automatically disabled. Dont worry, EvlWatcher will enable it as soon as there is the first ban victim.
 
 ## The Configuration
 
-It's made to cover all sorts of brute force attacks out of the box, but can also be expanded.
+You can see it as config.xml in the binary directory. 
+It's made to cover all sorts of brute force attacks out of the box, but can also be expanded. Just take a look inside, if you want.
 
-## The Console.
+## The Console (EvlWatcherConsole.exe).
 
-You can use the console (in the binary directory of EvlWatcher) (NO, we dont make desktop links, start menu entries, ...) to see how your service is doing.
+You can use the console (in the binary directory of EvlWatcher) *(NO, we dont make desktop links, start menu entries, ...)* to see how your service is doing.
 
-There are several tabs.
+There are several tabs in the console.
 
 ### Overview Tab
+
+Shows you which IPS are currently banned or whitelisted
 
 ![image](https://user-images.githubusercontent.com/3720480/98728537-eee6be80-2399-11eb-9420-9926cc3704f0.png)
 
 ### Live Tab
+
+Shows you what the service is doing currently thinking about.
 
 ![image](https://user-images.githubusercontent.com/3720480/98728504-e2626600-2399-11eb-987c-c101a22003e8.png)
 
@@ -74,6 +72,9 @@ There are several tabs.
 ![image](https://user-images.githubusercontent.com/3720480/98728386-bb0b9900-2399-11eb-9792-d3e770334316.png)
 
 ### Rule Tester Tab
+
+When you find something you want automatically banned, you copy your Windows Event-Log XML here and try to find a for it.
+Once you did that, you can either build a new ban task in your config, or post an issue here, so we add it to the config globally.
 
 ![image](https://user-images.githubusercontent.com/3720480/98728355-ab8c5000-2399-11eb-918f-3b9a8e316516.png)
 

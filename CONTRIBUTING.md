@@ -6,11 +6,11 @@ Just make a pull request, and request it to be merged. If there are any issues y
 Every once in a while, all the merged stuff will be put to the test and finally become a new version. 
 (depending on what has changed, that can be more or less frequent. Weeks, YEARS, DECADES, MILLENIA, or never)
 
-## Seriously, before you start coding, please keep the following things in mind:
+## Before you start coding, please keep the following things in mind:
 
 - When creating a pull request that solves issues, its a good idea to discuss the change you wish to make in the issue thread.
 - When just improving or refactoring the code, its generally also a good idea to discuss it first. 
-- OR you just go on and code, pull request, and see what happens. Worst thing to happen is: that you invest a huge lot of work into unwanted changes.
+- OR you just go on and code, pull request, and see what happens. For small changes thats ok. The bigger your time investment, the more important is that you discuss it first.
 
 ## Happiness is when decent coders help out, and good people test that thing.
 
