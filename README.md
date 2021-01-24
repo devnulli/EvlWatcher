@@ -101,25 +101,6 @@ But if you want to say thanks, I would be happy if you would buy me a coffee or 
 
 Or you could just donate to your favorite charity.
 
-## Hey, why is that a Virus according to my virus-scanner?
-
-Welp, yes, we published the version 2.0 without signing. (its expensive, about € 150,-) 
-And the problem is, that while it's not signed, some heuristics say its a virus. Thats because of some program code they find "sus" (like playing around with the firewall).
-However, since it really sucks, we also received some donations to go and buy ourselves a certificate. Which is what we did.
-
-**So versions beginning with 2.1 and above are signed, and should not make trouble.**
-
-Until then, you can make sure that it's NOT a virus, by:
-- first, you need to win the struggle against your browser.  
-- only download it from here (github)
-
-In case you download it from somewhere else, check its MD5:
-  - for v2.0 the MD5 is `d658718ea9cc794e704b02b7c252365e`
-  - to check an MD5 on Windows, type `CertUtil -hashfile "EvlWatcher-v2.0 setup.exe" MD5`
-  
-EvlWatcher is written in C#, and therefore easily readable and changeable.
-So is it a virus when you didnt make sure of the above steps? Possibly, yea. Probably not, but possibly.
-
 Cya..
 
 Mike
