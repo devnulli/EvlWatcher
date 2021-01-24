@@ -134,13 +134,15 @@ namespace EvlWatcher
                 return _serviceconfiguration.WhitelistPatterns.ToArray();
         }
 
+        /// <summary>
+        /// WCF
+        /// </summary>
+        /// <param name="address"></param>
         public void SetPermanentBan(IPAddress address)
         {
             EnsureClientPrivileges();
 
-            _serviceconfiguration.AddBlackListAddress(address);
-
-            PushBanList();
+            SetPermanentBanInternal(address);
         }
 
         public void ClearPermanentBan(IPAddress address)
@@ -508,7 +510,7 @@ namespace EvlWatcher
                             if (t is IPBlockingLogTask ipTask)
                             {
                                 foreach (IPAddress perma in ipTask.GetPermaBanVictims())
-                                    SetPermanentBan(perma);
+                                    SetPermanentBanInternal(perma);
 
                                 List<IPAddress> blockedIPs = ipTask.GetTempBanVictims();
 
@@ -567,6 +569,13 @@ namespace EvlWatcher
                 _logger.Dump(e, SeverityLevel.Error);
                 Stop();
             }
+        }
+
+        private void SetPermanentBanInternal(IPAddress address)
+        {
+            _serviceconfiguration.AddBlackListAddress(address);
+
+            PushBanList();
         }
 
 
