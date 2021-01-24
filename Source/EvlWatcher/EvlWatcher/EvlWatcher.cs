@@ -421,6 +421,7 @@ namespace EvlWatcher
 
                             try
                             {
+                                //if you crash here, you are not admin, try to restart as admin
                                 using (var eventLogReader = new EventLogReader(eventLogQuery))
                                 {
                                     EventRecord r;
