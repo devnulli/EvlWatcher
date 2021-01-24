@@ -1,0 +1,9 @@
+EvlWatcher v2.1.1 release notes.
+----------------------------------
+
+- fixes a bug where EvlWatcher was unable to place permanent bans
+- fixes some typos
+- signed to prevent virus scanners from going crazy 
+
+
+
