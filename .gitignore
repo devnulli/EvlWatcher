@@ -4,7 +4,7 @@
 
 /.vs
 *.suo
-/Source/EvlWatcher/.vs/EvlWatcher/v15/Server/sqlite3
+/Source/EvlWatcher/.vs
 /Source/EvlWatcher/EvlWatcher/obj/x86
 /Source/EvlWatcherConsole/EvlWatcherConsole/obj/x86
 /Source/EvlWatcher/EvlWatcher/bin/Debug
@@ -15,3 +15,4 @@
 /Source/EvlWatcher/EvlWatcher.WCF/obj
 /Source/EvlWatcherConsole/EvlWatcherConsole/bin/Release
 /Source/EvlWatcher/EvlWatcher.WCF/bin/Release
+/Source/EvlWatcherConsole/.vs
