@@ -92,7 +92,7 @@ namespace EvlWatcher.Tasks
             foreach (KeyValuePair<IPAddress, int> kvp in _bannedCount.Where(p=>p.Value>=PermaBanCount))
             {
                 permaList.Add(kvp.Key);
-                _logger.Dump($"Banned {kvp.Value} (strike count was over {_bannedCount}", SeverityLevel.Info);
+                _logger.Dump($"Permanently banned {kvp.Value} (strike count was over {PermaBanCount}) ", SeverityLevel.Info);
             }
             foreach (IPAddress ip in permaList)
                 _bannedCount.Remove(ip);
@@ -154,7 +154,7 @@ namespace EvlWatcher.Tasks
                     else
                         _bannedCount[kvp.Key] += 1;
 
-                    _logger.Dump($"Banning {kvp.Key}, this is strike {_bannedCount[kvp.Key]}", SeverityLevel.Info);
+                    _logger.Dump($"Temporarily banning {kvp.Key}, this is strike {_bannedCount[kvp.Key]}", SeverityLevel.Info);
                 }
             }
         }
