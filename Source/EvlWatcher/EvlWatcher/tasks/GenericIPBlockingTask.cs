@@ -154,7 +154,7 @@ namespace EvlWatcher.Tasks
                     else
                         _bannedCount[kvp.Key] += 1;
 
-                    _logger.Dump($"Banning {kvp.Key}, this is strike {_bannedCount[kvp.Key]}", SeverityLevel.Info);
+                    _logger.Dump($"Temporarily banning {kvp.Key}, this is strike {_bannedCount[kvp.Key]}", SeverityLevel.Info);
                 }
             }
         }
