@@ -36,6 +36,7 @@ namespace EvlWatcher.Tasks
 
         #region private members
 
+        private readonly object _syncObject = new object();
         private readonly Dictionary<IPAddress, DateTime> _blockedIPsToDate = new Dictionary<IPAddress, DateTime>();
         private readonly Dictionary<IPAddress, int> _bannedCount = new Dictionary<IPAddress, int>();
         private readonly ILogger _logger;
@@ -64,40 +65,46 @@ namespace EvlWatcher.Tasks
         #region public operations
         public override List<IPAddress> GetTempBanVictims()
         {
-            List<IPAddress> ipsToRemove = new List<IPAddress>();
-            List<IPAddress> ipsToBlock = new List<IPAddress>();
-
-            //also remove IPS from ban list when they have been blocked "long enough"
-            foreach (KeyValuePair<IPAddress, DateTime> kvp in _blockedIPsToDate)
+            lock (_syncObject)
             {
-                if (kvp.Value.Add(new TimeSpan(0, 0, LockTime)) < System.DateTime.Now)
+                List<IPAddress> ipsToRemove = new List<IPAddress>();
+                List<IPAddress> ipsToBlock = new List<IPAddress>();
+
+                //also remove IPS from ban list when they have been blocked "long enough"
+                foreach (KeyValuePair<IPAddress, DateTime> kvp in _blockedIPsToDate)
                 {
-                    ipsToRemove.Add(kvp.Key);
+                    if (kvp.Value.Add(new TimeSpan(0, 0, LockTime)) < DateTime.Now)
+                    {
+                        ipsToRemove.Add(kvp.Key);
+                    }
+                    else
+                    {
+                        ipsToBlock.Add(kvp.Key);
+                    }
                 }
-                else
-                {
-                    ipsToBlock.Add(kvp.Key);
-                }
+
+                foreach (IPAddress ipToRemove in ipsToRemove)
+                    _blockedIPsToDate.Remove(ipToRemove);
+
+                return ipsToBlock;
             }
-
-            foreach (IPAddress ipToRemove in ipsToRemove)
-                _blockedIPsToDate.Remove(ipToRemove);
-
-            return ipsToBlock;
         }
 
         public override List<IPAddress> GetPermaBanVictims()
         {
-            List<IPAddress> permaList = new List<IPAddress>();
-            foreach (KeyValuePair<IPAddress, int> kvp in _bannedCount.Where(p=>p.Value>=PermaBanCount))
+            lock (_syncObject)
             {
-                permaList.Add(kvp.Key);
-                _logger.Dump($"Permanently banned {kvp.Value} (strike count was over {PermaBanCount}) ", SeverityLevel.Info);
-            }
-            foreach (IPAddress ip in permaList)
-                _bannedCount.Remove(ip);
+                List<IPAddress> permaList = new List<IPAddress>();
+                foreach (KeyValuePair<IPAddress, int> kvp in _bannedCount.Where(p => p.Value >= PermaBanCount))
+                {
+                    permaList.Add(kvp.Key);
+                    _logger.Dump($"Permanently banned {kvp.Value} (strike count was over {PermaBanCount}) ", SeverityLevel.Info);
+                }
+                foreach (IPAddress ip in permaList)
+                    _bannedCount.Remove(ip);
 
-            return permaList;
+                return permaList;
+            }
         }
 
         protected override void OnComputeEvents(List<ExtractedEventRecord> events)
@@ -144,18 +151,30 @@ namespace EvlWatcher.Tasks
                 }
             }
 
-            foreach (KeyValuePair<IPAddress, int> kvp in sourceToCount)
+            lock (_syncObject)
             {
-                if (kvp.Value >= TriggerCount && !_blockedIPsToDate.ContainsKey(kvp.Key))
+                foreach (KeyValuePair<IPAddress, int> kvp in sourceToCount)
                 {
-                    _blockedIPsToDate.Add(kvp.Key, DateTime.Now);
-                    if (!_bannedCount.ContainsKey(kvp.Key))
-                        _bannedCount[kvp.Key] = 1;
-                    else
-                        _bannedCount[kvp.Key] += 1;
+                    if (kvp.Value >= TriggerCount && !_blockedIPsToDate.ContainsKey(kvp.Key))
+                    {
+                        _blockedIPsToDate.Add(kvp.Key, DateTime.Now);
+                        if (!_bannedCount.ContainsKey(kvp.Key))
+                            _bannedCount[kvp.Key] = 1;
+                        else
+                            _bannedCount[kvp.Key] += 1;
 
-                    _logger.Dump($"Temporarily banning {kvp.Key}, this is strike {_bannedCount[kvp.Key]}", SeverityLevel.Info);
+                        _logger.Dump($"Temporarily banning {kvp.Key}, this is strike {_bannedCount[kvp.Key]}", SeverityLevel.Info);
+                    }
                 }
+            }
+        }
+
+        public override void Forget(IPAddress address)
+        {
+            lock (_syncObject)
+            {
+                _blockedIPsToDate.Remove(address);
+                _bannedCount.Remove(address);
             }
         }
 

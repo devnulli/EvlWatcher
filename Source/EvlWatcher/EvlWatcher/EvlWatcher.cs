@@ -611,6 +611,22 @@ namespace EvlWatcher
             _serviceconfiguration.EventLogInterval = checkInterval;
         }
 
+        public void RemoveTemporaryBan(IPAddress address)
+        {
+            EnsureClientPrivileges();
+
+            lock (_syncObject)
+            {
+                _logger.Dump($"Removing IP {address} from temporary ban list", SeverityLevel.Info);
+                foreach (var ipBlockingTask in _logTasks.Where(t => t is IPBlockingLogTask).Select(t => t as IPBlockingLogTask))
+                {
+                    ipBlockingTask.Forget(address);
+                }
+                _lastBannedIPs.Remove(address);
+                _firewallApi.AdjustIPBanList(_lastBannedIPs);
+            }
+        }
+
         #endregion
     }
 }
