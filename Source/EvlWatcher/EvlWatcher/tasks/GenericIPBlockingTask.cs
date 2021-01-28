@@ -139,7 +139,7 @@ namespace EvlWatcher.Tasks
                         else
                             sourceToCount[ipAddress]++;
 
-                        _logger.Dump($"{Name}: found {ipAddress}, trigger count is {sourceToCount[ipAddress]}", SeverityLevel.Info);
+                        _logger.Dump($"{Name}: found {ipAddress}, trigger count is {sourceToCount[ipAddress]}", SeverityLevel.Verbose);
                     }
                 }
             }
