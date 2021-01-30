@@ -53,7 +53,10 @@ It's made to cover all sorts of brute force attacks out of the box, but can also
 
 ## The Console (EvlWatcherConsole.exe).
 
-You can use the console (in the binary directory of EvlWatcher) *(NO, we dont make desktop links, start menu entries, ...)* to see how your service is doing.
+You can use the console to see how your service is doing.
+The console can be found in the start menu, or in the installation folder. 
+
+The service keeps running, no matter if you have the console open or closed.. 
 
 There are several tabs in the console.
 
