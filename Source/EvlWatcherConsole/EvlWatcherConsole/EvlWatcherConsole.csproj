@@ -60,6 +60,9 @@
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\EvlWatcher.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="EvlWatcher.WCF">
       <HintPath>..\..\EvlWatcher\EvlWatcher.WCF\bin\Debug\EvlWatcher.WCF.dll</HintPath>
@@ -86,7 +89,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Model\EvlWatcherModel.cs" />
-    <Compile Include="Model\EvlWatcherTask.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="MVVMBase\GuiObject.cs" />
     <Compile Include="MVVMBase\RelayCommand.cs" />
