@@ -1,4 +1,4 @@
-# _What's EvlWatcher 2?_
+# _What's EvlWatcher?_
 
 It's basically a fail2ban for windows. Its goals are also mainly what we love about fail2ban:
 - *pre-configured*
