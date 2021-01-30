@@ -60,6 +60,9 @@
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\EvlWatcher.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="EvlWatcher.WCF">
       <HintPath>..\..\EvlWatcher\EvlWatcher.WCF\bin\Debug\EvlWatcher.WCF.dll</HintPath>
