@@ -64,7 +64,7 @@ namespace EvlWatcher.SystemAPI
                 rule.EdgeTraversal = false;
                 rule.LocalAddresses = "*";
                 rule.Name = "EvlWatcher";
-                rule.Profiles = 2147483647; // = means all Profiles
+                rule.Profiles = int.MaxValue;// = means all Profiles
                 rule.Protocol = 256;
                 policies.Rules.Add(rule);
             }
