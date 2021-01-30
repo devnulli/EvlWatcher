@@ -76,12 +76,6 @@ namespace EvlWatcherConsole.Model
             }
         }
 
-        public IQueryable<EvlWatcherTask> GetTasks()
-        {
-            //var tasks = Service.GetTasks();
-            throw new NotImplementedException();
-        }
-
         public void AddWhiteListEntry(string s)
         {
             lock (_syncObject)
