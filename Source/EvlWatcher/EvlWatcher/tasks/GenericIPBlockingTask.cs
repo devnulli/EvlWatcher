@@ -38,6 +38,7 @@ namespace EvlWatcher.Tasks
 
         private readonly object _syncObject = new object();
         private readonly Dictionary<IPAddress, DateTime> _blockedIPsToDate = new Dictionary<IPAddress, DateTime>();
+        private readonly Dictionary<IPAddress, DateTime> _forgetIPsToDate = new Dictionary<IPAddress, DateTime>();
         private readonly Dictionary<IPAddress, int> _bannedCount = new Dictionary<IPAddress, int>();
         private readonly ILogger _logger;
 
@@ -82,6 +83,11 @@ namespace EvlWatcher.Tasks
                         ipsToBlock.Add(kvp.Key);
                     }
                 }
+
+                //also remove forgotten IPs when its been a while
+                List<IPAddress> removeFromForgottenList = _forgetIPsToDate.Where(p => DateTime.Now.AddHours(-1) > p.Value).Select(p=>p.Key).ToList();
+                foreach (var ip in removeFromForgottenList)
+                    removeFromForgottenList.Remove(ip);
 
                 foreach (IPAddress ipToRemove in ipsToRemove)
                     _blockedIPsToDate.Remove(ipToRemove);
@@ -140,6 +146,11 @@ namespace EvlWatcher.Tasks
                 {
                     if (m.Groups.Count == 2 && IPAddress.TryParse(m.Groups[1].Value, out IPAddress ipAddress))
                     {
+                        if (_forgetIPsToDate.ContainsKey(ipAddress))
+                        {
+                            _logger.Dump($"{Name}: found {ipAddress} but ignored it (was recently removed from autoban list)", SeverityLevel.Info);
+                            continue;
+                        }
                         
                         if (!sourceToCount.ContainsKey(ipAddress))
                             sourceToCount.Add(ipAddress, 1);
@@ -174,6 +185,10 @@ namespace EvlWatcher.Tasks
             lock (_syncObject)
             {
                 _blockedIPsToDate.Remove(address);
+
+                if (!_forgetIPsToDate.ContainsKey(address))
+                    _forgetIPsToDate.Add(address, DateTime.Now);
+
                 _bannedCount.Remove(address);
             }
         }
