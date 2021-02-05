@@ -42,5 +42,9 @@ namespace EvlWatcher.WCF
         [OperationContract]
         [FaultContract(typeof(ServiceFaultDTO))]
         void SaveGlobalConfig(SeverityLevelDTO logLevel, int consoleBackLog, int checkInterval);
+
+        [OperationContract]
+        [FaultContract(typeof(ServiceFaultDTO))]
+        void RemoveTemporaryBan(IPAddress address);
     }
 }

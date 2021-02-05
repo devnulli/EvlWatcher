@@ -138,6 +138,11 @@ namespace EvlWatcherConsole.Model
             Service.SaveGlobalConfig(logLevel, consoleBackLog, checkInterval);
         }
 
+        internal void RemoveTemporaryBan(IPAddress selectedTemporaryIP)
+        {
+            Service.RemoveTemporaryBan(selectedTemporaryIP);
+        }
+
         #endregion
     }
 }

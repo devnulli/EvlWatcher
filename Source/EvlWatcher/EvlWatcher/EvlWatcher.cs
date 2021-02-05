@@ -394,7 +394,6 @@ namespace EvlWatcher
                     }
                 }
 
-
                 //start monitoring the logs
                 while (true)
                 {
@@ -469,7 +468,6 @@ namespace EvlWatcher
 
                         _logger.Dump($"Scanning finished in {DateTime.Now.Subtract(scanStart).TotalMilliseconds}[ms] ", SeverityLevel.Debug);
 
-
                         //then supply the events to the requesting tasks
                         foreach (string key in requiredEventTypesToLogTasks.Keys)
                         {
@@ -513,7 +511,6 @@ namespace EvlWatcher
                                     SetPermanentBanInternal(perma);
 
                                 List<IPAddress> blockedIPs = ipTask.GetTempBanVictims();
-
 
                                 _logger.Dump($"Polled {t.Name} and got {blockedIPs.Count} temporary and {_serviceconfiguration.BlacklistAddresses.Count()} permanent ban(s)", SeverityLevel.Verbose);
 
@@ -609,6 +606,22 @@ namespace EvlWatcher
             _serviceconfiguration.LogLevel = (SeverityLevel) Enum.Parse(typeof(SeverityLevel), logLevel.ToString());
             _serviceconfiguration.ConsoleBackLog = consoleBackLog;
             _serviceconfiguration.EventLogInterval = checkInterval;
+        }
+
+        public void RemoveTemporaryBan(IPAddress address)
+        {
+            EnsureClientPrivileges();
+
+            lock (_syncObject)
+            {
+                _logger.Dump($"Removing IP {address} from temporary ban list", SeverityLevel.Info);
+                foreach (var ipBlockingTask in _logTasks.Where(t => t is IPBlockingLogTask).Select(t => t as IPBlockingLogTask))
+                {
+                    ipBlockingTask.Forget(address);
+                }
+                _lastPolledTempBans.Remove(address);
+                PushBanList();
+            }
         }
 
         #endregion
