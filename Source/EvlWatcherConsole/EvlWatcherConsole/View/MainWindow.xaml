@@ -40,11 +40,15 @@
                                 <ColumnDefinition></ColumnDefinition>
                                 <ColumnDefinition Width="30"></ColumnDefinition>
                                 <ColumnDefinition Width="30"></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="1" Command="{Binding MoveTemporaryToPermaCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Move to permanent ban list">
+                            <Button Grid.Column="1" Margin="5,5,5,5" Command="{Binding RemoveTemporaryBanCommand}" IsEnabled="{Binding IsServiceResponding}" ToolTip="Remove the selected IP from the temporary ban list">
+                                <Image Source="pack://application:,,,/Resources/close_32.ico"></Image>
+                            </Button>
+                            <Button Grid.Column="2" Command="{Binding MoveTemporaryToPermaCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Move to permanent ban list">
                                 <Image Source="pack://application:,,,/Resources/lock_32.ico"></Image>
                             </Button>
-                            <Button Grid.Column="2" Command="{Binding MoveTemporaryToWhiteListCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Whitelist this IP">
+                            <Button Grid.Column="3" Command="{Binding MoveTemporaryToWhiteListCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Whitelist this IP">
                                 <Image Source="pack://application:,,,/Resources/lock_open_32.ico"></Image>
                             </Button>
                         </Grid>

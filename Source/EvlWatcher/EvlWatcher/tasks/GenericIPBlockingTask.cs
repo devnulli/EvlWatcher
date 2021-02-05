@@ -146,7 +146,7 @@ namespace EvlWatcher.Tasks
                 {
                     if (m.Groups.Count == 2 && IPAddress.TryParse(m.Groups[1].Value, out IPAddress ipAddress))
                     {
-                        if (_forgetIPsToDate.ContainsKey(ipAddress))
+                        if (_forgetIPsToDate.ContainsKey(ipAddress) && _forgetIPsToDate[ipAddress] > e.TimeCreated )
                         {
                             _logger.Dump($"{Name}: found {ipAddress} but ignored it (was recently removed from autoban list)", SeverityLevel.Info);
                             continue;
