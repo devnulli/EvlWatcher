@@ -188,6 +188,8 @@ namespace EvlWatcher.Tasks
 
                 if (!_forgetIPsToDate.ContainsKey(address))
                     _forgetIPsToDate.Add(address, DateTime.Now);
+                else
+                    _forgetIPsToDate[address] = DateTime.Now;
 
                 _bannedCount.Remove(address);
             }
