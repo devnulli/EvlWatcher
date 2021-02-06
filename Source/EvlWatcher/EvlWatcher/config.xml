@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Config>
+<Config version="1">
   <Global>
 
     <!-- Levels are: Off, Critical, Warning, Error, Info, Verbose, Debug. Loglevel means written to EventLog, ConsoleLevel means viewable in Console-->
