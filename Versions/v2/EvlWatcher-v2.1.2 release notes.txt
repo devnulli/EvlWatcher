@@ -1,0 +1,14 @@
+EvlWatcher v2.1.2 release notes.
+----------------------------------
+
+- a small typo in the license was fixed
+- severity of some messages was adjusted (moved from info to verbose) to keep a cleaner event log
+- it contains minor bugfixes and corrections, but nothing interesting apart from that its signed now.
+- the console app now has a start menu entry
+- the console app had some beauty fixes
+- added ability to remove temp bans
+- fixes a bug with forgetting ips
+- replaces te old 'middle finger' with a more safe for work image
+
+
+

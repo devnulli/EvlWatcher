@@ -1,5 +1,15 @@
 ## NEWS 
 
+### 2021-06-03 release of v.2. was completed
+- a small typo in the license was fixed
+- severity of some messages was adjusted (moved from info to verbose) to keep a cleaner event log
+- it contains minor bugfixes and corrections, but nothing interesting apart from that its signed now.
+- the console app now has a start menu entry
+- the console app had some beauty fixes
+- added ability to remove temp bans
+- fixes a bug with forgetting ips
+- replaces te old 'middle finger' with a more safe for work image
+
 ### 2020-12-28 preparing the release of v2.1 
 - first, i want to say THANK YOU, to everyone who donated
 - finally, we have received enough donations, so we can sign the next release. (and afford 3 beers on top of that)
