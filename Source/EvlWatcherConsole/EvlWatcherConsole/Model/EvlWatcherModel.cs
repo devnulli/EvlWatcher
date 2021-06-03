@@ -76,12 +76,6 @@ namespace EvlWatcherConsole.Model
             }
         }
 
-        public IQueryable<EvlWatcherTask> GetTasks()
-        {
-            //var tasks = Service.GetTasks();
-            throw new NotImplementedException();
-        }
-
         public void AddWhiteListEntry(string s)
         {
             lock (_syncObject)
@@ -142,6 +136,11 @@ namespace EvlWatcherConsole.Model
         internal void SaveGlobalConfig(SeverityLevelDTO logLevel, int consoleBackLog, int checkInterval)
         {
             Service.SaveGlobalConfig(logLevel, consoleBackLog, checkInterval);
+        }
+
+        internal void RemoveTemporaryBan(IPAddress selectedTemporaryIP)
+        {
+            Service.RemoveTemporaryBan(selectedTemporaryIP);
         }
 
         #endregion

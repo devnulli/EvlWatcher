@@ -2,7 +2,7 @@ Name "EvlWatcher"
 
 ; The file to write
 Icon EvlWatcher.ico
-OutFile "EvlWatcher-v2.0 setup.exe"
+OutFile "EvlWatcher-v2.1.2-setup.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\EvlWatcher
@@ -43,20 +43,12 @@ Section "EvlWatcher Service"
 
   ;;;;;;;;MODULES HERE;;;;;;;;;;
 
-  Delete $INSTDIR\BlockRDPBruters.dll
-  Delete $INSTDIR\BlockFTPBruters.dll
-  Delete $INSTDIR\BlockFTPBruters.cfg
-
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  Delete $INSTDIR\Interop.NetFwTypeLib.dll
   Delete $INSTDIR\EvlWatcher.exe
-  Delete $INSTDIR\gpl-3.0.txt
   Delete $INSTDIR\license.txt
-  Delete $INSTDIR\source.zip
   Delete $INSTDIR\config.xml
   Delete $INSTDIR\EvlWatcherConsole.exe
-  Delete $INSTDIR\EvlWatcher.ico
   Delete $INSTDIR\EvlWatcher.WCF.dll
 
   ; Set output path to the installation directory.
@@ -91,6 +83,13 @@ Section "EvlWatcher Service"
 
 SectionEnd
 
+Section "Start Menu Entry"
+
+  CreateDirectory "$SMPROGRAMS\EvlWatcher"
+  CreateShortCut "$SMPROGRAMS\EvlWatcher\EvlWatcherConsole.lnk" "$INSTDIR\EvlWatcherConsole.exe"
+
+SectionEnd
+
 ;;;;;;;MODULES HERE;;;;;;;;;;
 
 
@@ -108,6 +107,9 @@ Section "Uninstall"
 
   Sleep 5000
 
+	Delete "$SMPROGRAMS\EvlWatcher\EvlWatcherConsole.lnk"
+	rmDir "$SMPROGRAMS\EvlWatcher"
+
   ; Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EvlWatcher"
   DeleteRegKey HKLM SOFTWARE\EvlWatcher
@@ -116,36 +118,14 @@ Section "Uninstall"
 
   ;;;;;;;;MODULES HERE;;;;;;;;;;;
 
-  Delete $INSTDIR\BlockRDPBruters.dll
-  Delete $INSTDIR\BlockFTPBruters.dll
-  Delete $INSTDIR\BlockFTPBruters.cfg
-
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  Delete $INSTDIR\Interop.NetFwTypeLib.dll
   Delete $INSTDIR\EvlWatcher.exe
-  Delete $INSTDIR\gpl-3.0.txt
   Delete $INSTDIR\license.txt
   Delete $INSTDIR\config.xml
   Delete $INSTDIR\EvlWatcherConsole.exe
-  Delete $INSTDIR\source.zip
-  Delete $INSTDIR\EvlWatcher.ico
   Delete $INSTDIR\EvlWatcher.WCF.dll
-
-  Delete $INSTDIR\Source\Constants.cs
-  Delete $INSTDIR\Source\FirewallAPI.cs
-  Delete $INSTDIR\Source\Installer.cs
-  Delete $INSTDIR\Source\IPBlockingLogTask.cs
-  Delete $INSTDIR\Source\EvlWatcher.cs
-  Delete $INSTDIR\Source\LogTask.cs
   
-  ;;;;;;;;;MODULES HERE;;;;;;;;;;;;;;;;
-  
-  Delete $INSTDIR\Source\LogTaskBlockRDPBruters.cs
-  Delete $INSTDIR\Source\LogTaskBlockFTPBruters.cs
-  Delete $INSTDIR\Source\BlockFTPBruters.cfg
-
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   Delete $INSTDIR\uninstall.exe
 

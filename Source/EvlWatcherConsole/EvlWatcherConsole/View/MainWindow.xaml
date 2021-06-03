@@ -32,7 +32,7 @@
                         <Label Grid.ColumnSpan="2">temporarily banned IPs:</Label>
                         <ListView Grid.Row="1" SelectedItem="{Binding SelectedTemporaryIP}" IsEnabled="{Binding IsServiceResponding}" ItemsSource="{Binding TemporarilyBannedIPs}" Grid.ColumnSpan="2">
                             <ListBox.Background>
-                                <ImageBrush ImageSource="pack://application:,,,/Resources/Dtjohnnymonkey-Stopwatch-no-shading.png" TileMode="None" Opacity="0.25"/>
+                                <ImageBrush ImageSource="pack://application:,,,/Resources/Dtjohnnymonkey-Stopwatch-no-shading.png" Stretch="Uniform" TileMode="None" Opacity="0.25"/>
                             </ListBox.Background>
                         </ListView>
                         <Grid Grid.Row="2" Grid.ColumnSpan="2">
@@ -40,11 +40,15 @@
                                 <ColumnDefinition></ColumnDefinition>
                                 <ColumnDefinition Width="30"></ColumnDefinition>
                                 <ColumnDefinition Width="30"></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="1" Command="{Binding MoveTemporaryToPermaCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Move to permanent ban list">
+                            <Button Grid.Column="1" Margin="5,5,5,5" Command="{Binding RemoveTemporaryBanCommand}" IsEnabled="{Binding IsServiceResponding}" ToolTip="Remove the selected IP from the temporary ban list">
+                                <Image Source="pack://application:,,,/Resources/close_32.ico"></Image>
+                            </Button>
+                            <Button Grid.Column="2" Command="{Binding MoveTemporaryToPermaCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Move to permanent ban list">
                                 <Image Source="pack://application:,,,/Resources/lock_32.ico"></Image>
                             </Button>
-                            <Button Grid.Column="2" Command="{Binding MoveTemporaryToWhiteListCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Whitelist this IP">
+                            <Button Grid.Column="3" Command="{Binding MoveTemporaryToWhiteListCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Whitelist this IP">
                                 <Image Source="pack://application:,,,/Resources/lock_open_32.ico"></Image>
                             </Button>
                         </Grid>
@@ -52,13 +56,13 @@
                     <Grid Margin="5,5,5,5" Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="30"></RowDefinition>
-                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>  
                             <RowDefinition Height="30"></RowDefinition>
                         </Grid.RowDefinitions>
                         <Label>permanently banned IPs:</Label>
                         <ListView Grid.Row="1" SelectedItem="{Binding SelectedPermanentIP}" IsEnabled="{Binding IsServiceResponding}" ItemsSource="{Binding PermanentlyBannedIPs}">
                             <ListBox.Background>
-                                <ImageBrush ImageSource="pack://application:,,,/Resources/149667-3f51b5.png" TileMode="None" Opacity="0.25"/>
+                                <ImageBrush ImageSource="pack://application:,,,/Resources/1200px-ProhibitionSign2.svg.png" Stretch="Uniform" TileMode="None" Opacity="0.25"/>
                             </ListBox.Background>
                         </ListView>
                         <Grid Grid.Row="2">
@@ -85,7 +89,7 @@
                         <Label>white-listed IP Patterns:</Label>
                         <ListView FontWeight="DemiBold" Grid.Row="1" SelectedItem="{Binding SelectedWhiteListPattern}" IsEnabled="{Binding IsServiceResponding}" ItemsSource="{Binding WhiteListedPatterns}">
                             <ListBox.Background>
-                                <ImageBrush ImageSource="pack://application:,,,/Resources/49090725942_794806e948_b.jpg" TileMode="None" Opacity="0.25"/>
+                                <ImageBrush ImageSource="pack://application:,,,/Resources/49090725942_794806e948_b.jpg" Stretch="Uniform" TileMode="None" Opacity="0.25"/>
                             </ListBox.Background>
 
                         </ListView>

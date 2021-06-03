@@ -472,6 +472,16 @@ namespace EvlWatcherConsole.ViewModel
             }
         }
 
+        
+        public ICommand RemoveTemporaryBanCommand
+        {
+            get
+            {
+                return new RelayCommand(p =>
+                { _model.RemoveTemporaryBan(SelectedTemporaryIP); }, p => SelectedTemporaryIP != null && IsServiceResponding );
+            }
+        }
+
         public ICommand AddPermaBanCommand
         {
             get

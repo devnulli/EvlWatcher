@@ -10,5 +10,7 @@ namespace EvlWatcher.Tasks
     {
         public abstract List<IPAddress> GetTempBanVictims();
         public abstract List<IPAddress> GetPermaBanVictims();
+
+        public abstract void Forget(IPAddress address);
     }
 }
