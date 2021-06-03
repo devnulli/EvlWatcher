@@ -5,7 +5,7 @@ It's basically a fail2ban for windows. Its goals are also mainly what we love ab
 - *no-initial-fucking-around-with-scripts-or-config-files*
 - *install-and-forget*
 
-You can download it [here](https://github.com/devnulli/EvlWatcher/blob/master/Versions/v2/EvlWatcher-v2.1.2-setup.exe) ( v.2.1.2 - June 2021 ).
+You can download it [here](https://github.com/devnulli/EvlWatcher/blob/master/Versions/v2/EvlWatcher-v2.1.2-setup.exe) ( v2.1.2 - June 2021 ).
 
 ## Also, we love issues!
 
