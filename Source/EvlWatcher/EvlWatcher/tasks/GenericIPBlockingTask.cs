@@ -101,13 +101,16 @@ namespace EvlWatcher.Tasks
             lock (_syncObject)
             {
                 List<IPAddress> permaList = new List<IPAddress>();
-                foreach (KeyValuePair<IPAddress, int> kvp in _bannedCount.Where(p => p.Value >= PermaBanCount))
+                if (PermaBanCount >= 0)
                 {
-                    permaList.Add(kvp.Key);
-                    _logger.Dump($"Permanently banned {kvp.Value} (strike count was over {PermaBanCount}) ", SeverityLevel.Info);
+                    foreach (KeyValuePair<IPAddress, int> kvp in _bannedCount.Where(p => p.Value >= PermaBanCount))
+                    {
+                        permaList.Add(kvp.Key);
+                        _logger.Dump($"Permanently banned {kvp.Value} (strike count was over {PermaBanCount}) ", SeverityLevel.Info);
+                    }
+                    foreach (IPAddress ip in permaList)
+                        _bannedCount.Remove(ip);
                 }
-                foreach (IPAddress ip in permaList)
-                    _bannedCount.Remove(ip);
 
                 return permaList;
             }

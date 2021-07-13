@@ -46,7 +46,7 @@
         5
       </TriggerCount>
 
-      <!-- after this amount of times temporarily banned, the ban will become permanent -->
+      <!-- after this amount of times temporarily banned, the ban will become permanent (enter a negative number to disable permanent bans) -->
       <PermaBanCount>
         3
       </PermaBanCount>
@@ -96,7 +96,7 @@
         5
       </TriggerCount>
 
-      <!-- after this amount of times temporarily banned, the ban will become permanent -->
+      <!-- after this amount of times temporarily banned, the ban will become permanent (enter a negative number to disable permanent bans) -->
       <PermaBanCount>
         3
       </PermaBanCount>
@@ -145,7 +145,7 @@
           5
         </TriggerCount>
 
-        <!-- after this amount of times temporarily banned, the ban will become permanent -->
+        <!-- after this amount of times temporarily banned, the ban will become permanent (enter a negative number to disable permanent bans) -->
         <PermaBanCount>
           3
         </PermaBanCount>
