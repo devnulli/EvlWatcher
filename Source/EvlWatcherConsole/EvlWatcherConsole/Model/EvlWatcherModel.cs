@@ -143,6 +143,11 @@ namespace EvlWatcherConsole.Model
             Service.RemoveTemporaryBan(selectedTemporaryIP);
         }
 
+        internal void AddPermanentIPBans(IPAddress[] iPAddresses)
+        {
+            Service.SetPermanentBans(iPAddresses);
+        }
+
         #endregion
     }
 }
