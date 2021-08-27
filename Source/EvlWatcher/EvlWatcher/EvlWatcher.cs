@@ -142,7 +142,7 @@ namespace EvlWatcher
         {
             EnsureClientPrivileges();
 
-            SetPermanentBanInternal(address);
+            SetPermanentBanInternal(new IPAddress[] { address });
         }
 
         public void ClearPermanentBan(IPAddress address)
@@ -508,8 +508,7 @@ namespace EvlWatcher
                         {
                             if (t is IPBlockingLogTask ipTask)
                             {
-                                foreach (IPAddress perma in ipTask.GetPermaBanVictims())
-                                    SetPermanentBanInternal(perma);
+                                SetPermanentBanInternal(ipTask.GetPermaBanVictims().ToArray());
 
                                 List<IPAddress> blockedIPs = ipTask.GetTempBanVictims();
 
@@ -569,9 +568,10 @@ namespace EvlWatcher
             }
         }
 
-        private void SetPermanentBanInternal(IPAddress address)
+        private void SetPermanentBanInternal(IPAddress[] addressList)
         {
-            _serviceconfiguration.AddBlackListAddress(address);
+            foreach (IPAddress address in addressList)
+                _serviceconfiguration.AddBlackListAddress(address);
 
             PushBanList();
         }
@@ -623,6 +623,13 @@ namespace EvlWatcher
                 _lastPolledTempBans.Remove(address);
                 PushBanList();
             }
+        }
+
+        public void SetPermanentBans(IPAddress[] addressList)
+        {
+            EnsureClientPrivileges();
+
+            SetPermanentBanInternal(addressList);
         }
 
         #endregion

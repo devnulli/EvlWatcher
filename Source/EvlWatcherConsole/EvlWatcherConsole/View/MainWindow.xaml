@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:EvlWatcherConsole.ViewModel"
-        Title="EvlWatcher v2.0 Console" Height="650" Width="825" MinHeight="650" MinWidth="825" Icon="pack://application:,,,/Resources/EvlWatcher.ico" WindowStyle="ThreeDBorderWindow">
+        Title="EvlWatcher v2.1.3 Console" Height="650" Width="825" MinHeight="650" MinWidth="825" Icon="pack://application:,,,/Resources/EvlWatcher.ico" WindowStyle="ThreeDBorderWindow">
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
@@ -41,6 +41,7 @@
                                 <ColumnDefinition Width="30"></ColumnDefinition>
                                 <ColumnDefinition Width="30"></ColumnDefinition>
                                 <ColumnDefinition Width="30"></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="1" Margin="5,5,5,5" Command="{Binding RemoveTemporaryBanCommand}" IsEnabled="{Binding IsServiceResponding}" ToolTip="Remove the selected IP from the temporary ban list">
                                 <Image Source="pack://application:,,,/Resources/close_32.ico"></Image>
@@ -48,7 +49,10 @@
                             <Button Grid.Column="2" Command="{Binding MoveTemporaryToPermaCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Move to permanent ban list">
                                 <Image Source="pack://application:,,,/Resources/lock_32.ico"></Image>
                             </Button>
-                            <Button Grid.Column="3" Command="{Binding MoveTemporaryToWhiteListCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Whitelist this IP">
+                            <Button Grid.Column="3" BorderThickness="3" Command="{Binding MoveAllTemporaryToPermaCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding CanAddTemporaryToPerma}" ToolTip="Move all IPS to permanent ban list">
+                                <Image Source="pack://application:,,,/Resources/lock_32.ico"></Image>
+                            </Button>
+                            <Button Grid.Column="4" Command="{Binding MoveTemporaryToWhiteListCommand}" Margin="5,5,5,5" Grid.Row="2" IsEnabled="{Binding IsServiceResponding}" ToolTip="Whitelist this IP">
                                 <Image Source="pack://application:,,,/Resources/lock_open_32.ico"></Image>
                             </Button>
                         </Grid>

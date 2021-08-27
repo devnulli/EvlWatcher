@@ -25,6 +25,9 @@ namespace EvlWatcher.WCF
         void SetPermanentBan(IPAddress address);
         [OperationContract]
         [FaultContract(typeof(ServiceFaultDTO))]
+        void SetPermanentBans(IPAddress[] address);
+        [OperationContract]
+        [FaultContract(typeof(ServiceFaultDTO))]
         void ClearPermanentBan(IPAddress address);
         [OperationContract]
         [FaultContract(typeof(ServiceFaultDTO))]
