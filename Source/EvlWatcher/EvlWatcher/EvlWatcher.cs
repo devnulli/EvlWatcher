@@ -181,6 +181,7 @@ namespace EvlWatcher
                 List<IPAddress> result = new List<IPAddress>(_lastPolledTempBans);
 
                 result.RemoveAll(p => _serviceconfiguration.BlacklistAddresses.Contains(p));
+                result.RemoveAll(p => IsWhiteListed(p));
 
                 return result.ToArray();
             }
