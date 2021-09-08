@@ -78,7 +78,7 @@ Section "EvlWatcher Service"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EvlWatcher" "NoRepair" 1
   WriteUninstaller "uninstall.exe"
   
-  nsSCM::Install /NOUNLOAD "EvlWatcher" "EvlWatcher service" 16 2 "$INSTDIR\EvlWatcher.exe" "" "" "" ""
+  nsSCM::Install /NOUNLOAD "EvlWatcher" "EvlWatcher service" 16 2 "$\"$INSTDIR\EvlWatcher.exe$\"" "" "" "" ""
   nsSCM::Start /NOUNLOAD "EvlWatcher"
 
 SectionEnd
