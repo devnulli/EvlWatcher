@@ -1,6 +1,14 @@
 ## NEWS 
 
-### 2021-06-03 release of v.2. was completed
+### 2021-06-03 release of v.2.1.3 was completed
+- a negative perma-ban setting means that perma banning is disabled 
+- whitelisted ips will - though they are not really banned - no longer show up in the temp ban list of the console
+- there is now a button that will add all temporary bans to the permanent ban list 
+- will now protect openssh out of the box
+- fixed a potential security issue 
+- tasks that rely on log sources that are not present are now disabled, instead of throwing an error on every iteration (30 secs default)
+
+### 2021-06-03 release of v.2.1.2 was completed
 - a small typo in the license was fixed
 - severity of some messages was adjusted (moved from info to verbose) to keep a cleaner event log
 - it contains minor bugfixes and corrections, but nothing interesting apart from that its signed now.

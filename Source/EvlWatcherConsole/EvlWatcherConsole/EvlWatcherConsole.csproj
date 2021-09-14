@@ -65,7 +65,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EvlWatcher.WCF">
-      <HintPath>..\..\EvlWatcher\EvlWatcher.WCF\bin\Debug\EvlWatcher.WCF.dll</HintPath>
+      <HintPath>..\..\EvlWatcher\EvlWatcher.WCF\bin\Release\EvlWatcher.WCF.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
