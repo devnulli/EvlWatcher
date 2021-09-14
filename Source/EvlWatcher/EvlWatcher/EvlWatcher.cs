@@ -44,7 +44,7 @@ namespace EvlWatcher
         /// <summary>
         /// all loaded tasks
         /// </summary>
-        private static readonly IList<LogTask> _logTasks = new List<LogTask>();
+        private static readonly List<LogTask> _logTasks = new List<LogTask>();
 
         /// <summary>
         /// adds some extra output
@@ -297,7 +297,6 @@ namespace EvlWatcher
         /// <summary>
         /// creates generic log tasks from configuration
         /// </summary>
-        /// <param name="d"></param>
         private void InitWorkersFromConfig(IQueryable<IPersistentTaskConfiguration> taskConfigurations)
         {
             lock (_syncObject)
@@ -410,7 +409,7 @@ namespace EvlWatcher
                         eventTypesToTimeFramedEvents.Clear();
 
                         //first read all relevant events (events that are required by any of the tasks)
-                        foreach (string requiredEventType in requiredEventTypesToLogTasks.Keys)
+                        foreach (string requiredEventType in requiredEventTypesToLogTasks.Keys.ToList())
                         {
                             _logger.Dump($"Scanning {requiredEventType}", SeverityLevel.Debug);
                             eventTypesToNewEvents.Add(requiredEventType, new List<ExtractedEventRecord>());
@@ -463,7 +462,10 @@ namespace EvlWatcher
                             }
                             catch (EventLogNotFoundException)
                             {
-                                _logger.Dump($"Event Log {requiredEventType} was not found, tasks that require these events will not work", SeverityLevel.Error);
+                                _logger.Dump($"Event Log {requiredEventType} was not found, tasks that require these events will not work and are disabled.", SeverityLevel.Info);
+                                _logTasks.RemoveAll(l => l.EventPath.Contains(requiredEventType));
+                                requiredEventTypesToLogTasks.Remove(requiredEventType);
+
                             }
                         }
 
