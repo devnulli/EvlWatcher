@@ -4,7 +4,7 @@ If there is anything you can contribute, PLEASE do so, for whatever reason (spec
 Just make a pull request, and request it to be merged. If there are any issues you resolve with the pull request, make sure to link to them.
 
 ## Making a pull request.
-There is always branch for version that is currently up next (for example "v2.1.3" ). When you make a pull request, please let it base on that branch, never on master.
+There is always branch for version that is currently up next (for example "v2.1.4" ). When you make a pull request, please let it base on that branch, never on master.
 Thats all.
 
 Every once in a while, all the things in the new version branch will be put to the test and finally become a new release.

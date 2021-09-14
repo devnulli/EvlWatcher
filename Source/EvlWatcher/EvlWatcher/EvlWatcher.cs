@@ -44,7 +44,7 @@ namespace EvlWatcher
         /// <summary>
         /// all loaded tasks
         /// </summary>
-        private static readonly IList<LogTask> _logTasks = new List<LogTask>();
+        private static readonly List<LogTask> _logTasks = new List<LogTask>();
 
         /// <summary>
         /// adds some extra output
@@ -142,7 +142,7 @@ namespace EvlWatcher
         {
             EnsureClientPrivileges();
 
-            SetPermanentBanInternal(address);
+            SetPermanentBanInternal(new IPAddress[] { address });
         }
 
         public void ClearPermanentBan(IPAddress address)
@@ -181,6 +181,7 @@ namespace EvlWatcher
                 List<IPAddress> result = new List<IPAddress>(_lastPolledTempBans);
 
                 result.RemoveAll(p => _serviceconfiguration.BlacklistAddresses.Contains(p));
+                result.RemoveAll(p => IsWhiteListed(p));
 
                 return result.ToArray();
             }
@@ -296,7 +297,6 @@ namespace EvlWatcher
         /// <summary>
         /// creates generic log tasks from configuration
         /// </summary>
-        /// <param name="d"></param>
         private void InitWorkersFromConfig(IQueryable<IPersistentTaskConfiguration> taskConfigurations)
         {
             lock (_syncObject)
@@ -409,7 +409,7 @@ namespace EvlWatcher
                         eventTypesToTimeFramedEvents.Clear();
 
                         //first read all relevant events (events that are required by any of the tasks)
-                        foreach (string requiredEventType in requiredEventTypesToLogTasks.Keys)
+                        foreach (string requiredEventType in requiredEventTypesToLogTasks.Keys.ToList())
                         {
                             _logger.Dump($"Scanning {requiredEventType}", SeverityLevel.Debug);
                             eventTypesToNewEvents.Add(requiredEventType, new List<ExtractedEventRecord>());
@@ -462,7 +462,10 @@ namespace EvlWatcher
                             }
                             catch (EventLogNotFoundException)
                             {
-                                _logger.Dump($"Event Log {requiredEventType} was not found, tasks that require these events will not work", SeverityLevel.Error);
+                                _logger.Dump($"Event Log {requiredEventType} was not found, tasks that require these events will not work and are disabled.", SeverityLevel.Info);
+                                _logTasks.RemoveAll(l => l.EventPath.Contains(requiredEventType));
+                                requiredEventTypesToLogTasks.Remove(requiredEventType);
+
                             }
                         }
 
@@ -507,8 +510,7 @@ namespace EvlWatcher
                         {
                             if (t is IPBlockingLogTask ipTask)
                             {
-                                foreach (IPAddress perma in ipTask.GetPermaBanVictims())
-                                    SetPermanentBanInternal(perma);
+                                SetPermanentBanInternal(ipTask.GetPermaBanVictims().ToArray());
 
                                 List<IPAddress> blockedIPs = ipTask.GetTempBanVictims();
 
@@ -568,9 +570,10 @@ namespace EvlWatcher
             }
         }
 
-        private void SetPermanentBanInternal(IPAddress address)
+        private void SetPermanentBanInternal(IPAddress[] addressList)
         {
-            _serviceconfiguration.AddBlackListAddress(address);
+            foreach (IPAddress address in addressList)
+                _serviceconfiguration.AddBlackListAddress(address);
 
             PushBanList();
         }
@@ -622,6 +625,13 @@ namespace EvlWatcher
                 _lastPolledTempBans.Remove(address);
                 PushBanList();
             }
+        }
+
+        public void SetPermanentBans(IPAddress[] addressList)
+        {
+            EnsureClientPrivileges();
+
+            SetPermanentBanInternal(addressList);
         }
 
         #endregion

@@ -52,9 +52,15 @@ namespace EvlWatcherConsole.ViewModel
 
         public MainWindowViewModel()
         {
+            TemporarilyBannedIPs.CollectionChanged += TemporarilyBannedIPs_CollectionChanged;
             _model = new EvlWatcherModel();
 
             StartUpdating();
+        }
+
+        private void TemporarilyBannedIPs_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            Notify(nameof(CanAddTemporaryToPerma));
         }
 
         ~MainWindowViewModel()
@@ -229,6 +235,8 @@ namespace EvlWatcherConsole.ViewModel
             }
         }
 
+        public bool CanAddTemporaryToPerma => IsServiceResponding && TemporarilyBannedIPs.Count > 0;
+
         public string CurrentTaskRegex
         {
             get
@@ -401,6 +409,14 @@ namespace EvlWatcherConsole.ViewModel
                 return new RelayCommand(p => { _model.AddPermanentIPBan(SelectedTemporaryIP); }, p => { return SelectedTemporaryIP != null; });
             }
         }
+        public ICommand MoveAllTemporaryToPermaCommand
+        {
+            get
+            {
+                return new RelayCommand(p => { _model.AddPermanentIPBans(TemporarilyBannedIPs.ToArray()); }, p => { return CanAddTemporaryToPerma; });
+            }
+        }
+
 
         public bool IsIPTabSelected
         {
@@ -554,6 +570,7 @@ namespace EvlWatcherConsole.ViewModel
             {
                 _isServiceResponding = value;
                 Notify(nameof(IsServiceResponding));
+                Notify(nameof(CanAddTemporaryToPerma));
             }
         }
 
