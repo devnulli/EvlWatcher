@@ -5,7 +5,7 @@
 - whitelisted ips will - though they are not really banned - no longer show up in the temp ban list of the console
 - there is now a button that will add all temporary bans to the permanent ban list 
 - will now protect openssh out of the box
-- fixed a potential security issue 
+- fixed a potential security issue (unqoted service path)
 - tasks that rely on log sources that are not present are now disabled, instead of throwing an error on every iteration (30 secs default)
 
 ### 2021-06-03 release of v.2.1.2 was completed
