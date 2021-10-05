@@ -33,6 +33,10 @@ You can, of course, adjust the rules to your liking. They are basically a consis
 
 Run the setup executable. It is not required that you remove previous versions of EvlWatcher, the installer will take care of that.
 
+## Silent installation
+
+By the way, when you run the setup executable with the /S parameter, it will install silently (e.g. no UI). This can be used for remote or mass roll-outs of EvlWatcher, i.e via group policy.
+
 ## After you have installed EvlWatcher
 
 You now have 2 things installed, 
