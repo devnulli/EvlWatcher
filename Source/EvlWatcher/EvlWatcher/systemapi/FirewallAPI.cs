@@ -128,6 +128,7 @@ namespace EvlWatcher.SystemAPI
             {
                 if (rule.Enabled)
                 {
+                    rule.RemoteAddresses = "";
                     rule.Enabled = false;
                     changed = true;
                 }
@@ -168,7 +169,7 @@ namespace EvlWatcher.SystemAPI
         {
             List<string> currentlyBannedIPs = new List<string>();
 
-            INetFwRule fwRule = GetFwRule();
+            INetFwRule fwRule = GetOrCreateEvlWatcherRule();
 
             if (fwRule.Enabled)
             {

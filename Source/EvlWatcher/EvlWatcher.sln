@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30621.155
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvlWatcher", "EvlWatcher\EvlWatcher.csproj", "{90F8BC2A-B0FC-4960-8290-3FFADBDE85AC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvlWatcher.WCF", "EvlWatcher.WCF\EvlWatcher.WCF.csproj", "{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvlWatcher.Tests.Integration", "EvlWatcher.Tests.Integration\EvlWatcher.Tests.Integration.csproj", "{40304822-224A-4926-B0C6-64D7324EA77C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +42,18 @@ Global
 		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Release|x86.ActiveCfg = Release|Any CPU
 		{AB65EA0D-F9E8-4AEE-B1BC-1691A2BF9E13}.Release|x86.Build.0 = Release|Any CPU
+		{40304822-224A-4926-B0C6-64D7324EA77C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40304822-224A-4926-B0C6-64D7324EA77C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40304822-224A-4926-B0C6-64D7324EA77C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{40304822-224A-4926-B0C6-64D7324EA77C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{40304822-224A-4926-B0C6-64D7324EA77C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{40304822-224A-4926-B0C6-64D7324EA77C}.Debug|x86.Build.0 = Debug|Any CPU
+		{40304822-224A-4926-B0C6-64D7324EA77C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40304822-224A-4926-B0C6-64D7324EA77C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40304822-224A-4926-B0C6-64D7324EA77C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{40304822-224A-4926-B0C6-64D7324EA77C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{40304822-224A-4926-B0C6-64D7324EA77C}.Release|x86.ActiveCfg = Release|Any CPU
+		{40304822-224A-4926-B0C6-64D7324EA77C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
