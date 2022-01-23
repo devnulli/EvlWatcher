@@ -35,10 +35,10 @@ namespace EvlWatcher.SystemAPI
 
         private INetFwRule GetOrCreateEvlWatcherRule()
         {
-            return GetOrCreateEvlWatcherRule(true);
+            return GetOrCreateIPv4Rule(true);
         }
 
-        private INetFwRule GetOrCreateEvlWatcherRule(bool create)
+        private INetFwRule GetOrCreateIPv4Rule(bool create)
         {
             INetFwPolicy2 policies = GetPolicy2();
             INetFwRule rule = null;
@@ -111,7 +111,7 @@ namespace EvlWatcher.SystemAPI
 
         public void ClearIPBanList()
         {
-            INetFwRule rule = GetOrCreateEvlWatcherRule(false);
+            INetFwRule rule = GetOrCreateIPv4Rule(false);
             if (rule != null)
                 GetPolicy2().Rules.Remove(rule.Name);
         }
@@ -128,6 +128,7 @@ namespace EvlWatcher.SystemAPI
             {
                 if (rule.Enabled)
                 {
+                    rule.RemoteAddresses = "";
                     rule.Enabled = false;
                     changed = true;
                 }
@@ -145,6 +146,8 @@ namespace EvlWatcher.SystemAPI
 
                     if (s.ToString().Contains("."))
                         remoteAdresses += s + "/255.255.255.255";
+                    else
+                        remoteAdresses += s; //no netmask for ipv6?
                 }
 
                 if (rule.RemoteAddresses != remoteAdresses)
@@ -161,14 +164,14 @@ namespace EvlWatcher.SystemAPI
             }
 
             return changed;
-            
+
         }
-     
+
         public List<string> GetBannedIPs()
         {
             List<string> currentlyBannedIPs = new List<string>();
 
-            INetFwRule fwRule = GetFwRule();
+            INetFwRule fwRule = GetOrCreateEvlWatcherRule();
 
             if (fwRule.Enabled)
             {
@@ -176,7 +179,7 @@ namespace EvlWatcher.SystemAPI
                 if (remoteAddresses != null)
                 {
                     foreach (string s in remoteAddresses.Split(','))
-                        currentlyBannedIPs.Add(s);
+                        currentlyBannedIPs.Add(s.Contains("-") ? s.Split('-')[0] : s);
                 }
             }
 
@@ -196,13 +199,13 @@ namespace EvlWatcher.SystemAPI
                     // TODO: dispose managed state (managed objects)
                 }
 
-                if(_fwRule != null)
+                if (_fwRule != null)
                 {
                     Marshal.ReleaseComObject(_fwRule);
                     _fwRule = null;
                 }
 
-                if(_fwPolicy2 == null)
+                if (_fwPolicy2 == null)
                 {
                     Marshal.ReleaseComObject(_fwPolicy2);
                     _fwPolicy2 = null;

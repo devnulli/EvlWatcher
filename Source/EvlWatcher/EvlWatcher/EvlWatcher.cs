@@ -583,7 +583,7 @@ namespace EvlWatcher
 
         #region public static operations
 
-        public static void Main(string[] args)
+        public static void Main()
         {
             //build dependencies
             ILogger logger = new DefaultLogger();
