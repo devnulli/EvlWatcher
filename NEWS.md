@@ -1,5 +1,9 @@
 ## NEWS 
 
+### 2022-01-22 release of v.2.1.4 was completed
+- basic ipv6 support
+- certificate was renewed
+
 ### 2021-06-03 release of v.2.1.3 was completed
 - a negative perma-ban setting means that perma banning is disabled 
 - whitelisted ips will - though they are not really banned - no longer show up in the temp ban list of the console
