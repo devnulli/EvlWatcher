@@ -1,0 +1,9 @@
+EvlWatcher v2.1.4 release notes.
+----------------------------------
+
+-certifcate was renewed
+-added basic ipv6 support
+
+
+
+
