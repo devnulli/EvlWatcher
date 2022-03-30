@@ -12,7 +12,7 @@ namespace EvlWatcher.Logging
         public SeverityLevel LogLevel { get; set; } = SeverityLevel.Warning;
 
         private int ConsoleHistoryMaxCount { get; set; } = 1000;
-        private IList<LogEntry> ConsoleHistory { get; set; } = new List<LogEntry>();
+        private IList<LogEntry> ConsoleHistory { get; } = new List<LogEntry>();
 
         private void ManageConsoleHistory(string message, SeverityLevel severity, DateTime date)
         {
