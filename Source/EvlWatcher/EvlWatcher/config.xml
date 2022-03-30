@@ -31,7 +31,13 @@
 				3600
 			</LockTime>
 
-			<!-- this is used for rules that only need new events for evaluating. If you dont know what this does, leave it set to false-->
+			<!-- this is used for rules that only need new events for evaluating.
+			      - If you dont know what this does, leave it set to false
+				  
+				  - If you set this to true, it means that the task will only receive events it has not already received
+				  
+				  - If you set this to false, it means that the task will receive all events of its timeframe, everytime it is polled 
+				     (e.g. task gets events provided until they fall out of the timeframe)-->
 			<OnlyNew>
 				False
 			</OnlyNew>
@@ -83,8 +89,11 @@
 
 			<!-- this is used for rules that only need new events for evaluating.
 			      - If you dont know what this does, leave it set to false
+				  
 				  - If you set this to true, it means that the task will only receive events it has not already received
-				  - If you set this to false, it means that the task will receive all events of its timeframe, everytime it is polled (e.g. gets events provided until they fall out of the timeframe)-->
+				  
+				  - If you set this to false, it means that the task will receive all events of its timeframe, everytime it is polled 
+				     (e.g. task gets events provided until they fall out of the timeframe)-->
 			<OnlyNew>
 				False
 			</OnlyNew>
@@ -133,7 +142,13 @@
 				3600
 			</LockTime>
 
-			<!-- this is used for rules that only need new events for evaluating. If you dont know what this does, leave it set to false-->
+			<!-- this is used for rules that only need new events for evaluating.
+			      - If you dont know what this does, leave it set to false
+				  
+				  - If you set this to true, it means that the task will only receive events it has not already received
+				  
+				  - If you set this to false, it means that the task will receive all events of its timeframe, everytime it is polled 
+				     (e.g. task gets events provided until they fall out of the timeframe)-->
 			<OnlyNew>
 				False
 			</OnlyNew>
@@ -180,10 +195,18 @@
 			<LockTime>
 				3600
 			</LockTime>
-			<!-- this is used for rules that only need new events for evaluating. If you dont know what this does, leave it set to false-->
+			
+			<!-- this is used for rules that only need new events for evaluating.
+			      - If you dont know what this does, leave it set to false
+				  
+				  - If you set this to true, it means that the task will only receive events it has not already received
+				  
+				  - If you set this to false, it means that the task will receive all events of its timeframe, everytime it is polled 
+				     (e.g. task gets events provided until they fall out of the timeframe)-->
 			<OnlyNew>
 				False
 			</OnlyNew>
+			
 			<!-- this is the timeframe (in seconds) to be inspected-->
 			<EventAge>
 				120
@@ -220,7 +243,14 @@
 			<LockTime>
 				3600
 			</LockTime>
-			<!-- this is used for rules that only need new events for evaluating. If you dont know what this does, leave it set to false-->
+			
+			<!-- this is used for rules that only need new events for evaluating.
+			      - If you dont know what this does, leave it set to false
+				  
+				  - If you set this to true, it means that the task will only receive events it has not already received
+				  
+				  - If you set this to false, it means that the task will receive all events of its timeframe, everytime it is polled 
+				     (e.g. task gets events provided until they fall out of the timeframe)-->
 			<OnlyNew>
 				False
 			</OnlyNew>
