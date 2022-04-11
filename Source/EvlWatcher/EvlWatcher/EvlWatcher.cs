@@ -45,6 +45,7 @@ namespace EvlWatcher
         /// all loaded tasks
         /// </summary>
         private static readonly List<LogTask> _logTasks = new List<LogTask>();
+        private static readonly Dictionary<LogTask, DateTime> _logTasksPerfWarningIssued = new Dictionary<LogTask, DateTime>();
 
         /// <summary>
         /// adds some extra output
@@ -498,7 +499,13 @@ namespace EvlWatcher
                                         t.ProvideEvents(eventsForThisTask);
 
                                         if (DateTime.Now.Subtract(start).TotalMilliseconds > 1000)
-                                            _logger.Dump($"Warning: Task {t.Name} takes a lot of resources. This can have different reasons, maybe you get a lot of events (problems in domain configuration, stale hidden credentials..), or the event processing is too slow. This can cause EvlWatcher to produce CPU spikes. Try better boosters, or try to find the root problem,", SeverityLevel.Warning);
+                                        {
+                                            if (!_logTasksPerfWarningIssued.ContainsKey(t) || DateTime.Now > _logTasksPerfWarningIssued[t].AddHours(24))
+                                            {
+                                                _logger.Dump($"Warning: Task {t.Name} takes a lot of resources. This can have different reasons, maybe you get a lot of events (problems in domain configuration, stale hidden credentials..), or the event processing is too slow. This can cause EvlWatcher to produce CPU spikes. Try better boosters, or try to find the root problem,", SeverityLevel.Warning);
+                                                _logTasksPerfWarningIssued[t] = DateTime.Now;
+                                            }
+                                        }
                                     }
                                 }
                             }
