@@ -8,11 +8,11 @@ namespace EvlWatcher.Logging
 {
     internal class DefaultLogger : ILogger
     {
-        private object _syncObject = new object();
+        private readonly object _syncObject = new object();
         public SeverityLevel LogLevel { get; set; } = SeverityLevel.Warning;
 
         private int ConsoleHistoryMaxCount { get; set; } = 1000;
-        private IList<LogEntry> ConsoleHistory { get; set; } = new List<LogEntry>();
+        private IList<LogEntry> ConsoleHistory { get; } = new List<LogEntry>();
 
         private void ManageConsoleHistory(string message, SeverityLevel severity, DateTime date)
         {

@@ -16,6 +16,7 @@ using System.ServiceModel;
 using System.ServiceProcess;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Diagnostics;
 
 namespace EvlWatcher
 {
@@ -45,6 +46,7 @@ namespace EvlWatcher
         /// all loaded tasks
         /// </summary>
         private static readonly List<LogTask> _logTasks = new List<LogTask>();
+        private static readonly Dictionary<LogTask, DateTime> _logTasksPerfWarningIssued = new Dictionary<LogTask, DateTime>();
 
         /// <summary>
         /// adds some extra output
@@ -331,6 +333,7 @@ namespace EvlWatcher
                     .Union(_serviceconfiguration.BlacklistAddresses)
                     .Distinct()
                     .Where(address => !IsWhiteListed(address))
+                    .Where(address => !address.Equals(IPAddress.Any))
                     .ToList();
 
                 _firewallApi.AdjustIPBanList(banList);
@@ -492,40 +495,48 @@ namespace EvlWatcher
 
                                     if (eventsForThisTask.Count > 0)
                                     {
-                                        DateTime start = DateTime.Now;
+                                        var start = Stopwatch.GetTimestamp();
 
                                         t.ProvideEvents(eventsForThisTask);
 
-                                        if (DateTime.Now.Subtract(start).TotalMilliseconds > 500)
-                                            _logger.Dump($"Warning: Task {t.Name} takes a lot of resources. This can make your server vulnerable to DOS attacks. Try better boosters.", SeverityLevel.Warning);
+                                        var end = Stopwatch.GetTimestamp();
+
+                                        if (end - start > 50000000)
+                                        {
+                                            if (!_logTasksPerfWarningIssued.ContainsKey(t) || DateTime.Now > _logTasksPerfWarningIssued[t].AddHours(24))
+                                            {
+                                                _logger.Dump($"Warning: Task {t.Name} takes a lot of resources. This can have different reasons, maybe you get a lot of events (problems in domain configuration, stale hidden credentials..), or the event processing is too slow. This can cause EvlWatcher to produce CPU spikes. Try better boosters, or try to find the root problem,", SeverityLevel.Warning);
+                                                _logTasksPerfWarningIssued[t] = DateTime.Now;
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
 
-                        List<IPAddress> blackList = new List<IPAddress>();
+                        List<IPAddress> polledTempBansOfThisCycle = new List<IPAddress>();
+                        List<IPAddress> polledPermaBansOfThisCycle = new List<IPAddress>();
 
                         //let the tasks poll which ips they want to have blocked / or permanently banned
                         foreach (LogTask t in _logTasks)
                         {
                             if (t is IPBlockingLogTask ipTask)
                             {
-                                SetPermanentBanInternal(ipTask.GetPermaBanVictims().ToArray());
+                                List<IPAddress> polledTempBansOfThisTask = ipTask.GetTempBanVictims();
+                                List<IPAddress> polledPermaBansOfThisTask = ipTask.GetPermaBanVictims();
 
-                                List<IPAddress> blockedIPs = ipTask.GetTempBanVictims();
+                                _logger.Dump($"Polled {t.Name} and got {polledTempBansOfThisTask.Count} temporary and {polledPermaBansOfThisTask.Count()} permanent ban(s)", SeverityLevel.Verbose);
 
-                                _logger.Dump($"Polled {t.Name} and got {blockedIPs.Count} temporary and {_serviceconfiguration.BlacklistAddresses.Count()} permanent ban(s)", SeverityLevel.Verbose);
-
-                                foreach (IPAddress blockedIP in blockedIPs)
-                                    if (!blackList.Contains(blockedIP))
-                                        blackList.Add(blockedIP);
+                                polledPermaBansOfThisCycle.AddRange(polledPermaBansOfThisTask.Where(ip => !polledPermaBansOfThisCycle.Contains(ip)).ToList());
+                                polledTempBansOfThisCycle.AddRange(polledTempBansOfThisTask.Where(ip => !polledTempBansOfThisCycle.Contains(ip)).ToList());
                             }
                         }
 
                         _logger.Dump($"\r\n-----Cycle complete, sleeping {_serviceconfiguration.EventLogInterval} s......\r\n", SeverityLevel.Debug);
-                        
-                        _lastPolledTempBans = blackList;
 
+                        SetPermanentBanInternal(polledPermaBansOfThisCycle.ToArray(), pushBanList: false);
+                        _lastPolledTempBans = polledTempBansOfThisCycle;
+                        
                         PushBanList();
                     }
                     catch (Exception executionException)
@@ -570,12 +581,13 @@ namespace EvlWatcher
             }
         }
 
-        private void SetPermanentBanInternal(IPAddress[] addressList)
+        private void SetPermanentBanInternal(IPAddress[] addressList, bool pushBanList=true)
         {
             foreach (IPAddress address in addressList)
                 _serviceconfiguration.AddBlackListAddress(address);
 
-            PushBanList();
+            if (pushBanList)
+                PushBanList();
         }
 
 
