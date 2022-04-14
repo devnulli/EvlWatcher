@@ -1,5 +1,9 @@
 ## NEWS 
 
+### 2022-04-14 release of v.2.1.5 was completed
+- fixes a bug where a windows misbehaviour could return 0.0.0.0 as offending IP, thus blocking all subnets
+- try to fix a bug where a false positive warning about tasks taking too long are spamming the event logs of EvlWatcher
+
 ### 2022-01-22 release of v.2.1.4 was completed
 - basic ipv6 support
 - certificate was renewed
