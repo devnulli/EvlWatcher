@@ -16,6 +16,7 @@ using System.ServiceModel;
 using System.ServiceProcess;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Diagnostics;
 
 namespace EvlWatcher
 {
@@ -494,11 +495,13 @@ namespace EvlWatcher
 
                                     if (eventsForThisTask.Count > 0)
                                     {
-                                        DateTime start = DateTime.Now;
+                                        var start = Stopwatch.GetTimestamp();
 
                                         t.ProvideEvents(eventsForThisTask);
 
-                                        if (DateTime.Now.Subtract(start).TotalMilliseconds > 1000)
+                                        var end = Stopwatch.GetTimestamp();
+
+                                        if (end - start > 50000000)
                                         {
                                             if (!_logTasksPerfWarningIssued.ContainsKey(t) || DateTime.Now > _logTasksPerfWarningIssued[t].AddHours(24))
                                             {
