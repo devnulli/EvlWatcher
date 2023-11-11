@@ -503,7 +503,7 @@ namespace EvlWatcherConsole.ViewModel
             get
             {
                 return new RelayCommand(p =>
-                   { _model.AddPermanentIPBan(IPAddress.Parse(PermaBanIPString)); PermaBanIPString = ""; }, p => { IPAddress dummy; return IPAddress.TryParse(PermaBanIPString, out dummy) && IsServiceResponding; });
+                   { _model.AddPermanentIPBan(IPAddress.Parse(PermaBanIPString)); PermaBanIPString = ""; }, p => { return IPAddress.TryParse(PermaBanIPString, out IPAddress dummy) && IsServiceResponding; });
             }
         }
 
@@ -631,7 +631,7 @@ namespace EvlWatcherConsole.ViewModel
                 Notify(nameof(LogLevel));
             }
         }
-
+     
         #endregion
     }
 }
