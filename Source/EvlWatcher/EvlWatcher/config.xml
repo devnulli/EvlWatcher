@@ -65,50 +65,6 @@
 				(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)
 			</Regex>
 		</Task>
-		<Task Name="MariaDB" Active="true">
-			<!-- the description ..-->
-			<Description>
-				This rule checks for failed MariaDb root logins.
-			</Description>
-			<!-- this is the time a temporary ban is issued for, in seconds-->
-			<LockTime>
-				3600
-			</LockTime>
-			<!-- this is used for rules that only need new events for evaluating.
- 		      - If you dont know what this does, leave it set to false
- 			  
- 			  - If you set this to true, it means that the task will only receive events it has not already received
- 			  
- 			  - If you set this to false, it means that the task will receive all events of its timeframe, everytime it is polled 
- 			     (e.g. task gets events provided until they fall out of the timeframe)-->
-			<OnlyNew>
-				False
-			</OnlyNew>
-			<!-- this is the timeframe (in seconds) to be inspected-->
-			<EventAge>
-				120
-			</EventAge>
-			<!-- this is the amount of times an entry must occure within the time frame to be considered a brute force attempt-->
-			<TriggerCount>
-				5
-			</TriggerCount>
-			<!-- after this amount of times temporarily banned, the ban will become permanent -->
-			<PermaBanCount>
-				3
-			</PermaBanCount>
-			<!-- This is the place where the rule looks for entries-->
-			<EventPath>
-				Application
-			</EventPath>
-			<!-- This was introduced because sole regex matching is too CPU intensive. it incredibly speeds up the filtering when you enter some (or at least one) words that MUST be contained in the LogEntry to undergo the regex inspection-->
-			<RegexBoosters>
-				<Booster>100</Booster>
-			</RegexBoosters>
-			<!-- This is the regex that tries to extract an IP from the entries that contain the booster words for more infos see regex101.com-->
-			<Regex>
-				&lt;Data&gt;Access denied for user 'root'@'(\d*.\d*.\d*.\d*)
-			</Regex>
-		</Task>
 		<Task Name="BlockRDPBrutersBySecurity4625" Active="true">
 
 			<!-- the description ..-->
@@ -324,6 +280,50 @@
 			</Regex>
 		</Task>
 
+		<Task Name="MariaDB" Active="true">
+			<!-- the description ..-->
+			<Description>
+				This rule checks for failed MariaDb root logins.
+			</Description>
+			<!-- this is the time a temporary ban is issued for, in seconds-->
+			<LockTime>
+				3600
+			</LockTime>
+			<!-- this is used for rules that only need new events for evaluating.
+ 		      - If you dont know what this does, leave it set to false
+ 			  
+ 			  - If you set this to true, it means that the task will only receive events it has not already received
+ 			  
+ 			  - If you set this to false, it means that the task will receive all events of its timeframe, everytime it is polled 
+ 			     (e.g. task gets events provided until they fall out of the timeframe)-->
+			<OnlyNew>
+				False
+			</OnlyNew>
+			<!-- this is the timeframe (in seconds) to be inspected-->
+			<EventAge>
+				120
+			</EventAge>
+			<!-- this is the amount of times an entry must occure within the time frame to be considered a brute force attempt-->
+			<TriggerCount>
+				5
+			</TriggerCount>
+			<!-- after this amount of times temporarily banned, the ban will become permanent -->
+			<PermaBanCount>
+				3
+			</PermaBanCount>
+			<!-- This is the place where the rule looks for entries-->
+			<EventPath>
+				Application
+			</EventPath>
+			<!-- This was introduced because sole regex matching is too CPU intensive. it incredibly speeds up the filtering when you enter some (or at least one) words that MUST be contained in the LogEntry to undergo the regex inspection-->
+			<RegexBoosters>
+				<Booster>100</Booster>
+			</RegexBoosters>
+			<!-- This is the regex that tries to extract an IP from the entries that contain the booster words for more infos see regex101.com-->
+			<Regex>
+				&lt;Data&gt;Access denied for user 'root'@'(\d*.\d*.\d*.\d*)
+			</Regex>
+		</Task>
 		<Task Name="BlockSSHBrutersByOpenSsh" Active="true">
 			<!-- the description ..-->
 			<Description>
@@ -369,6 +369,61 @@
 				(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)
 			</Regex>
 		</Task>
+		<Task Name="BlockSMTPAuthExchangeFrontend" Active="true">
 
+			<!-- the description ..-->
+			<Description>
+				This rule checks the Application Log for Provider MSExchangeFrontEndTransport and LogonDenied
+			</Description>
+
+			<!-- this is the time a temporary ban is issued for, in seconds-->
+			<LockTime>
+				3600
+			</LockTime>
+
+			<!-- this is used for rules that only need new events for evaluating.
+		      - If you dont know what this does, leave it set to false
+			  
+			  - If you set this to true, it means that the task will only receive events it has not already received
+			  
+			  - If you set this to false, it means that the task will receive all events of its timeframe, everytime it is polled 
+			     (e.g. task gets events provided until they fall out of the timeframe)-->
+			<OnlyNew>
+				False
+			</OnlyNew>
+
+			<!-- this is the timeframe (in seconds) to be inspected-->
+			<EventAge>
+				120
+			</EventAge>
+
+			<!-- this is the amount of times an entry must occur within the time frame to be considered a brute force attempt-->
+			<TriggerCount>
+				5
+			</TriggerCount>
+
+			<!-- after this amount of times temporarily banned, the ban will become permanent (enter a negative number to disable permanent bans) -->
+			<PermaBanCount>
+				3
+			</PermaBanCount>
+
+			<!-- This is the place where the rule looks for entries, separated by comma-->
+			<EventPath>
+				Application
+			</EventPath>
+
+			<!-- This was introduced because sole regex matching is too CPU intensive. it incredibly speeds up the filtering when you enter some (or at least one) words that MUST be contained in the LogEntry to undergo the regex inspection-->
+			<RegexBoosters>
+				<Booster>1035</Booster>
+				<Booster>MSExchangeFrontEndTransport</Booster>
+				<Booster>LogonDenied</Booster>
+			</RegexBoosters>
+
+			<!-- This is the regex that tries to extract an IP from the entries that contain the booster words, for testing use regex101.com-->
+			<Regex>
+				&lt;Data&gt;(\d*.\d*.\d*.\d*)&lt;/Data&gt;
+			</Regex>
+
+		</Task>
 	</Tasks>
 </Config>
