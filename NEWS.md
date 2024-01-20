@@ -1,5 +1,10 @@
 ## NEWS 
 
+### 2024-01-20 release of v.2.1.6 was completed
+- adds support for some more protocols (MariaDB, SQLServer, SMB Server, .)
+- you can now copy IPs into the clipboard by pressing Ctrl+C
+- fixes a bug in the whitelist 
+
 ### 2022-04-14 release of v.2.1.5 was completed
 - fixes a bug where a windows misbehaviour could return 0.0.0.0 as offending IP, thus blocking all subnets
 - try to fix a bug where a false positive warning about tasks taking too long are spamming the event logs of EvlWatcher
