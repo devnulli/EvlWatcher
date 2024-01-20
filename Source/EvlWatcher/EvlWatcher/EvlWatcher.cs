@@ -525,7 +525,7 @@ namespace EvlWatcher
                                 List<IPAddress> polledTempBansOfThisTask = ipTask.GetTempBanVictims();
                                 List<IPAddress> polledPermaBansOfThisTask = ipTask.GetPermaBanVictims();
 
-                                _logger.Dump($"Polled {t.Name} and got {polledTempBansOfThisTask.Count} temporary and {polledPermaBansOfThisTask.Count()} permanent ban(s)", SeverityLevel.Verbose);
+                                _logger.Dump($"Polled {t.Name} and got {polledTempBansOfThisTask.Where(p => !IsWhiteListed(p)).Count()} temporary and {polledPermaBansOfThisTask.Where(p => !IsWhiteListed(p)).Count()} permanent ban(s)", SeverityLevel.Verbose);
 
                                 polledPermaBansOfThisCycle.AddRange(polledPermaBansOfThisTask.Where(ip => !polledPermaBansOfThisCycle.Contains(ip)).ToList());
                                 polledTempBansOfThisCycle.AddRange(polledTempBansOfThisTask.Where(ip => !polledTempBansOfThisCycle.Contains(ip)).ToList());
@@ -534,7 +534,7 @@ namespace EvlWatcher
 
                         _logger.Dump($"\r\n-----Cycle complete, sleeping {_serviceconfiguration.EventLogInterval} s......\r\n", SeverityLevel.Debug);
 
-                        SetPermanentBanInternal(polledPermaBansOfThisCycle.ToArray(), pushBanList: false);
+                        SetPermanentBanInternal(polledPermaBansOfThisCycle.Where(p => !IsWhiteListed(p)).ToArray(), pushBanList: false);
                         _lastPolledTempBans = polledTempBansOfThisCycle;
                         
                         PushBanList();
