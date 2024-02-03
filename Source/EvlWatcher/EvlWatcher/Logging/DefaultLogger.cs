@@ -51,7 +51,7 @@ namespace EvlWatcher.Logging
 
         public void Dump(Exception e, SeverityLevel level = SeverityLevel.Error)
         {
-            Dump(e.Message, level);
+            Dump(level == SeverityLevel.Error ? $"{e.Message} {e.StackTrace}" : e.Message, level);
         }
         /// <summary>
         /// Returns Console History, max count is defined in ConsoleHistoryMaxCount
