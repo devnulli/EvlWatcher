@@ -1,0 +1,4 @@
+
+### 2024-05-05 release of v.2.1.61 was completed
+- adds better support for location errors (stacktrace)
+- displays version number correctly

@@ -1,5 +1,9 @@
 ## NEWS 
 
+### 2024-05-05 release of v.2.1.61 was completed
+- adds better support for location errors (stacktrace)
+- displays version number correctly
+
 ### 2024-01-20 release of v.2.1.6 was completed
 - adds support for some more protocols (MariaDB, SQLServer, SMB Server, .)
 - you can now copy IPs into the clipboard by pressing Ctrl+C
