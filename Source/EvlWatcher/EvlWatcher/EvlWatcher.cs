@@ -48,9 +48,6 @@ namespace EvlWatcher
         private static readonly List<LogTask> _logTasks = new List<LogTask>();
         private static readonly Dictionary<LogTask, DateTime> _logTasksPerfWarningIssued = new Dictionary<LogTask, DateTime>();
 
-        /// <summary>
-        /// adds some extra output
-        /// </summary>
 
         private static List<IPAddress> _lastPolledTempBans = new List<IPAddress>();
         private static List<IPAddress> _lastBannedIPs = new List<IPAddress>();

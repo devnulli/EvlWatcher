@@ -46,7 +46,7 @@ namespace EvlWatcher.Tasks
 
         #region internal .ctor
 
-        internal GenericIPBlockingTask(ILogger logger) 
+        internal GenericIPBlockingTask(ILogger logger)
         {
             _logger = logger;
         }
@@ -85,9 +85,9 @@ namespace EvlWatcher.Tasks
                 }
 
                 //also remove forgotten IPs when its been a while
-                List<IPAddress> removeFromForgottenList = _forgetIPsToDate.Where(p => DateTime.Now.AddHours(-1) > p.Value).Select(p=>p.Key).ToList();
+                List<IPAddress> removeFromForgottenList = _forgetIPsToDate.Where(p => DateTime.Now.AddHours(-1) > p.Value).Select(p => p.Key).ToList();
                 foreach (var ip in removeFromForgottenList)
-                    removeFromForgottenList.Remove(ip);
+                    _forgetIPsToDate.Remove(ip);
 
                 foreach (IPAddress ipToRemove in ipsToRemove)
                     _blockedIPsToDate.Remove(ipToRemove);
@@ -118,55 +118,56 @@ namespace EvlWatcher.Tasks
 
         protected override void OnComputeEvents(List<ExtractedEventRecord> events)
         {
-            Dictionary<IPAddress, int> sourceToCount = new Dictionary<IPAddress, int>();
-            foreach (ExtractedEventRecord e in events)
-            {
-                _logger.Dump($"{Name}: Processing Event with timestamp {e.TimeCreated}", SeverityLevel.Debug);
-
-                string xml = e.Xml;
-
-                _logger.Dump($"Checking XML {xml} against boosters..", SeverityLevel.Debug);
-
-                bool abort = false;
-                foreach (string b in Boosters)
-                {
-                    _logger.Dump($"Booster: {b}", SeverityLevel.Debug);
-                    if (!xml.Contains(b))
-                    {
-                        _logger.Dump($"Booster not in XML, aborting.", SeverityLevel.Debug);
-                        abort = true;
-                        break;
-                    }
-                }
-                if (abort)
-                    continue;
-
-
-                _logger.Dump($"Checking XML against Regex {Regex} now..", SeverityLevel.Debug);
-                Match m = Regex.Match(xml);
-
-                if(m.Success)
-                {
-                    if (m.Groups.Count == 2 && IPAddress.TryParse(m.Groups[1].Value, out IPAddress ipAddress))
-                    {
-                        if (_forgetIPsToDate.ContainsKey(ipAddress) && _forgetIPsToDate[ipAddress] > e.TimeCreated )
-                        {
-                            _logger.Dump($"{Name}: found {ipAddress} but ignored it (was recently removed from autoban list)", SeverityLevel.Info);
-                            continue;
-                        }
-                        
-                        if (!sourceToCount.ContainsKey(ipAddress))
-                            sourceToCount.Add(ipAddress, 1);
-                        else
-                            sourceToCount[ipAddress]++;
-
-                        _logger.Dump($"{Name}: found {ipAddress}, trigger count is {sourceToCount[ipAddress]}", SeverityLevel.Verbose);
-                    }
-                }
-            }
-
             lock (_syncObject)
             {
+
+                Dictionary<IPAddress, int> sourceToCount = new Dictionary<IPAddress, int>();
+                foreach (ExtractedEventRecord e in events)
+                {
+                    _logger.Dump($"{Name}: Processing Event with timestamp {e.TimeCreated}", SeverityLevel.Debug);
+
+                    string xml = e.Xml;
+
+                    _logger.Dump($"Checking XML {xml} against boosters..", SeverityLevel.Debug);
+
+                    bool abort = false;
+                    foreach (string b in Boosters)
+                    {
+                        _logger.Dump($"Booster: {b}", SeverityLevel.Debug);
+                        if (!xml.Contains(b))
+                        {
+                            _logger.Dump($"Booster not in XML, aborting.", SeverityLevel.Debug);
+                            abort = true;
+                            break;
+                        }
+                    }
+                    if (abort)
+                        continue;
+
+
+                    _logger.Dump($"Checking XML against Regex {Regex} now..", SeverityLevel.Debug);
+                    Match m = Regex.Match(xml);
+
+                    if (m.Success)
+                    {
+                        if (m.Groups.Count == 2 && IPAddress.TryParse(m.Groups[1].Value, out IPAddress ipAddress))
+                        {
+                            if (_forgetIPsToDate.ContainsKey(ipAddress) && _forgetIPsToDate[ipAddress] > e.TimeCreated)
+                            {
+                                _logger.Dump($"{Name}: found {ipAddress} but ignored it (was recently removed from autoban list)", SeverityLevel.Info);
+                                continue;
+                            }
+
+                            if (!sourceToCount.ContainsKey(ipAddress))
+                                sourceToCount.Add(ipAddress, 1);
+                            else
+                                sourceToCount[ipAddress]++;
+
+                            _logger.Dump($"{Name}: found {ipAddress}, trigger count is {sourceToCount[ipAddress]}", SeverityLevel.Verbose);
+                        }
+                    }
+                }
+
                 foreach (KeyValuePair<IPAddress, int> kvp in sourceToCount)
                 {
                     if (kvp.Value >= TriggerCount && !_blockedIPsToDate.ContainsKey(kvp.Key))

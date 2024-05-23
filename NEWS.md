@@ -1,5 +1,10 @@
 ## NEWS 
 
+### 2024-05-23 release of v.2.1.62 was completed
+- that heisenbug that caused "enumeration changed" errors was fixed
+- turns out, the bug was difficult to reproduce because it happens exactly one hour after manually removing ips from the temporary ban list
+- thanks for reporting the stacktrace
+
 ### 2024-05-05 release of v.2.1.61 was completed
 - adds better support for location errors (stacktrace)
 - displays version number correctly
