@@ -75,7 +75,7 @@ namespace EvlWatcher
         {
             _logger = logger;
             _serviceconfiguration = configuration;
-            _genericTaskFactory = genericTaskFactory;
+            _genericTaskFactory = genericTaskFactory ?? new DefaultGenericTaskFactory(logger, IsWhiteListed);
         }
 
         #endregion
@@ -192,9 +192,9 @@ namespace EvlWatcher
 
             lock (_syncObject)
             {
-                return _logger.GetConsoleHistory().Select(entry => new LogEntryDTO() { 
-                    Date = entry.Date, 
-                    Message = entry.Message, 
+                return _logger.GetConsoleHistory().Select(entry => new LogEntryDTO() {
+                    Date = entry.Date,
+                    Message = entry.Message,
                     Severity = (SeverityLevelDTO)Enum.Parse(typeof(SeverityLevelDTO), entry.Severity.ToString()) }).ToList();
             }
         }
@@ -212,7 +212,7 @@ namespace EvlWatcher
 
             if (disposing)
             {
-                
+
             }
 
             _disposed = true;
@@ -226,7 +226,7 @@ namespace EvlWatcher
             {
                 _serviceHost = new ServiceHost(this, new Uri[] { new Uri("net.pipe://localhost") });
                 var binding = new NetNamedPipeBinding();
-                
+
                 _serviceHost.AddServiceEndpoint(typeof(IEvlWatcherService), binding, "EvlWatcher");
                 _serviceHost.Open();
 
@@ -400,7 +400,7 @@ namespace EvlWatcher
                     DateTime scanStart = DateTime.Now;
 
                     _logger.Dump($"Scanning the logs now.", SeverityLevel.Debug);
-                    
+
 
                     DateTime referenceTimeForTimeFramedEvents = DateTime.Now;
                     try
@@ -436,7 +436,8 @@ namespace EvlWatcher
                                         ExtractedEventRecord eer = new ExtractedEventRecord()
                                         {
                                             TimeCreated = r.TimeCreated.Value,
-                                            Xml = r.ToXml()
+                                            Xml = r.ToXml(),
+                                            Keywords = r.Keywords
                                         };
 
                                         r.Dispose();
@@ -533,7 +534,7 @@ namespace EvlWatcher
 
                         SetPermanentBanInternal(polledPermaBansOfThisCycle.Where(p => !IsWhiteListed(p)).ToArray(), pushBanList: false);
                         _lastPolledTempBans = polledTempBansOfThisCycle;
-                        
+
                         PushBanList();
                     }
                     catch (Exception executionException)
@@ -597,7 +598,8 @@ namespace EvlWatcher
             //build dependencies
             ILogger logger = new DefaultLogger();
             IPersistentServiceConfiguration serviceConfiguration = new XmlServiceConfiguration(logger);
-            IGenericTaskFactory genericTaskFactory = new DefaultGenericTaskFactory(logger);
+            // Factory will be created by EvlWatcher constructor with whitelist checking
+            IGenericTaskFactory genericTaskFactory = null;
 
             if (!Environment.UserInteractive)
             {

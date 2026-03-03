@@ -7,7 +7,7 @@ OutFile "EvlWatcher-v2.1.62-setup.exe"
 ; The default installation directory
 InstallDir $PROGRAMFILES\EvlWatcher
 
-; Registry key to check for directory (so if you install again, it will 
+; Registry key to check for directory (so if you install again, it will
 ; overwrite the old one automatically)
 InstallDirRegKey HKLM "Software\EvlWatcher" "InstallDir"
 
@@ -35,7 +35,7 @@ UninstPage instfiles
 Section "EvlWatcher Service"
 
   SectionIn RO
-  
+
   nsSCM::Stop /NOUNLOAD "EvlWatcher"
   nsSCM::Remove /NOUNLOAD "EvlWatcher"
 
@@ -47,24 +47,27 @@ Section "EvlWatcher Service"
 
   Delete $INSTDIR\EvlWatcher.exe
   Delete $INSTDIR\license.txt
-  Delete $INSTDIR\config.xml
   Delete $INSTDIR\EvlWatcherConsole.exe
   Delete $INSTDIR\EvlWatcher.WCF.dll
 
   ; Set output path to the installation directory.
   SetOutPath $INSTDIR
-  
+
   ; Put file there
 
   File "EvlWatcher.exe"
   File "license.txt"
-  File "config.xml"
+
+  ; Only install config.xml if it doesn't already exist (preserve existing configuration)
+  IfFileExists "$INSTDIR\config.xml" +2
+    File "config.xml"
+
   File "EvlWatcher.WCF.dll"
   File "EvlWatcherConsole.exe"
 
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\EvlWatcher "Install_Dir" "$INSTDIR"
-  
+
   ; Write the uninstall keys for Windows
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EvlWatcher" "DisplayName" "EvlWatcher"
 
@@ -77,7 +80,7 @@ Section "EvlWatcher Service"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EvlWatcher" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EvlWatcher" "NoRepair" 1
   WriteUninstaller "uninstall.exe"
-  
+
   nsSCM::Install /NOUNLOAD "EvlWatcher" "EvlWatcher service" 16 2 "$\"$INSTDIR\EvlWatcher.exe$\"" "" "" "" ""
   nsSCM::Start /NOUNLOAD "EvlWatcher"
 
@@ -101,7 +104,7 @@ SectionEnd
 ; Uninstaller
 
 Section "Uninstall"
-  
+
   nsSCM::Stop /NOUNLOAD "EvlWatcher"
   nsSCM::Remove /NOUNLOAD "EvlWatcher"
 
@@ -125,7 +128,7 @@ Section "Uninstall"
   Delete $INSTDIR\config.xml
   Delete $INSTDIR\EvlWatcherConsole.exe
   Delete $INSTDIR\EvlWatcher.WCF.dll
-  
+
 
   Delete $INSTDIR\uninstall.exe
 

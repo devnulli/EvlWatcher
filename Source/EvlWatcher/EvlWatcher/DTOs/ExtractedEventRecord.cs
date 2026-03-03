@@ -10,5 +10,6 @@ namespace EvlWatcher.DTOs
     {
         public DateTime TimeCreated { get; internal set; }
         public string Xml { get; internal set; }
+        public long? Keywords { get; internal set; }
     }
 }
