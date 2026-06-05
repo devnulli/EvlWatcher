@@ -13,9 +13,9 @@ namespace EvlWatcher.Tasks
     {
         #region static
 
-        internal static GenericIPBlockingTask FromConfiguration(IPersistentTaskConfiguration configuration, ILogger logger)
+        internal static GenericIPBlockingTask FromConfiguration(IPersistentTaskConfiguration configuration, ILogger logger, Func<IPAddress, bool> isWhiteListed)
         {
-            GenericIPBlockingTask t = new GenericIPBlockingTask(logger)
+            GenericIPBlockingTask t = new GenericIPBlockingTask(logger, isWhiteListed)
             {
                 Name = configuration.TaskName,
                 Description = configuration.Description,
@@ -41,14 +41,16 @@ namespace EvlWatcher.Tasks
         private readonly Dictionary<IPAddress, DateTime> _forgetIPsToDate = new Dictionary<IPAddress, DateTime>();
         private readonly Dictionary<IPAddress, int> _bannedCount = new Dictionary<IPAddress, int>();
         private readonly ILogger _logger;
+        private readonly Func<IPAddress, bool> _isWhiteListed;
 
         #endregion
 
         #region internal .ctor
 
-        internal GenericIPBlockingTask(ILogger logger)
+        internal GenericIPBlockingTask(ILogger logger, Func<IPAddress, bool> isWhiteListed)
         {
             _logger = logger;
+            _isWhiteListed = isWhiteListed;
         }
 
         #endregion
@@ -105,8 +107,13 @@ namespace EvlWatcher.Tasks
                 {
                     foreach (KeyValuePair<IPAddress, int> kvp in _bannedCount.Where(p => p.Value >= PermaBanCount))
                     {
+                        if (_isWhiteListed != null && _isWhiteListed(kvp.Key))
+                        {
+                            _logger.Dump($"IP {kvp.Key} reached permaban threshold but is whitelisted", SeverityLevel.Info);
+                            continue;
+                        }
                         permaList.Add(kvp.Key);
-                        _logger.Dump($"Permanently banned {kvp.Value} (strike count was over {PermaBanCount}) ", SeverityLevel.Info);
+                        _logger.Dump($"Permanently banned {kvp.Key} (strike count {kvp.Value} was over {PermaBanCount}) ", SeverityLevel.Info);
                     }
                     foreach (IPAddress ip in permaList)
                         _bannedCount.Remove(ip);
@@ -125,6 +132,13 @@ namespace EvlWatcher.Tasks
                 foreach (ExtractedEventRecord e in events)
                 {
                     _logger.Dump($"{Name}: Processing Event with timestamp {e.TimeCreated}", SeverityLevel.Debug);
+
+                    // Skip Audit Success events (0x8020000000000000) to avoid counting successful logins
+                    if (e.Keywords.HasValue && (unchecked((ulong)e.Keywords.Value) & 0x8020000000000000UL) != 0)
+                    {
+                        _logger.Dump($"{Name}: Skipping Audit Success event", SeverityLevel.Debug);
+                        continue;
+                    }
 
                     string xml = e.Xml;
 
@@ -152,6 +166,12 @@ namespace EvlWatcher.Tasks
                     {
                         if (m.Groups.Count == 2 && IPAddress.TryParse(m.Groups[1].Value, out IPAddress ipAddress))
                         {
+                            if (_isWhiteListed != null && _isWhiteListed(ipAddress))
+                            {
+                                _logger.Dump($"{Name}: found {ipAddress} but ignored it (whitelisted)", SeverityLevel.Debug);
+                                continue;
+                            }
+
                             if (_forgetIPsToDate.ContainsKey(ipAddress) && _forgetIPsToDate[ipAddress] > e.TimeCreated)
                             {
                                 _logger.Dump($"{Name}: found {ipAddress} but ignored it (was recently removed from autoban list)", SeverityLevel.Info);
