@@ -1,4 +1,7 @@
-# _What's EvlWatcher?_
+# This project has been discontinued. 
+Feel free to take it up again. It [served its purpose](https://github.com/devnulli/EvlWatcher/issues/156) but since I moved on from having anything publicly exposed (or using Windows at all) im getting more and more difficulties testing and fixing the issues. Thank you for all the support and positive feedback.
+
+# _What was EvlWatcher?_
 
 It's basically a fail2ban for windows. Its goals are also mainly what we love about fail2ban:
 - *pre-configured*
